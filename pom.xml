@@ -11,6 +11,7 @@
     <modules>
         <module>format-lib</module>
         <module>command-lib</module>
+        <module>item-lib</module>
     </modules>
 
     <properties>
