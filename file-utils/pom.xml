@@ -9,25 +9,19 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>command-lib</artifactId>
-    <name>CommandLib</name>
+    <artifactId>file-utils</artifactId>
 
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-        <reflections.version>0.9.11</reflections.version>
+        <format-lib.verions>1.0.0</format-lib.verions>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>format-lib</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>${reflections.version}</version>
+            <version>${format-lib.version}</version>
         </dependency>
     </dependencies>
 

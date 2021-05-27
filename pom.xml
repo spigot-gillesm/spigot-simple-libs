@@ -12,12 +12,24 @@
         <module>format-lib</module>
         <module>command-lib</module>
         <module>item-lib</module>
+        <module>spell-lib</module>
+        <module>lib-test</module>
+        <module>gui-lib</module>
+        <module>rpg-stats-lib</module>
+        <module>player-lib</module>
+        <module>file-utils</module>
     </modules>
 
     <properties>
+        <java.version>15</java.version>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
         <format-lib.version>1.0.0</format-lib.version>
+        <item-lib.version>1.0.0</item-lib.version>
+        <command-lib.version>1.0.0</command-lib.version>
+        <spell-lib.version>1.0.0</spell-lib.version>
+        <player-lib.version>1.0.0</player-lib.version>
+        <file-utils.version>1.0.0</file-utils.version>
         <spigot.version>1.16.5-R0.1-SNAPSHOT</spigot.version>
         <lombok.version>1.18.20</lombok.version>
     </properties>
@@ -40,6 +52,36 @@
                 <groupId>com.github.spigot_gillesm</groupId>
                 <artifactId>format-lib</artifactId>
                 <version>${format-lib.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.spigot_gillesm</groupId>
+                <artifactId>item-lib</artifactId>
+                <version>${item-lib.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.spigot_gillesm</groupId>
+                <artifactId>command-lib</artifactId>
+                <version>${command-lib.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.spigot_gillesm</groupId>
+                <artifactId>spell-lib</artifactId>
+                <version>${spell-lib.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.spigot_gillesm</groupId>
+                <artifactId>file-utils</artifactId>
+                <version>${file-utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.spigot_gillesm</groupId>
+                <artifactId>player-lib</artifactId>
+                <version>${player-lib.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

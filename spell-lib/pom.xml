@@ -9,25 +9,26 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>command-lib</artifactId>
-    <name>CommandLib</name>
+    <artifactId>spell-lib</artifactId>
+    <name>SpellLib</name>
 
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-        <reflections.version>0.9.11</reflections.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.github.spigot_gillesm</groupId>
-            <artifactId>format-lib</artifactId>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>C:\Users\gille\Desktop\Minecraft\APIs\spigot-1.16.5.jar</systemPath>
         </dependency>
 
         <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>${reflections.version}</version>
+            <groupId>com.github.spigot_gillesm</groupId>
+            <artifactId>format-lib</artifactId>
         </dependency>
     </dependencies>
 

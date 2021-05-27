@@ -2,6 +2,7 @@ package com.github.spigot_gillesm.item_lib;
 
 import com.github.spigot_gillesm.format_lib.Formatter;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -95,27 +96,24 @@ public class SimpleItem {
         }
 
         final var item = new ItemStack(material);
+        final var meta = Bukkit.getServer().getItemFactory().getItemMeta(material);
         item.setAmount(amount);
 
-        if(item.hasItemMeta()) {
-            final var meta = item.getItemMeta();
+        if(meta != null) {
+            meta.setDisplayName(Formatter.colorize(displayName));
+            meta.setLore(Formatter.colorize(lore));
+            meta.addItemFlags(itemFlags);
+            enchantments.forEach((enchantment, level) -> meta.addEnchant(enchantment, level, true));
+            meta.setUnbreakable(unbreakable);
+            meta.setCustomModelData(customModelData);
+            meta.setLocalizedName(localizedName);
+            attributeModifiers.forEach(meta::addAttributeModifier);
 
-            if(meta != null) {
-                meta.setDisplayName(Formatter.colorize(displayName));
-                meta.setLore(Formatter.colorize(lore));
-                meta.addItemFlags(itemFlags);
-                enchantments.forEach((enchantment, level) -> meta.addEnchant(enchantment, level, true));
-                meta.setUnbreakable(unbreakable);
-                meta.setCustomModelData(customModelData);
-                meta.setLocalizedName(localizedName);
-                attributeModifiers.forEach(meta::addAttributeModifier);
-
-                if (meta instanceof Damageable && damage > 0) {
-                    ((Damageable) meta).setDamage(damage);
-                }
-
-                item.setItemMeta(meta);
+            if(meta instanceof Damageable && damage > 0) {
+                ((Damageable) meta).setDamage(damage);
             }
+
+            item.setItemMeta(meta);
         }
 
         return item;
