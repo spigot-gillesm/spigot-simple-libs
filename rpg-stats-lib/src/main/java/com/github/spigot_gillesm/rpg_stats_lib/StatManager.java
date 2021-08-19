@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,12 +19,15 @@ public class StatManager {
 		return holder;
 	}
 
-	public Optional<StatHolder> getHolder(final UUID uuid) {
-		return HOLDERS.stream().filter(h -> h.getUuid().equals(uuid)).findFirst();
+	public StatHolder getHolder(@NotNull final UUID uuid) {
+		return HOLDERS.stream()
+				.filter(h -> h.getUuid().equals(uuid))
+				.findFirst()
+				.orElse(newHolder(uuid));
 	}
 
-	public Optional<StatHolder> getHolder(@NotNull final Player player) {
-		return HOLDERS.stream().filter(h -> h.getUuid().equals(player.getUniqueId())).findFirst();
+	public StatHolder getHolder(@NotNull final Player player) {
+		return getHolder(player.getUniqueId());
 	}
 
 }

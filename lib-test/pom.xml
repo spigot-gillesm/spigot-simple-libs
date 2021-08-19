@@ -9,8 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>lib-test</artifactId>
-    <name>LibTest</name>
+    <artifactId>rp-professions</artifactId>
+    <name>RPProfessions</name>
 
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
@@ -41,7 +41,17 @@
 
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
+            <artifactId>rpg-stats-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>player-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spigot_gillesm</groupId>
+            <artifactId>gui-lib</artifactId>
         </dependency>
 
         <dependency>

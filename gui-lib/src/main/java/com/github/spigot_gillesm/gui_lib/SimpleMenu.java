@@ -39,6 +39,10 @@ public abstract class SimpleMenu {
 	@Setter(AccessLevel.PROTECTED)
 	private boolean cancelReinstantiation = false;
 
+	@Setter(AccessLevel.PROTECTED)
+	@Getter(AccessLevel.PROTECTED)
+	private boolean cancelActions = false;
+
 	@Getter(AccessLevel.PROTECTED)
 	protected Player viewer;
 
@@ -59,16 +63,17 @@ public abstract class SimpleMenu {
 					.build()
 			) {
 				@Override
-				public void action(final Player player, final ClickType click, final ItemStack draggedItem) {
-					setCancelOpen(true);
+				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
+					parentMenu.setCancelReinstantiation(true);
 					parentMenu.display(player);
+					return false;
 				}
 			};
 		}
 	}
 
 	public void display(final Player player) {
-		viewer = player;
+		this.viewer = player;
 
 		if(buttonsRegistered && !cancelReinstantiation) {
 			final SimpleMenu menu = reInstantiate();
@@ -92,7 +97,6 @@ public abstract class SimpleMenu {
 
 	protected SimpleMenu reInstantiate() {
 		try {
-
 			if(parentMenu != null) {
 				for(final Constructor<?> constructor : getClass().getDeclaredConstructors()) {
 					constructor.setAccessible(true);
@@ -116,7 +120,6 @@ public abstract class SimpleMenu {
 		if(SimpleButton.class.isAssignableFrom(field.getType())) {
 			try {
 				final SimpleButton button = (SimpleButton) field.get(this);
-
 				if(button != null) {
 					registeredButtons.add(button);
 				}
@@ -128,7 +131,7 @@ public abstract class SimpleMenu {
 
 	protected List<SimpleButton> registerLastButtons() { return new ArrayList<>(); }
 
-	private void registerButtons() {
+	protected void registerButtons() {
 		registeredButtons.clear();
 		Arrays.stream(getClass().getDeclaredFields()).forEach(this::registerButton);
 		registeredButtons.addAll(registerLastButtons());
@@ -136,6 +139,10 @@ public abstract class SimpleMenu {
 	}
 
 	protected abstract ItemStack getSlotItem(final int slot);
+
+	public void onClose(final Player player) {
+		//default to no effect. Must be overridden
+	}
 
 	private ItemStack getLowerItem(final int slot) {
 		if(returnButton != null && slot == size - 9) {
@@ -152,8 +159,9 @@ public abstract class SimpleMenu {
 	protected ItemStack[] getContent() {
 		final var items = new ItemStack[size];
 
-		for(var i = 0; i < size; i++)
+		for(var i = 0; i < size; i++) {
 			items[i] = getItemAt(i);
+		}
 
 		return items;
 	}
@@ -161,17 +169,14 @@ public abstract class SimpleMenu {
 	public Optional<SimpleButton> getButton(final ItemStack item) {
 		if(returnButton != null && returnButton.getIcon().equals(item)) {
 			return Optional.of(returnButton);
+		} else {
+			return registeredButtons.stream().filter(b -> b.getIcon().isSimilar(item)).findFirst();
 		}
-
-		return registeredButtons.stream().filter(b -> b.getIcon().isSimilar(item)).findFirst();
 	}
 
 	public static SimpleMenu getMenu(final Player player) {
-		if(!player.hasMetadata("MENU")) {
-			return null;
-		}
-
-		return (SimpleMenu) player.getMetadata("MENU").get(0).value();
+		return player.hasMetadata("SIMPLE_MENU") ? (SimpleMenu) player.getMetadata("SIMPLE_MENU").get(0).value()
+				: null;
 	}
 
 }

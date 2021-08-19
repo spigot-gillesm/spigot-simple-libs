@@ -11,6 +11,12 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 
 import java.util.*;
 
@@ -45,6 +51,18 @@ public class SimpleItem {
     private final Map<Enchantment, Integer> enchantments;
 
     @Getter
+    private final PotionType potionType;
+
+    @Getter
+    private final boolean upgraded;
+
+    @Getter
+    private final boolean extended;
+
+    @Getter
+    private final Set<PotionEffect> potionEffects;
+
+    @Getter
     private final boolean unbreakable;
 
     @Getter
@@ -70,6 +88,10 @@ public class SimpleItem {
         this.lore = builder.lore;
         this.itemFlags = builder.itemFlags;
         this.enchantments = builder.enchantments;
+        this.potionType = builder.potionType;
+        this.upgraded = builder.upgraded;
+        this.extended = builder.extended;
+        this.potionEffects = builder.potionEffects;
         this.unbreakable = builder.unbreakable;
         this.customModelData = builder.customModelData;
         this.localizedName = builder.localizedName;
@@ -103,7 +125,20 @@ public class SimpleItem {
             meta.setDisplayName(Formatter.colorize(displayName));
             meta.setLore(Formatter.colorize(lore));
             meta.addItemFlags(itemFlags);
-            enchantments.forEach((enchantment, level) -> meta.addEnchant(enchantment, level, true));
+
+            if(meta instanceof EnchantmentStorageMeta) {
+                enchantments.forEach((enchantment, level) -> ((EnchantmentStorageMeta) meta)
+                        .addStoredEnchant(enchantment, level,true));
+            } else {
+                enchantments.forEach((enchantment, level) -> meta.addEnchant(enchantment, level, true));
+            }
+
+            if(meta instanceof PotionMeta && potionType != null) {
+                var potionMeta = (PotionMeta) meta;
+                potionMeta.setBasePotionData(new PotionData(potionType, extended, upgraded));
+                potionEffects.forEach(e -> potionMeta.addCustomEffect(e, true));
+            }
+
             meta.setUnbreakable(unbreakable);
             meta.setCustomModelData(customModelData);
             meta.setLocalizedName(localizedName);
@@ -144,6 +179,14 @@ public class SimpleItem {
         private ItemFlag[] itemFlags = new ItemFlag[]{};
 
         private Map<Enchantment, Integer> enchantments = new HashMap<>();
+
+        private PotionType potionType;
+
+        private boolean upgraded = false;
+
+        private boolean extended = false;
+
+        private final Set<PotionEffect> potionEffects = new HashSet<>();
 
         private boolean unbreakable = false;
 
@@ -288,6 +331,53 @@ public class SimpleItem {
         public Builder addEnchantment(final Enchantment enchantment, int level) {
             this.enchantments.put(enchantment, level);
             return this;
+        }
+
+        /**
+         * Set the item's option type
+         *
+         * @param type the potion type
+         * @return the builder
+         */
+        public Builder potionType(final PotionType type) {
+            this.potionType = type;
+            return this;
+        }
+
+        public Builder upgraded(final boolean upgraded) {
+            this.upgraded = upgraded;
+            return this;
+        }
+
+        public Builder extended(final boolean extended) {
+            this.extended = extended;
+            return this;
+        }
+
+        public Builder addPotionEffect(final PotionEffect potionEffect) {
+            potionEffects.add(potionEffect);
+            return this;
+        }
+
+        public Builder addPotionEffects(final Collection<PotionEffect> potionEffects) {
+            this.potionEffects.addAll(potionEffects);
+            return this;
+        }
+
+        public Builder addPotionEffects(final PotionEffect... potionEffects) {
+            for(var effect : potionEffects) {
+                addPotionEffect(effect);
+            }
+            return this;
+        }
+
+        public Builder addPotionEffect(final PotionEffectType type, final int duration, final int amplifier,
+                                       final boolean ambient, final boolean particles, final boolean icon) {
+            return addPotionEffect(new PotionEffect(type, duration, amplifier, ambient, particles, icon));
+        }
+
+        public Builder addPotionEffect(final PotionEffectType type, final int duration, final int amplifier) {
+            return addPotionEffect(type, duration, amplifier, true, true, true);
         }
 
         /**

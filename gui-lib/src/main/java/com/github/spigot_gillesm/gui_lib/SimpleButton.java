@@ -24,6 +24,6 @@ public abstract class SimpleButton {
 		this(icon.getItemStack());
 	}
 
-	public abstract void action(Player player, ClickType click, ItemStack draggedItem);
+	public abstract boolean action(Player player, ClickType click, ItemStack draggedItem);
 
 }

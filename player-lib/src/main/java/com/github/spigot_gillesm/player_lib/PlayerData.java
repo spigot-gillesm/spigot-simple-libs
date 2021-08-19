@@ -189,6 +189,24 @@ public class PlayerData {
 	}
 
 	/**
+	 * Remove the tag from the player if it exists.
+	 *
+	 * @param tag the player tag
+	 */
+	public void removeValue(final PlayerTag tag) {
+		removeRawValue(tag.toString());
+	}
+
+	/**
+	 * Remove the tag from the player if it exists.
+	 *
+	 * @param tag the string representing the tag
+	 */
+	public void removeRawValue(final String tag) {
+		getPlayer().ifPresent(player -> player.removeMetadata(tag, PlayerLib.plugin));
+	}
+
+	/**
 	 * Write to the player's data file all the stored tags and their value.
 	 */
 	public void writeToFile() {

@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @UtilityClass
-public class PlayerManager {
+public class DataManager {
 
 	private final Set<PlayerData> REGISTERED_PLAYER_DATA = new HashSet<>();
 

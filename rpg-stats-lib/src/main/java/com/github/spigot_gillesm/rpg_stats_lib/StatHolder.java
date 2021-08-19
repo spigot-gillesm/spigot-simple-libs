@@ -2,7 +2,7 @@ package com.github.spigot_gillesm.rpg_stats_lib;
 
 import lombok.Getter;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -11,7 +11,7 @@ public class StatHolder {
 	@Getter
 	private final UUID uuid;
 
-	private final Map<Statistic, Double> playerStats = new HashMap<>();
+	private final Map<Statistic, Double> playerStats = new EnumMap<>(Statistic.class);
 
 	StatHolder(final UUID uuid) {
 		this.uuid = uuid;
