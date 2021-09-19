@@ -3,6 +3,7 @@ package com.github.spigot_gillesm.lib_test.craft;
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
 import com.github.spigot_gillesm.lib_test.PlayerManager;
+import com.github.spigot_gillesm.lib_test.menu.DynamicCraftMenu;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,13 +35,21 @@ public class CraftItem {
 	@Getter
 	private final ItemStack reagent;
 
-	private CraftItem(final Builder builder) {
+	@Getter
+	private final DynamicCraft dynamicCraft;
+
+	@Getter
+	private final Class<? extends DynamicCraftMenu> dynamicCraftMenu;
+
+	protected CraftItem(final Builder builder) {
 		this.professionType = builder.professionType;
 		this.craftingMenu = builder.craftingMenu;
 		this.item = builder.item;
 		this.amount = builder.amount;
 		this.pattern = fillPattern(builder.pattern);
 		this.reagent = builder.reagent;
+		this.dynamicCraft = builder.dynamicCraft;
+		this.dynamicCraftMenu = builder.dynamicCraftMenu;
 	}
 
 	private ItemStack[] fillPattern(final ItemStack[] items) {
@@ -63,13 +72,21 @@ public class CraftItem {
 			final var menu = SimpleMenu.getMenu(player);
 
 			if(menu != null && menu.getClass().equals(craftingMenu)) {
-				return professionType == PlayerManager.getProfession(player);
+				return professionType == PlayerManager.getProfessionType(player);
 			} else {
 				return false;
 			}
 		} else {
-			return professionType == PlayerManager.getProfession(player);
+			return professionType == PlayerManager.getProfessionType(player);
 		}
+	}
+
+	public boolean isSimilar(final ItemStack itemStack) {
+		return item.isSimilar(itemStack);
+	}
+
+	public boolean hasDynamicCraft() {
+		return dynamicCraft != null;
 	}
 
 	public static Builder newBuilder() {
@@ -90,6 +107,10 @@ public class CraftItem {
 		private final ItemStack[] pattern = new ItemStack[9];
 
 		private ItemStack reagent;
+
+		private DynamicCraft dynamicCraft;
+
+		private Class<? extends DynamicCraftMenu> dynamicCraftMenu;
 
 		public Builder professionType(@NotNull final ProfessionType professionType) {
 			this.professionType = professionType;
@@ -137,12 +158,25 @@ public class CraftItem {
 			return this;
 		}
 
+		public Builder dynamicCraft(final DynamicCraft dynamicCraft) {
+			this.dynamicCraft = dynamicCraft;
+			return this;
+		}
+
+		public Builder dynamicCraftMenu(final Class<? extends DynamicCraftMenu> dynamicCraftMenu) {
+			this.dynamicCraftMenu = dynamicCraftMenu;
+			return this;
+		}
+
 		public CraftItem build() {
 			if(professionType == null) {
 				throw new IllegalArgumentException("Profession type cannot be null.");
 			}
 			if(amount < 1) {
 				throw new IllegalArgumentException("Amount cannot be smaller than 1.");
+			}
+			if(dynamicCraft != null && dynamicCraftMenu == null) {
+				throw new IllegalArgumentException("Dynamic craft menu cannot be null if dynamic craft is set.");
 			}
 			return new CraftItem(this);
 		}

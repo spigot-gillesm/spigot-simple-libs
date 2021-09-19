@@ -36,7 +36,7 @@ public abstract class SimpleMenu {
 	@Setter(AccessLevel.PROTECTED)
 	private String title = "&8Menu";
 
-	@Setter(AccessLevel.PROTECTED)
+	@Setter
 	private boolean cancelReinstantiation = false;
 
 	@Setter(AccessLevel.PROTECTED)
@@ -146,8 +146,8 @@ public abstract class SimpleMenu {
 
 	private ItemStack getLowerItem(final int slot) {
 		if(returnButton != null && slot == size - 9) {
-				return returnButton.getIcon();
-			}
+			return returnButton.getIcon();
+		}
 
 		return null;
 	}

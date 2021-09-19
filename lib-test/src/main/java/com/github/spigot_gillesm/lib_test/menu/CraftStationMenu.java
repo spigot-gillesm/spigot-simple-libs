@@ -1,14 +1,16 @@
 package com.github.spigot_gillesm.lib_test.menu;
 
-import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.gui_lib.SimpleButton;
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
+import com.github.spigot_gillesm.lib_test.PluginUtil;
+import com.github.spigot_gillesm.lib_test.craft.CraftItem;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
@@ -39,29 +41,7 @@ public abstract class CraftStationMenu extends SimpleMenu {
 
 				//Check if patterns match any item, check if player can craft it, check if the result slot is empty
 				if(craftItem.isPresent() && craftItem.get().canCraft(player) && content[RESULT_SLOT] == null) {
-					final var reagents = content[REAGENTS_SLOT];
-
-					//Check if the craft needs reagents
-					if(craftItem.get().getReagent() != null) {
-
-						if(craftItem.get().getReagent().equals(reagents)) {
-							inventory.setItem(RESULT_SLOT, craftItem.get().getResult());
-							//Clear the crafting grid + bottles slot
-							inventory.setItem(REAGENTS_SLOT, null);
-							CRAFTING_SLOTS.forEach(s -> inventory.setItem(s, null));
-							player.getWorld().playSound(player.getLocation(), getCraftSound(), 1, 1);
-
-						} else {
-							Formatter.tell(player, "&cYou need &9" + craftItem.get().getReagent().getAmount() +
-									" " + craftItem.get().getReagent().getItemMeta().getDisplayName() + " &cto create this item!");
-						}
-
-					} else {
-						inventory.setItem(RESULT_SLOT, craftItem.get().getResult());
-						//Clear the crafting grid
-						CRAFTING_SLOTS.forEach(s -> inventory.setItem(s, null));
-						player.getWorld().playSound(player.getLocation(), getCraftSound(), 1, 1);
-					}
+					runCraft(player, inventory, craftItem.get());
 				}
 
 				return false;
@@ -69,6 +49,60 @@ public abstract class CraftStationMenu extends SimpleMenu {
 		};
 		setTitle("&8" + getTitle());
 		setSize(6*9);
+	}
+
+	private void clearGrid(final Player player, final Inventory inventory) {
+		inventory.setItem(REAGENTS_SLOT, null);
+		CRAFTING_SLOTS.forEach(s -> inventory.setItem(s, null));
+		player.getWorld().playSound(player.getLocation(), getCraftSound(), 1, 1);
+	}
+
+	private void runDynamicCraft(final Player player, final CraftItem craftItem) {
+		//Instantiate a new dyn menu
+		final var menu = PluginUtil.instantiateFromClass(craftItem.getDynamicCraftMenu());
+		//Start the craft runnable and attach it to the menu
+		menu.ifPresent(m -> {
+			m.setCraftRunnable(craftItem.getDynamicCraft().start(player, m));
+			m.setResult(craftItem.getResult());
+			m.display(player);
+		});
+	}
+
+	private void runCraft(final Player player, final Inventory inventory, final CraftItem craftItem) {
+		final var reagents = inventory.getContents()[REAGENTS_SLOT];
+
+		//Check if the craft needs reagents
+		if(craftItem.getReagent() != null) {
+
+			if(craftItem.getReagent().equals(reagents)) {
+				//Clear the crafting grid + reagent slot
+				clearGrid(player, inventory);
+
+				//Check if the craft has a dynamic craft to run
+				if(craftItem.hasDynamicCraft()) {
+					runDynamicCraft(player, craftItem);
+				} else {
+					//If not then just set the result immediately
+					inventory.setItem(RESULT_SLOT, craftItem.getResult());
+				}
+
+			}/* else {
+				Formatter.tell(player, "&cYou need &9" + craftItem.get().getReagent().getAmount() +
+						" " + craftItem.get().getReagent().getItemMeta().getDisplayName() + " &cto create this item!");
+			}*/
+
+		} else {
+			//Clear the crafting grid
+			clearGrid(player, inventory);
+
+			//Check if the craft has a dynamic craft to run
+			if(craftItem.hasDynamicCraft()) {
+				runDynamicCraft(player, craftItem);
+			} else {
+				//If not then just set the result immediately
+				inventory.setItem(RESULT_SLOT, craftItem.getResult());
+			}
+		}
 	}
 
 	protected abstract SimpleItem getCraftIcon();

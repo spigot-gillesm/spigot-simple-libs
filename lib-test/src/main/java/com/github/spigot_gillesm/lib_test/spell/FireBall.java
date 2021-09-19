@@ -1,4 +1,4 @@
-package com.github.spigot_gillesm.lib_test;
+package com.github.spigot_gillesm.lib_test.spell;
 
 import com.github.spigot_gillesm.spell_lib.SimpleParticle;
 import com.github.spigot_gillesm.spell_lib.spell.entity_spell_impl.ProjectileSpell;

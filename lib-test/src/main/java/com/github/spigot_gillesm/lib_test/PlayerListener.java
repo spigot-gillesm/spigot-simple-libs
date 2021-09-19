@@ -1,10 +1,11 @@
 package com.github.spigot_gillesm.lib_test;
 
 import com.github.spigot_gillesm.format_lib.Formatter;
+import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.gui_lib.SimpleMenuInteractEvent;
 import com.github.spigot_gillesm.lib_test.brew.BrewManager;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
-import com.github.spigot_gillesm.lib_test.menu.craft_station_menu.*;
+import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionType;
 import com.github.spigot_gillesm.player_lib.DataManager;
 import org.bukkit.Material;
@@ -15,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -22,6 +24,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BrewerInventory;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 public class PlayerListener implements Listener {
@@ -30,67 +33,29 @@ public class PlayerListener implements Listener {
 	private void onPlayerClick(final PlayerInteractEvent event) {
 		final var player = event.getPlayer();
 		final var block = event.getClickedBlock();
-		final var action = event.getAction();
 		final var profession = PlayerManager.getProfession(player);
 
-		if(block == null) {
+		//Do not proceed if a menu is opened
+		if(SimpleMenu.getMenu(player) != null) {
+			event.setCancelled(true);
 			return;
 		}
-		if(action == Action.RIGHT_CLICK_BLOCK) {
+		if(block == null || event.getHand() == EquipmentSlot.OFF_HAND) {
+			return;
+		}
+		if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			//Prevent the use of beds
 			if(block.getType().name().contains("BED")) {
 				event.setCancelled(true);
 			}
-
-			/*
-			 * Brewing stand restrictions
-			 */
-			if(block.getType() == Material.BREWING_STAND) {
-				if(profession != ProfessionType.ALCHEMIST && profession != ProfessionType.BARMAN
-						&& profession != ProfessionType.DOCTOR) {
-					event.setCancelled(true);
-				}
+			//Check if the player is not supposed to use this block
+			if(!ProfessionManager.canUseWorkstation(profession, block.getType())) {
+				event.setCancelled(true);
 			}
-			/*
-			 * Custom inventory interactions
-			 */
-			if(player.isSneaking()) {
-				if(block.getType().name().contains("ANVIL") && profession == ProfessionType.BLACKSMITH) {
+			//Open any custom inventory if needed
+			if(player.isSneaking()
+					&& profession.displayWorkstationMenu(player, block, player.getInventory().getItemInMainHand())) {
 					event.setCancelled(true);
-					new AnvilMenu().display(player);
-				}
-				else if(block.getType() == Material.BLAST_FURNACE && profession == ProfessionType.BLACKSMITH) {
-					event.setCancelled(true);
-
-					var isFueled = false;
-
-					for(var x = -1; x <= 1; x++) {
-						for(var z = -1; z <= 1; z++) {
-							if(block.getLocation().add(x, 0, z).getBlock().getType() == Material.LAVA) {
-								isFueled = true;
-							}
-						}
-					}
-
-					if(isFueled) {
-						new ForgeMenu().display(player);
-					} else {
-						Formatter.tell(player, "&cThe forge must be near a source of lava in order to work.");
-					}
-				}
-				else if(block.getType() == Material.ENCHANTING_TABLE && profession == ProfessionType.ENCHANTER) {
-					event.setCancelled(true);
-					new EnchantMenu().display(player);
-				}
-				else if(block.getType() == Material.BREWING_STAND &&
-						(profession == ProfessionType.ALCHEMIST || profession == ProfessionType.BARMAN
-								|| profession == ProfessionType.DOCTOR)) {
-					event.setCancelled(true);
-					new PotionMenu().display(player);
-				}
-				else if(block.getType() == Material.LECTERN && profession == ProfessionType.PRIEST) {
-					event.setCancelled(true);
-					new LecternMenu().display(player);
-				}
 			}
 		}
 	}
@@ -102,12 +67,12 @@ public class PlayerListener implements Listener {
 		 */
 		final var player = event.getPlayer();
 		final var block = event.getBlock();
-		final var profession = PlayerManager.getProfession(player);
+		final var professionType = PlayerManager.getProfessionType(player);
 
 		/*
 		 * FARMER
 		 */
-		if(block.getType() == Material.WHEAT && profession != ProfessionType.FARMER) {
+		if(block.getType() == Material.WHEAT && professionType != ProfessionType.FARMER) {
 			event.setDropItems(false);
 		}
 	}
@@ -124,8 +89,8 @@ public class PlayerListener implements Listener {
 		 * FARMER
 		 */
 		if(entity instanceof Animals && killer != null) {
-			final var profession = PlayerManager.getProfession(killer);
-			if(profession != ProfessionType.FARMER) {
+			final var professionType = PlayerManager.getProfessionType(killer);
+			if(professionType != ProfessionType.FARMER) {
 				event.getDrops().clear();
 			}
 		}
@@ -135,8 +100,17 @@ public class PlayerListener implements Listener {
 	private void onPlayerInteract(final PlayerInteractEvent event) {
 		final var player = event.getPlayer();
 
+		if(event.getHand() != EquipmentSlot.HAND) {
+			return;
+		}
+
 		if(event.getAction().name().contains("RIGHT")) {
 			final var heldItem = player.getInventory().getItemInMainHand();
+			final var blacksmithItem = CraftManager.getBlacksmithCraftItem(heldItem);
+
+			if(heldItem == null || heldItem.getType() == Material.AIR) {
+				return;
+			}
 
 			if(heldItem.isSimilar(CraftManager.EMPTY_EXPERIENCE_BOTTLE) && player.getLevel() >= 1) {
 				if(player.getInventory().firstEmpty() == -1) {
@@ -151,8 +125,43 @@ public class PlayerListener implements Listener {
 					player.getWorld().playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
 				}
 			}
+			final var block = player.getTargetBlock(null, 3);
+
+			if(blacksmithItem.isPresent() && block.getType() == Material.WATER_CAULDRON) {
+				final var hardenedItem = blacksmithItem.get().harden(heldItem, false);
+
+				if(hardenedItem != null) {
+					player.getInventory().removeItem(heldItem);
+					player.getInventory().setItemInMainHand(hardenedItem);
+					player.getWorld().playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1, 1);
+				}
+				block.setType(Material.CAULDRON);
+			}
 		}
 
+	}
+
+	@EventHandler
+	private void onPlayerUseItem(final PlayerInteractEvent event) {
+		final var item = event.getPlayer().getInventory().getItemInMainHand();
+
+		if(item.hasItemMeta() && "CANCEL_USE".equals(item.getItemMeta().getLocalizedName())) {
+			event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	private void onEntityDamageEvent(final EntityDamageByEntityEvent event) {
+		final var damager = event.getDamager();
+
+		if(damager instanceof Player) {
+			final var player = (Player) damager;
+			final var item = player.getInventory().getItemInMainHand();
+
+			if(item.hasItemMeta() && "CANCEL_USE".equals(item.getItemMeta().getLocalizedName())) {
+				event.setCancelled(true);
+			}
+		}
 	}
 
 	@EventHandler

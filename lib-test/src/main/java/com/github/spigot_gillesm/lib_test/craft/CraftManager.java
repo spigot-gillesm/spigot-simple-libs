@@ -2,8 +2,13 @@ package com.github.spigot_gillesm.lib_test.craft;
 
 import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
-import com.github.spigot_gillesm.lib_test.profession.ProfessionType;
+import com.github.spigot_gillesm.lib_test.craft.craft_item.BlacksmithCraftItem;
+import com.github.spigot_gillesm.lib_test.craft.dynamic_craft.AnvilCraft;
+import com.github.spigot_gillesm.lib_test.craft.dynamic_craft.ForgeCraft;
 import com.github.spigot_gillesm.lib_test.menu.craft_station_menu.*;
+import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicAnvilMenu;
+import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicForgeMenu;
+import com.github.spigot_gillesm.lib_test.profession.ProfessionType;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -81,6 +86,8 @@ public class CraftManager {
 			.setPatternItem(6, Material.IRON_INGOT)
 			.setPatternItem(7, Material.CHARCOAL)
 			.setPatternItem(8, Material.IRON_INGOT)
+			.dynamicCraft(ForgeCraft.newBuilder().build())
+			.dynamicCraftMenu(DynamicForgeMenu.class)
 			.build();
 
 	public final CraftItem SANCTIFIED_IRON_INGOT_CRAFT = CraftItem.newBuilder()
@@ -100,7 +107,8 @@ public class CraftManager {
 			.setPatternItem(8, Material.IRON_INGOT)
 			.build();
 
-	public final CraftItem STEEL_SWORD = CraftItem.newBuilder()
+	public final CraftItem STEEL_SWORD = BlacksmithCraftItem.newBuilder()
+			.hardeningAmount(2)
 			.professionType(ProfessionType.BLACKSMITH)
 			.craftingMenu(AnvilMenu.class)
 			.item(SimpleItem.newBuilder()
@@ -113,6 +121,8 @@ public class CraftManager {
 			.setPatternItem(1, STEEL_INGOT)
 			.setPatternItem(4, STEEL_INGOT)
 			.setPatternItem(7, Material.STICK)
+			.dynamicCraft(AnvilCraft.newBuilder().build())
+			.dynamicCraftMenu(DynamicAnvilMenu.class)
 			.build();
 
 	public final CraftItem STEEL_AXE = CraftItem.newBuilder()
@@ -860,7 +870,21 @@ public class CraftManager {
 		return items;
 	}
 
-	public CraftItem getCraftItem(final String id) {
+	public Optional<BlacksmithCraftItem> getBlacksmithCraftItem(final ItemStack itemStack) {
+		final var items = getCraftItems().stream()
+				.filter(BlacksmithCraftItem.class::isInstance)
+				.collect(Collectors.toList());
+		for(final CraftItem item : items) {
+			final var blacksmithItem = (BlacksmithCraftItem) item;
+			if(blacksmithItem.isSimilar(itemStack)) {
+				return Optional.of(blacksmithItem);
+			}
+		}
+
+		return Optional.empty();
+	}
+
+	public Optional<CraftItem> getCraftItem(final String id) {
 		final var fields = Arrays.stream(CraftManager.class.getDeclaredFields())
 				.filter(f -> CraftItem.class.isAssignableFrom(f.getType()))
 				.collect(Collectors.toList());
@@ -868,14 +892,24 @@ public class CraftManager {
 		for(final var field : fields) {
 			if(field.getName().equalsIgnoreCase(id)) {
 				try {
-					return (CraftItem) field.get(CraftManager.class);
+					return Optional.of((CraftItem) field.get(CraftManager.class));
 				} catch (IllegalAccessException e) {
 					Formatter.error("Error retrieving craft items from CraftManager");
 				}
 			}
 		}
 
-		return null;
+		return Optional.empty();
+	}
+
+	public Optional<CraftItem> getCraftItem(final ItemStack itemStack) {
+		for(final var craftItem : getCraftItems()) {
+			if(craftItem.isSimilar(itemStack)) {
+				return Optional.of(craftItem);
+			}
+		}
+
+		return Optional.empty();
 	}
 
 	public List<CraftItem> getItemsFromProfession(final ProfessionType professionType) {

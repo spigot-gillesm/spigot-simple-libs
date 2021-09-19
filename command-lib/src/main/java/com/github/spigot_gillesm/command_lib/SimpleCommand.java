@@ -74,15 +74,16 @@ public abstract class SimpleCommand extends Command {
 		if(!subCommands.isEmpty()) {
 			Formatter.tell(sender, "");
 			for(final SimpleCommand command : subCommands) {
-				Formatter.tell(sender, "&7&l* &7/&6" + command.getName());
+				final var info = new StringBuilder("&7&l* &7/&6" + command.getName());
 
 				for(final String arg : command.mandatoryArgs) {
-					Formatter.tell(sender, " &8<&7" + arg + "&7>");
+					info.append(" &8<&7").append(arg).append("&7>");
 				}
 				for(final String arg : command.optionalArgs) {
-					Formatter.tell(sender, " &8[&7" + arg + "&7]");
+					info.append(" &8[&7").append(arg).append("&7]");
 				}
-				Formatter.tell(sender, " &8: &7" + command.getDescription());
+				info.append(" &8: &7").append(command.getDescription());
+				Formatter.tell(sender, info.toString());
 			}
 			Formatter.tell(sender, "");
 		}

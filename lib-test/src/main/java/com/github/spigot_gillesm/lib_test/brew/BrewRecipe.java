@@ -45,7 +45,7 @@ public class BrewRecipe {
 	}
 
 	public boolean canCraft(final Player player) {
-		return professionType == PlayerManager.getProfession(player);
+		return professionType == PlayerManager.getProfessionType(player);
 	}
 
 	public static Builder newBuilder() {

@@ -22,7 +22,7 @@ public class LecternMenu extends CraftStationMenu {
 
 	@Override
 	protected Sound getCraftSound() {
-		return Sound.ENTITY_EVOKER_CAST_SPELL;
+		return Sound.ENTITY_ILLUSIONER_MIRROR_MOVE;
 	}
 
 }

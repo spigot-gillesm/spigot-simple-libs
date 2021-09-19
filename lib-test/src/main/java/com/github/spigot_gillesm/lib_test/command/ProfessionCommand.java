@@ -61,21 +61,21 @@ public class ProfessionCommand extends SimpleCommand {
 			}
 			final var item = CraftManager.getCraftItem(args[0]);
 
-			if(item == null) {
-				Formatter.tell(sender, "&cUnknown item");
-				return;
-			}
-			if(args.length > 1 && PluginUtil.isInt(args[1])) {
-				final var amount = Integer.parseInt(args[1]);
-				if(amount > 0 && amount <= 64) {
-					final var stack = item.getItem().clone();
-					stack.setAmount(amount);
-					((Player) sender).getInventory().addItem(stack);
-				} else {
-					Formatter.tell(sender, "&cItem amount must be a positive integer between 1 and 64");
+			if(item.isPresent()) {
+				var amount = 1;
+				if(args.length > 1) {
+					if(PluginUtil.isInt(args[1])) {
+						amount = PluginUtil.clamp(Integer.parseInt(args[1]), 0, 64);
+					} else {
+						Formatter.tell(sender, "&cItem amount must be a positive integer between 1 and 64");
+						return;
+					}
 				}
+				final var stack = item.get().getItem().clone();
+				stack.setAmount(amount);
+				((Player) sender).getInventory().addItem(stack);
 			} else {
-				Formatter.tell(sender, "&cItem amount must be a positive integer between 1 and 64");
+				Formatter.tell(sender, "&cUnknown item");
 			}
 		}
 	}

@@ -22,8 +22,9 @@ public class CraftingListMenu extends ListingMenu {
 	@Override
 	protected List<SimpleButton> generateButtons(final Player viewer) {
 		final List<SimpleButton> buttons = new ArrayList<>();
+		final var type = PlayerManager.getProfessionType(viewer);
 
-		for(final var item : CraftManager.getItemsFromProfession(PlayerManager.getProfession(viewer))) {
+		for(final var item : CraftManager.getItemsFromProfession(type)) {
 			buttons.add(new SimpleButton(item.getResult()) {
 				@Override
 				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
@@ -35,7 +36,7 @@ public class CraftingListMenu extends ListingMenu {
 				}
 			});
 		}
-		for(final var recipe : BrewManager.getRecipesFromProfession(PlayerManager.getProfession(viewer))) {
+		for(final var recipe : BrewManager.getRecipesFromProfession(type)) {
 			buttons.add(new SimpleButton(recipe.getResult()) {
 				@Override
 				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {

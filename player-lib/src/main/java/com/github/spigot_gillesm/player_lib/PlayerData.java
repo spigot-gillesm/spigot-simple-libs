@@ -214,7 +214,7 @@ public class PlayerData {
 		final var conf = FileUtils.clearContent(file);
 
 		getMap().forEach((tag, value) -> {
-			if(saveOnQuit(tag)) {
+			if(saveOnQuit(tag) && value != null) {
 				conf.set("tags." + tag, value.toString());
 			}
 		});
