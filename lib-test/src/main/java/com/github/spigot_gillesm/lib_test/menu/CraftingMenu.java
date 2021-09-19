@@ -41,7 +41,7 @@ public class CraftingMenu extends SimpleMenu {
 			return item.getPattern()[5];
 		}
 		else if(slot == 25) {
-			return item.getResult();
+			return item.getItem();
 		}
 		else if(slot == 30) {
 			return item.getPattern()[6];
