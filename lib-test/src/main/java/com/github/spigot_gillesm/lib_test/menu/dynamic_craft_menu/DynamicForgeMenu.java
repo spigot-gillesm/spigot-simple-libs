@@ -2,7 +2,7 @@ package com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu;
 
 import com.github.spigot_gillesm.gui_lib.SimpleButton;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
-import com.github.spigot_gillesm.lib_test.craft.dynamic_craft.ForgeCraft;
+import com.github.spigot_gillesm.lib_test.craft.craft_entity.craft_recipe.ForgeCraftRecipe;
 import com.github.spigot_gillesm.lib_test.menu.DynamicCraftMenu;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,7 +28,7 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 				.build()) {
 			@Override
 			public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
-				((ForgeCraft.ForgeCraftRunnable) craftRunnable).heatUp();
+				getRecipeRunnable().heatUp();
 				setCancelReinstantiation(true);
 				//Update the menu only if the crafting process isn't finished yet
 				return !finished;
@@ -40,13 +40,17 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 				.build()) {
 			@Override
 			public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
-				((ForgeCraft.ForgeCraftRunnable) craftRunnable).coolDown();
+				getRecipeRunnable().coolDown();
 				setCancelReinstantiation(true);
 				return !finished;
 			}
 		};
 		setSize(5*9);
 		setTitle("Smelting");
+	}
+
+	private ForgeCraftRecipe.ForgeCraftRunnable getRecipeRunnable() {
+		return getRecipeRunnable(ForgeCraftRecipe.ForgeCraftRunnable.class);
 	}
 
 	@Override
@@ -58,12 +62,12 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 	protected ItemStack getSlotItem(int slot) {
 		//Do not display the heat bar if the process failed
 		if(!failed) {
-			for (var i = 0; i < ((ForgeCraft.ForgeCraftRunnable) craftRunnable).getHeat(); i++) {
+			for (var i = 0; i < (getRecipeRunnable().getHeat()); i++) {
 				if(slot == i + 4 * 9) {
 					return SimpleItem.newBuilder()
 							.material(Material.RED_STAINED_GLASS_PANE)
 							.displayName("&f")
-							.localizedName("CANCEL")
+							.localizedName("CANCEL_MENU")
 							.build()
 							.getItemStack();
 				}
@@ -78,7 +82,7 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 			return SimpleItem.newBuilder()
 					.material(Material.RED_STAINED_GLASS_PANE)
 					.displayName("&cFailure")
-					.localizedName("CANCEL")
+					.localizedName("CANCEL_MENU")
 					.build()
 					.getItemStack();
 		}
@@ -92,7 +96,7 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 			return SimpleItem.newBuilder()
 					.material(Material.GRAY_STAINED_GLASS_PANE)
 					.displayName("&f")
-					.localizedName("CANCEL")
+					.localizedName("CANCEL_MENU")
 					.build()
 					.getItemStack();
 		}
@@ -103,7 +107,7 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 		final var inventory = player.getOpenInventory().getTopInventory().getContents();
 
 		if(inventory[RESULT_SLOT] != null && inventory[RESULT_SLOT].hasItemMeta()
-				&& !inventory[RESULT_SLOT].getItemMeta().getLocalizedName().equals("CANCEL")) {
+				&& !inventory[RESULT_SLOT].getItemMeta().getLocalizedName().equals("CANCEL_MENU")) {
 			player.getWorld().dropItemNaturally(player.getLocation(), inventory[RESULT_SLOT]);
 		}
 	}

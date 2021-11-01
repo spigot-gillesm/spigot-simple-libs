@@ -1,74 +1,66 @@
 package com.github.spigot_gillesm.lib_test.profession;
 
+import com.github.spigot_gillesm.file_utils.FileUtils;
 import com.github.spigot_gillesm.format_lib.Formatter;
-import com.github.spigot_gillesm.lib_test.menu.craft_station_menu.*;
-import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicAnvilMenu;
-import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicForgeMenu;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Material;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @UtilityClass
 public class ProfessionManager {
 
+	private final Map<String, Profession> loadedProfessions = new HashMap<>();
+
+	/*public final Workstation FORGE = Workstation.newBuilder()
+			.addMaterials(Material.BLAST_FURNACE)
+			.restricted(true)
+			.fuel(Material.LAVA)
+			.menu(ForgeMenu.class)
+			.dynamicMenu(DynamicForgeMenu.class)
+			.build();
+
+	public final Workstation ANVIL = Workstation.newBuilder()
+			.addMaterials(Material.ANVIL, Material.CHIPPED_ANVIL, Material.DAMAGED_ANVIL)
+			.restricted(false)
+			.menu(AnvilMenu.class)
+			.dynamicMenu(DynamicAnvilMenu.class)
+			.build();
+
+	public final Workstation ENCHANTING_TABLE = Workstation.newBuilder()
+			.addMaterials(Material.ENCHANTING_TABLE)
+			.restricted(false)
+			.menu(EnchantMenu.class)
+			.dynamicMenu(DynamicEnchantMenu.class)
+			.build();
+
+	public final Workstation LECTERN = Workstation.newBuilder()
+			.addMaterials(Material.LECTERN)
+			.restricted(false)
+			.menu(LecternMenu.class)
+			.build();
+
+	public final Workstation BREWING_STAND = Workstation.newBuilder()
+			.addMaterials(Material.BREWING_STAND)
+			.restricted(true)
+			.menu(PotionMenu.class)
+			.build();
+
 	public final Profession BLACKSMITH = Profession.newBuilder()
 			.professionType(ProfessionType.BLACKSMITH)
-			.addWorkstations(
-					Profession.Workstation.newBuilder()
-							.material(Material.BLAST_FURNACE)
-							.restricted(true)
-							.fuel(Material.LAVA)
-							.craftStationMenu(ForgeMenu.class)
-							.dynamicCraftMenu(DynamicForgeMenu.class)
-							.build(),
-					Profession.Workstation.newBuilder()
-							.material(Material.ANVIL)
-							.restricted(false)
-							.craftStationMenu(AnvilMenu.class)
-							.dynamicCraftMenu(DynamicAnvilMenu.class)
-							.build(),
-					Profession.Workstation.newBuilder()
-							.material(Material.CHIPPED_ANVIL)
-							.restricted(false)
-							.craftStationMenu(AnvilMenu.class)
-							.dynamicCraftMenu(DynamicAnvilMenu.class)
-							.build(),
-					Profession.Workstation.newBuilder()
-							.material(Material.DAMAGED_ANVIL)
-							.restricted(false)
-							.craftStationMenu(AnvilMenu.class)
-							.dynamicCraftMenu(DynamicAnvilMenu.class)
-							.build()
-			)
+			.addWorkstations(FORGE, ANVIL)
 			.build();
 	public final Profession ENCHANTER = Profession.newBuilder()
 			.professionType(ProfessionType.ENCHANTER)
-			.addWorkstations(Profession.Workstation.newBuilder()
-					.material(Material.ENCHANTING_TABLE)
-					.restricted(false)
-					.craftStationMenu(EnchantMenu.class)
-					.build())
+			.addWorkstations(ENCHANTING_TABLE)
 			.build();
 	public final Profession ALCHEMIST = Profession.newBuilder()
 			.professionType(ProfessionType.ALCHEMIST)
-			.addWorkstations(Profession.Workstation.newBuilder()
-					.material(Material.BREWING_STAND)
-					.restricted(true)
-					.craftStationMenu(PotionMenu.class)
-					.build())
+			.addWorkstations(BREWING_STAND)
 			.build();
 	public final Profession BARMAN = Profession.newBuilder()
 			.professionType(ProfessionType.BARMAN)
-			.addWorkstations(Profession.Workstation.newBuilder()
-					.material(Material.BREWING_STAND)
-					.restricted(true)
-					.craftStationMenu(PotionMenu.class)
-					.build())
+			.addWorkstations(BREWING_STAND)
 			.build();
 	public final Profession JOURNALIST = Profession.newBuilder()
 			.professionType(ProfessionType.JOURNALIST)
@@ -78,44 +70,48 @@ public class ProfessionManager {
 			.build();
 	public final Profession PRIEST = Profession.newBuilder()
 			.professionType(ProfessionType.PRIEST)
-			.addWorkstations(Profession.Workstation.newBuilder()
-					.material(Material.LECTERN)
-					.restricted(false)
-					.craftStationMenu(LecternMenu.class)
-					.build())
+			.addWorkstations(LECTERN)
 			.build();
 	public final Profession DOCTOR = Profession.newBuilder()
 			.professionType(ProfessionType.DOCTOR)
-			.addWorkstations(Profession.Workstation.newBuilder()
-					.material(Material.BREWING_STAND)
-					.restricted(true)
-					.craftStationMenu(PotionMenu.class)
-					.build())
+			.addWorkstations(BREWING_STAND)
 			.build();
 	public final Profession POLICEMAN = Profession.newBuilder()
 			.professionType(ProfessionType.POLICEMAN)
-			.build();
+			.build();*/
+
+	public void loadProfessions() {
+		loadedProfessions.clear();
+		Formatter.info("Loading Professions...");
+		final var configuration = FileUtils.getConfiguration("professions.yml");
+
+		for(final String id : configuration.getKeys(false)) {
+			if(configuration.isConfigurationSection(id)) {
+				Formatter.info("Loading profession " + id + ".");
+				Profession.YamlProfession.fromConfiguration(configuration).getProfessionFromFile(id)
+						.ifPresentOrElse(w -> loadedProfessions.put(id.toUpperCase(), w),
+								() -> Formatter.warning("Could not load profession " + id + "."));
+			}
+		}
+		Formatter.info("Loaded " + loadedProfessions.size() + " profession(s).");
+	}
 
 	public List<Profession> getProfessions() {
-		final var fields = Arrays.stream(ProfessionManager.class.getDeclaredFields())
-				.filter(f -> Profession.class.isAssignableFrom(f.getType()))
-				.collect(Collectors.toList());
-		final List<Profession> professions = new ArrayList<>();
+		return new ArrayList<>(loadedProfessions.values());
+	}
 
-		for(final var field : fields) {
-			try {
-				final var profession = (Profession) field.get(ProfessionManager.class);
-				professions.add(profession);
-			} catch (IllegalAccessException e) {
-				Formatter.error("Error retrieving craft items from CraftManager");
+	public Optional<Profession> getProfession(final String id) {
+		return loadedProfessions.containsKey(id.toUpperCase()) ? Optional.of(loadedProfessions.get(id.toUpperCase())) : Optional.empty();
+	}
+
+	public String getId(final Profession profession) {
+		for(final var set : loadedProfessions.entrySet()) {
+			if(set.getValue().equals(profession)) {
+				return set.getKey();
 			}
 		}
 
-		return professions;
-	}
-
-	public Optional<Profession> getProfession(final ProfessionType professionType) {
-		return getProfessions().stream().filter(profession -> profession.getType() == professionType).findFirst();
+		return "";
 	}
 
 	public boolean canUseWorkstation(final Profession profession, final Material material) {

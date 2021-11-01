@@ -32,6 +32,14 @@ public abstract class SimpleCommand extends Command {
 
 	protected abstract void run(final CommandSender sender, final String[] args);
 
+	protected void tell(@NotNull final CommandSender sender, @NotNull final String message) {
+		if(!Formatter.PREFIX.isBlank()) {
+			Formatter.tell(sender, Formatter.PREFIX + " " + message);
+		} else {
+			Formatter.tell(sender, message);
+		}
+	}
+
 	@Override
 	public boolean execute(@NotNull final CommandSender sender, @NotNull final String commandLabel,
 						   @NotNull final String[] args) {

@@ -2,7 +2,7 @@ package com.github.spigot_gillesm.lib_test.menu;
 
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
-import com.github.spigot_gillesm.lib_test.craft.CraftItem;
+import com.github.spigot_gillesm.lib_test.craft.craft_entity.CraftRecipe;
 import lombok.AccessLevel;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 public class CraftingMenu extends SimpleMenu {
 
 	@Setter(AccessLevel.PACKAGE)
-	private CraftItem item;
+	private CraftRecipe item;
 
 	public CraftingMenu(final SimpleMenu parentMenu) {
 		super(parentMenu);
@@ -60,7 +60,7 @@ public class CraftingMenu extends SimpleMenu {
 			return SimpleItem.newBuilder()
 					.material(Material.GRAY_STAINED_GLASS_PANE)
 					.displayName("&f")
-					.localizedName("CANCEL")
+					.localizedName("CANCEL_MENU")
 					.build()
 					.getItemStack();
 		}

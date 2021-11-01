@@ -54,7 +54,6 @@ public class FileUtils {
 		if(!file.getName().endsWith(".yml")) {
 			throw new IllegalArgumentException("Configuration file must be yaml files.");
 		}
-
 		final var configuration = new YamlConfiguration();
 
 		try {

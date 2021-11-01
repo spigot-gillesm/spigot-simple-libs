@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This utility class provides various useful methods to help formatting text, messages, etc...
+ * This utility class provides various useful methods to help to format text, messages, etc...
  * Inspired by Kangarko (Matej Pacan).
  *
  * @author Gilles_M
@@ -48,8 +48,9 @@ public class Formatter {
 	public static List<String> colorize(@NotNull final List<String> lines) {
 		final List<String> messages = new ArrayList<>();
 
-		for(final String line : lines)
+		for(final String line : lines) {
 			messages.add(colorize(line));
+		}
 
 		return messages;
 	}
@@ -73,8 +74,9 @@ public class Formatter {
 	 * @param messages the messages
 	 */
 	public static void tell(@NotNull final CommandSender toWhom, @NotNull final String... messages) {
-		for (final String message : messages)
+		for (final String message : messages) {
 			tell(toWhom, message);
+		}
 	}
 
 	/**

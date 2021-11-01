@@ -1,9 +1,10 @@
-package com.github.spigot_gillesm.lib_test.craft.dynamic_craft;
+package com.github.spigot_gillesm.lib_test.craft.craft_entity.craft_recipe;
 
 import com.github.spigot_gillesm.lib_test.LibTest;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
-import com.github.spigot_gillesm.lib_test.craft.CraftRunnable;
-import com.github.spigot_gillesm.lib_test.craft.DynamicCraft;
+import com.github.spigot_gillesm.lib_test.craft.craft_entity.CraftRecipe;
+import com.github.spigot_gillesm.lib_test.craft.craft_entity.DynamicCraft;
+import com.github.spigot_gillesm.lib_test.craft.craft_entity.RecipeRunnable;
 import com.github.spigot_gillesm.lib_test.menu.DynamicCraftMenu;
 import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicForgeMenu;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Random;
 
-public class ForgeCraft implements DynamicCraft {
+public class ForgeCraftRecipe extends CraftRecipe implements DynamicCraft {
 
 	private final int requiredHeat;
 
@@ -25,7 +26,8 @@ public class ForgeCraft implements DynamicCraft {
 	//Between 0.0 and 1.0
 	private final double changeChance;
 
-	private ForgeCraft(final Builder builder) {
+	private ForgeCraftRecipe(final Builder builder) {
+		super(builder);
 		this.requiredHeat = builder.requiredHeat;
 		this.tolerance = builder.tolerance;
 		this.time = builder.time;
@@ -33,7 +35,8 @@ public class ForgeCraft implements DynamicCraft {
 	}
 
 	@Override
-	public CraftRunnable start(final Player player, final DynamicCraftMenu forgeMenu) {
+	public RecipeRunnable<ForgeCraftRecipe, DynamicForgeMenu> start(final Player player,
+																	final DynamicCraftMenu forgeMenu) {
 		var runnable = new ForgeCraftRunnable(this, player, (DynamicForgeMenu) forgeMenu);
 		runnable.runTaskTimer(LibTest.getInstance(), 0, 1);
 		return runnable;
@@ -43,7 +46,7 @@ public class ForgeCraft implements DynamicCraft {
 		return new Builder();
 	}
 
-	public static class Builder {
+	public static class Builder extends CraftRecipe.Builder {
 
 		private int requiredHeat = 5;
 
@@ -77,22 +80,21 @@ public class ForgeCraft implements DynamicCraft {
 			return this;
 		}
 
-		public ForgeCraft build() {
+		@Override
+		public ForgeCraftRecipe build() {
+			super.build();
 			if(changeChance < 0 || changeChance > 1) {
 				throw new IllegalArgumentException("Change chance must be between 0 and 1");
 			}
-			return new ForgeCraft(this);
+			if(dynamicCraftMenu == null) {
+				throw new IllegalArgumentException("Dynamic craft menu cannot be null for an instance of DynamicCraft.");
+			}
+			return new ForgeCraftRecipe(this);
 		}
 
 	}
 
-	public static class ForgeCraftRunnable extends CraftRunnable {
-
-		private final ForgeCraft forgeCraft;
-
-		private final Player player;
-
-		private final DynamicForgeMenu forgeMenu;
+	public static class ForgeCraftRunnable extends RecipeRunnable<ForgeCraftRecipe, DynamicForgeMenu> {
 
 		@Getter
 		private int heat;
@@ -106,14 +108,10 @@ public class ForgeCraft implements DynamicCraft {
 		 */
 		private int direction;
 
-		private int globalTimer = 0;
-
-		private ForgeCraftRunnable(final ForgeCraft forgeCraft, final Player player, final DynamicForgeMenu forgeMenu) {
-			this.forgeCraft = forgeCraft;
-			this.player = player;
-			this.forgeMenu = forgeMenu;
-			this.heat = forgeCraft.requiredHeat;
-			this.currentTimer = forgeCraft.time;
+		private ForgeCraftRunnable(final ForgeCraftRecipe recipe, final Player player, final DynamicForgeMenu menu) {
+			super(player, menu, recipe);
+			this.heat = recipe.requiredHeat;
+			this.currentTimer = recipe.time;
 			this.direction = getDirection();
 		}
 
@@ -127,33 +125,34 @@ public class ForgeCraft implements DynamicCraft {
 		}
 
 		@Override
-		public void run() {
+		protected boolean execute() {
 			//Check if the smelting process is done
 			if(currentTimer <= 0) {
+				player.getWorld().playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1, 1);
 				//Let the menu knows the craft is over
-				forgeMenu.setFinished(true);
-				forgeMenu.setCancelReinstantiation(true);
+				getMenu().setFinished(true);
+				getMenu().setCancelReinstantiation(true);
 				//And re displays it
-				forgeMenu.display(player);
+				getMenu().display(player);
 				cancel();
 
-				return;
+				return true;
 			}
 			//Check if the heat exceeded the threshold -> The craft failed
-			if(heat > forgeCraft.requiredHeat + forgeCraft.tolerance
-					|| heat < forgeCraft.requiredHeat - forgeCraft.tolerance) {
+			if(heat > getRecipe().requiredHeat + getRecipe().tolerance
+					|| heat < getRecipe().requiredHeat - getRecipe().tolerance) {
 				player.getWorld().playSound(player.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1, 1);
 				//Let the menu knows the craft failed
-				forgeMenu.setFailed(true);
-				forgeMenu.setCancelReinstantiation(true);
+				getMenu().setFailed(true);
+				getMenu().setCancelReinstantiation(true);
 				//And re displays it
-				forgeMenu.display(player);
+				getMenu().display(player);
 				cancel();
 
-				return;
+				return true;
 			}
 			//Check if the heat should be changed randomly. Can occur only once per second (= every 20 ticks)
-			if(new Random().nextDouble() <= forgeCraft.changeChance && globalTimer >= 20) {
+			if(new Random().nextDouble() <= getRecipe().changeChance && globalTimer >= 20) {
 				//Check if the heat should go down
 				if(direction == 0) {
 					heat--;
@@ -162,17 +161,17 @@ public class ForgeCraft implements DynamicCraft {
 					heat++;
 				}
 				//Update the menu
-				forgeMenu.setCancelReinstantiation(true);
-				forgeMenu.display(player);
+				getMenu().setCancelReinstantiation(true);
+				getMenu().display(player);
 				//Reset the global timer
 				globalTimer = 0;
 			}
 			//If the heat is right -> decrease the timer
-			if(heat == forgeCraft.requiredHeat) {
+			if(heat == getRecipe().requiredHeat) {
 				currentTimer--;
 			}
-			//Update the global timer
-			globalTimer++;
+
+			return false;
 		}
 
 		public void heatUp() {

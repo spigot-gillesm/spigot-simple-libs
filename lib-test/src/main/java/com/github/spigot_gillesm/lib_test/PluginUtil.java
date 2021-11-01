@@ -49,4 +49,23 @@ public class PluginUtil {
 		return Math.max(min, Math.min(max, value));
 	}
 
+	/**
+	 * Reformat words like 'BREWING_STAND' into 'Brewing Stand'
+	 *
+	 * @param string the string to reformat
+	 * @return the reformatted string
+	 */
+	public String reformat(final String string) {
+		final var words = string.split("_");
+		final var builder = new StringBuilder();
+
+		for(final var part : words) {
+			if(part.length() > 1) {
+				builder.append(part.substring(0, 1).toUpperCase()).append(part.substring(1).toLowerCase()).append(" ");
+			}
+		}
+
+		return builder.toString().trim();
+	}
+
 }

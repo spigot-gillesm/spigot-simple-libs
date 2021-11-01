@@ -3,21 +3,17 @@ package com.github.spigot_gillesm.lib_test;
 import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.gui_lib.SimpleMenuInteractEvent;
-import com.github.spigot_gillesm.lib_test.brew.BrewManager;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;
-import com.github.spigot_gillesm.lib_test.profession.ProfessionType;
 import com.github.spigot_gillesm.player_lib.DataManager;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Animals;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -25,7 +21,6 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
 
 public class PlayerListener implements Listener {
 
@@ -48,53 +43,56 @@ public class PlayerListener implements Listener {
 			if(block.getType().name().contains("BED")) {
 				event.setCancelled(true);
 			}
-			//Check if the player is not supposed to use this block
-			if(!ProfessionManager.canUseWorkstation(profession, block.getType())) {
-				event.setCancelled(true);
-			}
-			//Open any custom inventory if needed
-			if(player.isSneaking()
-					&& profession.displayWorkstationMenu(player, block, player.getInventory().getItemInMainHand())) {
+
+			profession.ifPresent(p -> {
+				//Check if the player is not supposed to use this block
+				if(!ProfessionManager.canUseWorkstation(p, block.getType())) {
 					event.setCancelled(true);
-			}
+				}
+				//Open any custom inventory if needed
+				if(player.isSneaking()
+						&& p.displayWorkstationMenu(player, block, player.getInventory().getItemInMainHand())) {
+					event.setCancelled(true);
+				}
+			});
 		}
 	}
 
-	@EventHandler
-	private void onPlayerBreakBlock(final BlockBreakEvent event) {
+	/*@EventHandler
+	private void onPlayerBreakBlock(final BlockBreakEvent event) {*/
 		/*
 		 * Prevent actions based on the profession
 		 */
-		final var player = event.getPlayer();
+		/*final var player = event.getPlayer();
 		final var block = event.getBlock();
-		final var professionType = PlayerManager.getProfessionType(player);
+		final var professionType = PlayerManager.getProfessionType(player);*/
 
 		/*
 		 * FARMER
 		 */
-		if(block.getType() == Material.WHEAT && professionType != ProfessionType.FARMER) {
+		/*if(block.getType() == Material.WHEAT && professionType != ProfessionType.FARMER) {
 			event.setDropItems(false);
-		}
-	}
+		}*/
+	//}
 
-	@EventHandler
-	private void onEntityDeath(final EntityDeathEvent event) {
+	/*@EventHandler
+	private void onEntityDeath(final EntityDeathEvent event) {*/
 		/*
 		 * Prevent actions based on the profession
 		 */
-		final var entity = event.getEntity();
-		final var killer = entity.getKiller();
+		/*final var entity = event.getEntity();
+		final var killer = entity.getKiller();*/
 
 		/*
 		 * FARMER
 		 */
-		if(entity instanceof Animals && killer != null) {
+		/*if(entity instanceof Animals && killer != null) {
 			final var professionType = PlayerManager.getProfessionType(killer);
 			if(professionType != ProfessionType.FARMER) {
 				event.getDrops().clear();
 			}
-		}
-	}
+		}*/
+	//}
 
 	@EventHandler
 	private void onPlayerInteract(final PlayerInteractEvent event) {
@@ -106,13 +104,13 @@ public class PlayerListener implements Listener {
 
 		if(event.getAction().name().contains("RIGHT")) {
 			final var heldItem = player.getInventory().getItemInMainHand();
-			final var blacksmithItem = CraftManager.getBlacksmithCraftItem(heldItem);
+			final var blacksmithItem = CraftManager.getAnvilCraftRecipe(heldItem);
 
 			if(heldItem == null || heldItem.getType() == Material.AIR) {
 				return;
 			}
 
-			if(heldItem.isSimilar(CraftManager.EMPTY_EXPERIENCE_BOTTLE) && player.getLevel() >= 1) {
+			/*if(heldItem.isSimilar(CraftManager.EMPTY_EXPERIENCE_BOTTLE) && player.getLevel() >= 1) {
 				if(player.getInventory().firstEmpty() == -1) {
 					Formatter.tell(player, "&cYour inventory is full.");
 				} else {
@@ -124,11 +122,11 @@ public class PlayerListener implements Listener {
 					player.getInventory().addItem(new ItemStack(Material.EXPERIENCE_BOTTLE));
 					player.getWorld().playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
 				}
-			}
+			}*/
 			final var block = player.getTargetBlock(null, 3);
 
 			if(blacksmithItem.isPresent() && block.getType() == Material.WATER_CAULDRON) {
-				final var hardenedItem = blacksmithItem.get().harden(heldItem, false);
+				final var hardenedItem = blacksmithItem.get().coolDown(heldItem);
 
 				if(hardenedItem != null) {
 					player.getInventory().removeItem(heldItem);
@@ -143,10 +141,15 @@ public class PlayerListener implements Listener {
 
 	@EventHandler
 	private void onPlayerUseItem(final PlayerInteractEvent event) {
+		final var player = event.getPlayer();
 		final var item = event.getPlayer().getInventory().getItemInMainHand();
 
-		if(item.hasItemMeta() && "CANCEL_USE".equals(item.getItemMeta().getLocalizedName())) {
+		if(item.hasItemMeta() && "CANCEL_USE".contains(item.getItemMeta().getLocalizedName())) {
 			event.setCancelled(true);
+		}
+		if(!PlayerManager.canEquip(player, item)) {
+			event.setCancelled(true);
+			Formatter.tell(player, "&cYou cannot use that item");
 		}
 	}
 
@@ -158,8 +161,13 @@ public class PlayerListener implements Listener {
 			final var player = (Player) damager;
 			final var item = player.getInventory().getItemInMainHand();
 
-			if(item.hasItemMeta() && "CANCEL_USE".equals(item.getItemMeta().getLocalizedName())) {
+			if(item.hasItemMeta() && item.getItemMeta().hasLocalizedName()
+					&& item.getItemMeta().getLocalizedName().contains("CANCEL_USE")) {
 				event.setCancelled(true);
+			}
+			if(!PlayerManager.canEquip(player, item)) {
+				event.setCancelled(true);
+				Formatter.tell(player, "&cYou cannot use that item");
 			}
 		}
 	}
@@ -171,7 +179,8 @@ public class PlayerListener implements Listener {
 		}
 		final var item = event.getClickedItem();
 
-		if("CANCEL".equals(item.getItemMeta().getLocalizedName())) {
+		if(item.hasItemMeta() && item.getItemMeta().hasLocalizedName()
+				&& item.getItemMeta().getLocalizedName().contains("CANCEL_MENU")) {
 			event.setCancelled(true);
 		}
 	}
@@ -233,6 +242,19 @@ public class PlayerListener implements Listener {
 				}
 			}
 		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGH)
+	private void onArmorInventoryClick(final InventoryClickEvent event) {
+		final var player = (Player) event.getWhoClicked();
+		final var item = event.getCursor();
+		final var slot = event.getSlot();
+
+		if(item != null && slot >= 36 && slot <= 40 && !PlayerManager.canEquip(player, item)) {
+			event.setCancelled(true);
+			Formatter.tell(player, "&cYou cannot equip that item");
+		}
+
 	}
 
 	@EventHandler

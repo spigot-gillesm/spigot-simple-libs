@@ -1,8 +1,8 @@
-package com.github.spigot_gillesm.lib_test.brew;
+package com.github.spigot_gillesm.lib_test.craft.craft_entity;
 
 import com.github.spigot_gillesm.lib_test.LibTest;
 import com.github.spigot_gillesm.lib_test.PlayerManager;
-import com.github.spigot_gillesm.lib_test.profession.ProfessionType;
+import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
@@ -13,39 +13,51 @@ import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class BrewRecipe {
+public class BreweryCraftRecipe extends CraftEntity {
 
-	@Getter
-	private final ProfessionType professionType;
-
-	//The item consumed for the recipe
-	@Getter
-	private final ItemStack ingredient;
+	//item = result = the bottles you get at the end
+	//reagent = ingredient = blaze powder in regular potion crafting
 
 	@Getter
 	private final ItemStack fuel;
 
-	//The "bottles" that will be changed into the result
+	//The bottles that will be changed into the result
 	@Getter
 	private final ItemStack receptacle;
 
-	@Getter
-	private final ItemStack result;
-
-	private BrewRecipe(final Builder builder) {
-		this.professionType = builder.professionType;
-		this.ingredient = builder.ingredient;
+	private BreweryCraftRecipe(final Builder builder) {
+		super(builder);
 		this.fuel = builder.fuel;
 		this.receptacle = builder.receptacle;
-		this.result = builder.result;
 	}
 
 	public void start(final BrewerInventory inventory) {
 		new BrewRunnable(this, inventory, 400).runTaskTimer(LibTest.getInstance(), 0, 1);
 	}
 
+	@Override
+	public ItemStack getResult() {
+		return getItem();
+	}
+
+	@Override
+	public int getAmount() {
+		return 3;
+	}
+
+	@Override
 	public boolean canCraft(final Player player) {
-		return professionType == PlayerManager.getProfessionType(player);
+		return PlayerManager.getProfession(player).map(value -> value.equals(profession)).orElse(false);
+	}
+
+	@Override
+	public boolean isPatternMatching(final ItemStack[] items) {
+		return false;
+	}
+
+	@Override
+	public boolean isSimilar(final ItemStack itemStack) {
+		return getItem().isSimilar(itemStack);
 	}
 
 	public static Builder newBuilder() {
@@ -53,31 +65,16 @@ public class BrewRecipe {
 	}
 
 	@NoArgsConstructor
-	public static class Builder {
+	public static class Builder extends CraftEntity.Builder<Builder> {
 
-		private ProfessionType professionType;
+		//item = result = the bottles you get at the end
+		//reagent = ingredient = blaze powder in regular potion crafting
 
-		private ItemStack ingredient;
-
+		//Fuel = fuel
 		private ItemStack fuel;
 
+		//The "bottles" that will be changed into the result
 		private ItemStack receptacle;
-
-		private ItemStack result;
-
-		public Builder professionType(final ProfessionType professionType) {
-			this.professionType = professionType;
-			return this;
-		}
-
-		public Builder ingredient(final ItemStack ingredient) {
-			this.ingredient = ingredient;
-			return this;
-		}
-
-		public Builder ingredient(final Material ingredient) {
-			return ingredient(new ItemStack(ingredient));
-		}
 
 		public Builder fuel(final ItemStack fuel) {
 			this.fuel = fuel;
@@ -97,32 +94,25 @@ public class BrewRecipe {
 			return receptacle(new ItemStack(receptacle));
 		}
 
-		public Builder result(final ItemStack result) {
-			this.result = result;
-			return this;
-		}
-
-		public BrewRecipe build() {
-			if(professionType == null) {
-				throw new IllegalArgumentException("Profession type cannot be null.");
+		@Override
+		public BreweryCraftRecipe build() {
+			if(profession == null) {
+				throw new IllegalArgumentException("Profession cannot be null.");
 			}
-			else if(ingredient == null) {
-				throw new IllegalArgumentException("Ingredient cannot be null.");
+			if(item == null) {
+				throw new IllegalArgumentException("Item cannot be null.");
 			}
-			else if(receptacle == null) {
+			if(receptacle == null) {
 				throw new IllegalArgumentException("Receptacle cannot be null.");
 			}
-			else if(result == null) {
-				throw new IllegalArgumentException("Result cannot be null.");
-			}
-			return new BrewRecipe(this);
+			return new BreweryCraftRecipe(this);
 		}
 
 	}
 
 	private static class BrewRunnable extends BukkitRunnable {
 
-		private final BrewRecipe recipe;
+		private final BreweryCraftRecipe recipe;
 
 		private final BrewerInventory inventory;
 
@@ -134,7 +124,7 @@ public class BrewRecipe {
 		//-> get decremented
 		private int currentTimer;
 
-		private BrewRunnable(final BrewRecipe recipe, final BrewerInventory inventory, final int time) {
+		private BrewRunnable(final BreweryCraftRecipe recipe, final BrewerInventory inventory, final int time) {
 			this.recipe = recipe;
 			this.inventory = inventory;
 			this.brewingStand = inventory.getHolder();
@@ -161,7 +151,7 @@ public class BrewRecipe {
 			for(var i = 0; i < 3; i++) {
 				//Check if there's a receptacle in the slot
 				if(recipe.getReceptacle().isSimilar(inventory.getItem(i))) {
-					inventory.setItem(i, recipe.result);
+					inventory.setItem(i, recipe.getResult());
 				}
 			}
 			final var newIngredient = inventory.getIngredient().clone();

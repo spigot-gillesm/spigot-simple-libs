@@ -3,6 +3,7 @@ package com.github.spigot_gillesm.item_lib;
 import com.github.spigot_gillesm.format_lib.Formatter;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -12,6 +13,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
@@ -69,10 +71,15 @@ public class SimpleItem {
     private final Integer customModelData;
 
     @Getter
+    private final Color color;
+
+    @Getter
     private final String localizedName;
 
     @Getter
     private final Map<Attribute, AttributeModifier> attributeModifiers;
+
+    private ItemStack itemStack;
 
     /**
      * SimpleItem cannot be instantiated. Use its builder to create an instance of SimpleItem
@@ -94,6 +101,7 @@ public class SimpleItem {
         this.potionEffects = builder.potionEffects;
         this.unbreakable = builder.unbreakable;
         this.customModelData = builder.customModelData;
+        this.color = builder.color;
         this.localizedName = builder.localizedName;
         this.attributeModifiers = builder.attributeModifiers;
     }
@@ -104,6 +112,9 @@ public class SimpleItem {
      * @return a new instance of ItemStack matching the current instance data
      */
     public ItemStack getItemStack() {
+        if(itemStack != null) {
+            return itemStack;
+        }
         if(material == null) {
             throw new IllegalArgumentException("material cannot be null.");
         }
@@ -123,7 +134,6 @@ public class SimpleItem {
 
         if(meta != null) {
             meta.setDisplayName(Formatter.colorize(displayName));
-            meta.setLore(Formatter.colorize(lore));
             meta.addItemFlags(itemFlags);
 
             if(meta instanceof EnchantmentStorageMeta) {
@@ -144,14 +154,50 @@ public class SimpleItem {
             meta.setLocalizedName(localizedName);
             attributeModifiers.forEach(meta::addAttributeModifier);
 
-            if(meta instanceof Damageable && damage > 0) {
+            if(damage > 0 && meta instanceof Damageable) {
                 ((Damageable) meta).setDamage(damage);
             }
+            if(color != null && meta instanceof LeatherArmorMeta) {
+                ((LeatherArmorMeta) meta).setColor(color);
+            }
+
+            final var isArmor = material.name().contains("HELMET") || material.name().contains("CHESTPLATE")
+                    || material.name().contains("LEGGINGS") || material.name().contains("BOOTS");
+            //If there are attributes and the item is not an armor and the item is not hiding its attributes
+            //-> override them with a clean lore
+            if(!attributeModifiers.isEmpty() && !isArmor && Arrays.stream(itemFlags).noneMatch(f -> f == ItemFlag.HIDE_ATTRIBUTES)) {
+                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                lore.add("");
+                lore.add("&7When in Main Hand:");
+
+                for(final var attributeSet : attributeModifiers.entrySet()) {
+                    lore.add(generateAttributeString(attributeSet.getKey(), attributeSet.getValue()));
+                }
+            }
+            meta.setLore(Formatter.colorize(lore));
 
             item.setItemMeta(meta);
+            this.itemStack = item;
         }
 
         return item;
+    }
+
+    private String generateAttributeString(final Attribute attribute, final AttributeModifier modifier) {
+        final var value = attribute == Attribute.GENERIC_ATTACK_SPEED ? modifier.getAmount() + 4 : modifier.getAmount();
+        final var string = attribute.name().replace("GENERIC_", "").split("_");
+        final var stringBuilder = new StringBuilder(" &2" + value + " ");
+
+        for(final var word : string) {
+            //Capitalize the first letter and lower the others and add a space at the end
+            stringBuilder.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(" ");
+        }
+        if(!stringBuilder.isEmpty()) {
+            //Remove the useless last space
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        }
+
+        return stringBuilder.toString();
     }
 
     /**
@@ -191,6 +237,8 @@ public class SimpleItem {
         private boolean unbreakable = false;
 
         private Integer customModelData;
+
+        private Color color;
 
         private String localizedName;
 
@@ -329,6 +377,12 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder addEnchantment(final Enchantment enchantment, int level) {
+            if(enchantment == null) {
+                throw new IllegalArgumentException("Enchantment cannot be null.");
+            }
+            if(level < 1) {
+                throw new IllegalArgumentException("Enchantments level must be greater than 0.");
+            }
             this.enchantments.put(enchantment, level);
             return this;
         }
@@ -400,6 +454,23 @@ public class SimpleItem {
         public Builder customModelData(final Integer customModelData) {
             this.customModelData = customModelData;
             return this;
+        }
+
+        public Builder color(final Color color) {
+            this.color = color;
+            return this;
+        }
+
+        /**
+         * Set the item's color.
+         *
+         * @param r the red value from 0 to 255
+         * @param g the green value from 0 to 255
+         * @param b the blue value from 0 to 255
+         * @return the builder
+         */
+        public Builder color(final int r, final int g, final int b) {
+            return color(Color.fromRGB(r, g, b));
         }
 
         /**

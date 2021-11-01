@@ -4,6 +4,9 @@ import com.github.spigot_gillesm.command_lib.CommandLib;
 import com.github.spigot_gillesm.file_utils.FileUtils;
 import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.gui_lib.GuiLib;
+import com.github.spigot_gillesm.lib_test.craft.CraftManager;
+import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;
+import com.github.spigot_gillesm.lib_test.profession.WorkstationManager;
 import com.github.spigot_gillesm.player_lib.PlayerLib;
 import com.github.spigot_gillesm.spell_lib.SpellLib;
 import lombok.Getter;
@@ -18,7 +21,7 @@ public final class LibTest extends JavaPlugin {
 
 	private static void initialize(final Plugin plugin) {
 		instance = plugin;
-		Formatter.PREFIX = "&f[&2Test&f]";
+		Formatter.PREFIX = "&f[&2RPProfessions&f]";
 		FileUtils.PLUGIN_DATA_FOLDER_PATH = instance.getDataFolder().getPath();
 	}
 
@@ -30,6 +33,12 @@ public final class LibTest extends JavaPlugin {
 		PlayerLib.initialize(this);
 		GuiLib.initialize(this);
 		Bukkit.getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+		//Workstations must be loaded before professions and crafts
+		//Items must be loaded before crafts
+		WorkstationManager.loadWorkstations();
+		ProfessionManager.loadProfessions();
+		ItemManager.loadItems();
+		CraftManager.loadCrafts();
 	}
 
 	@Override
