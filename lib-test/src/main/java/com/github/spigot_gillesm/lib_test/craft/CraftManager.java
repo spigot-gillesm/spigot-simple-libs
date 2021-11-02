@@ -39,10 +39,12 @@ public class CraftManager {
 		try {
 			final var fuelName = section.getString("fuel");
 
-			if(ItemManager.exists(fuelName)) {
-				builder.fuel(ItemManager.getItem(fuelName).get().getItemStack());
-			} else if(fuelName != null && !fuelName.isBlank()) {
-				builder.fuel(Material.valueOf(fuelName.toUpperCase()));
+			if(fuelName != null) {
+				if(ItemManager.exists(fuelName)) {
+					builder.fuel(ItemManager.getItem(fuelName).get().getItemStack());
+				} else if(!fuelName.isBlank()) {
+					builder.fuel(Material.valueOf(fuelName.toUpperCase()));
+				}
 			}
 
 			//Check if the receptacle must be built from file
@@ -192,7 +194,6 @@ public class CraftManager {
 
 		for(final String id : conf.getKeys(false)) {
 			if(conf.isConfigurationSection(id)) {
-				Formatter.info("Loading craft " + id + ".");
 				loadCraftFromFile(conf, id, file.getName()).ifPresent(craftItem -> crafts.put(id, craftItem));
 			}
 		}

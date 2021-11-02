@@ -4,20 +4,22 @@ import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.gui_lib.SimpleMenuInteractEvent;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
+import com.github.spigot_gillesm.lib_test.profession.Privilege;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;
 import com.github.spigot_gillesm.player_lib.DataManager;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.EquipmentSlot;
@@ -58,41 +60,65 @@ public class PlayerListener implements Listener {
 		}
 	}
 
-	/*@EventHandler
-	private void onPlayerBreakBlock(final BlockBreakEvent event) {*/
-		/*
-		 * Prevent actions based on the profession
-		 */
-		/*final var player = event.getPlayer();
-		final var block = event.getBlock();
-		final var professionType = PlayerManager.getProfessionType(player);*/
+	@EventHandler
+	private void onPlayerBreakBlock(final BlockBreakEvent event) {
+		final var block = event.getBlock().getType();
 
-		/*
-		 * FARMER
-		 */
-		/*if(block.getType() == Material.WHEAT && professionType != ProfessionType.FARMER) {
+		//If breaking wheat is a privilege, check if the player has that privilege
+		if(block == Material.WHEAT && ProfessionManager.privilegeExists(Privilege.WHEAT) &&
+				!PlayerManager.hasPrivilege(event.getPlayer(), Privilege.WHEAT)) {
+			//If not -> prevent drops
 			event.setDropItems(false);
-		}*/
-	//}
+		}
+	}
 
-	/*@EventHandler
-	private void onEntityDeath(final EntityDeathEvent event) {*/
-		/*
-		 * Prevent actions based on the profession
-		 */
-		/*final var entity = event.getEntity();
-		final var killer = entity.getKiller();*/
+	@EventHandler
+	private void onEntityDeath(final EntityDeathEvent event) {
+		final var entity = event.getEntity();
+		final var killer = entity.getKiller();
 
-		/*
-		 * FARMER
-		 */
-		/*if(entity instanceof Animals && killer != null) {
-			final var professionType = PlayerManager.getProfessionType(killer);
-			if(professionType != ProfessionType.FARMER) {
-				event.getDrops().clear();
+		//If killing animals is a privilege, check if the player has that privilege
+		if(entity instanceof Animals && killer != null && ProfessionManager.privilegeExists(Privilege.ANIMALS) &&
+				!PlayerManager.hasPrivilege(killer, Privilege.ANIMALS)) {
+			//If not -> prevent drops
+			event.getDrops().clear();
+		}
+		if(entity instanceof Monster && killer != null && ProfessionManager.privilegeExists(Privilege.MONSTERS) &&
+				!PlayerManager.hasPrivilege(killer, Privilege.MONSTERS)) {
+			//If not -> prevent drops
+			event.getDrops().clear();
+		}
+	}
+
+	@EventHandler
+	private void onPrepareItemCraft(final PrepareItemCraftEvent event) {
+		final var players = event.getViewers();
+		final var recipe = event.getRecipe();
+
+		if(recipe != null) {
+			final var material = recipe.getResult().getType();
+			final var isArmor = material.name().contains("HELMET") || material.name().contains("CHESTPLATE")
+					|| material.name().contains("LEGGINGS") || material.name().contains("BOOTS");
+			final var isWeapon = (material.name().contains("SWORD") || material.name().contains("AXE"))
+					&& !material.name().contains("WOOD");
+			var preventCraft = false;
+
+			for (final var player : players) {
+				if(isArmor && ProfessionManager.privilegeExists(Privilege.ARMORS) &&
+						!PlayerManager.hasPrivilege((Player) player, Privilege.ARMORS)) {
+					preventCraft = true;
+				}
+				if(isWeapon && ProfessionManager.privilegeExists(Privilege.WEAPONS) &&
+						!PlayerManager.hasPrivilege((Player) player, Privilege.WEAPONS)) {
+					preventCraft = true;
+				}
 			}
-		}*/
-	//}
+			if(preventCraft) {
+				event.getInventory().setResult(null);
+				players.forEach(p -> ((Player) p).updateInventory());
+			}
+		}
+	}
 
 	@EventHandler
 	private void onPlayerInteract(final PlayerInteractEvent event) {

@@ -99,11 +99,11 @@ public class YamlItem {
 				//Contains the data of one effect
 				final var effectSection = effectsSection.getConfigurationSection(key);
 
-				if(!effectSection.contains("duration") || !effectSection.contains("amplifier")) {
-					Formatter.error("Invalid potion effect data for " + id + ": All effects must have an amplifier and duration set.");
+				if(!effectSection.contains("duration") && !effectSection.contains("amplifier")) {
+					Formatter.error("Invalid potion effect data for " + id + ": All effects must have an amplifier or a duration set.");
 				}
 				builder.addPotionEffect(PotionEffectType.getByName(key.toUpperCase()),
-						(int) effectSection.getDouble("duration") * 20, effectSection.getInt("amplifier"));
+						(int) effectSection.getDouble("duration", 0) * 20, effectSection.getInt("amplifier", 0));
 			}
 		}
 		if(section.isConfigurationSection("color")) {

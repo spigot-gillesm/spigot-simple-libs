@@ -1,6 +1,5 @@
 package com.github.spigot_gillesm.lib_test.menu;
 
-import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.gui_lib.ListingMenu;
 import com.github.spigot_gillesm.gui_lib.SimpleButton;
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
@@ -27,7 +26,6 @@ public class CraftingListMenu extends ListingMenu {
 		final var profession = PlayerManager.getProfession(viewer);
 
 		if(profession.isPresent()) {
-			Formatter.info("Profession: " + profession.get());
 			for(final var recipe : CraftManager.getItemsFromProfession(profession.get())) {
 				if(recipe instanceof BreweryCraftRecipe) {
 					final var breweryRecipe = (BreweryCraftRecipe) recipe;

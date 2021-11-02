@@ -21,6 +21,8 @@ public class Profession {
 	@Getter
 	private final Set<Workstation> workstations;
 
+	private final Set<Privilege> privileges;
+
 	@Getter
 	private final String displayName;
 
@@ -32,6 +34,7 @@ public class Profession {
 
 	private Profession(final Builder builder) {
 		this.workstations = builder.workstations;
+		this.privileges = builder.privileges;
 		this.displayName = builder.displayName;
 		this.icon = builder.icon;
 		this.description = builder.description;
@@ -76,6 +79,10 @@ public class Profession {
 		return false;
 	}
 
+	public boolean hasPrivilege(final Privilege privilege) {
+		return privileges.contains(privilege);
+	}
+
 	public boolean hasWorkstation(final Material material) {
 		for(final var workstation : workstations) {
 			if(workstation.getMaterials().contains(material)) {
@@ -104,6 +111,8 @@ public class Profession {
 
 		private final Set<Workstation> workstations = new HashSet<>();
 
+		private final Set<Privilege> privileges = new HashSet<>();
+
 		private String displayName;
 
 		private Material icon;
@@ -112,6 +121,11 @@ public class Profession {
 
 		public Builder addWorkstations(final Workstation... workstations) {
 			this.workstations.addAll(List.of(workstations));
+			return this;
+		}
+
+		public Builder addPrivileges(final Privilege... privileges) {
+			this.privileges.addAll(List.of(privileges));
 			return this;
 		}
 
@@ -164,10 +178,6 @@ public class Profession {
 			final var section = configuration.getConfigurationSection(id);
 			final var builder = Profession.newBuilder();
 
-			if(!section.contains("workstations")) {
-				Formatter.error("All professions must contain workstations.");
-				return Optional.empty();
-			}
 			if(!section.contains("display-name")) {
 				Formatter.error("All professions must contain display-name.");
 				return Optional.empty();
@@ -189,6 +199,13 @@ public class Profession {
 				} else {
 					Formatter.error("Unknown workstation for profession " + id + ".");
 					return Optional.empty();
+				}
+			}
+			for(final var privilegeName : section.getStringList("privileges")) {
+				final var privilege = Privilege.getPrivilege(privilegeName);
+
+				if(privilege != null) {
+					builder.addPrivileges(privilege);
 				}
 			}
 			builder.displayName(section.getString("display-name"));

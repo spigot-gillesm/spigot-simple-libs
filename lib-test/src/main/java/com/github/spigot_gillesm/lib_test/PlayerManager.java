@@ -1,5 +1,6 @@
 package com.github.spigot_gillesm.lib_test;
 
+import com.github.spigot_gillesm.lib_test.profession.Privilege;
 import com.github.spigot_gillesm.lib_test.profession.Profession;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;
 import com.github.spigot_gillesm.player_lib.DataManager;
@@ -36,6 +37,10 @@ public class PlayerManager {
 
 	public boolean hasProfession(final Player player) {
 		return getProfession(player).isPresent();
+	}
+
+	public boolean hasPrivilege(final Player player, final Privilege privilege) {
+		return getProfession(player).map(p -> p.hasPrivilege(privilege)).orElse(false);
 	}
 
 	public boolean canEquip(@NotNull final Player player, @NotNull final ItemStack itemStack) {

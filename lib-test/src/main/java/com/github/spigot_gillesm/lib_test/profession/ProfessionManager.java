@@ -114,6 +114,16 @@ public class ProfessionManager {
 		return "";
 	}
 
+	public static boolean privilegeExists(final Privilege privilege) {
+		for(final var profession : getProfessions()) {
+			if(profession.hasPrivilege(privilege)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public boolean canUseWorkstation(final Profession profession, final Material material) {
 		//Check if the mat is a profession's workstation
 		if(profession.hasWorkstation(material)) {
