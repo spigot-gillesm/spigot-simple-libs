@@ -1,6 +1,7 @@
 package com.github.spigot_gillesm.rpg_stats_lib;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -17,22 +18,22 @@ public class StatHolder {
 		this.uuid = uuid;
 	}
 
-	public Double setStat(final Statistic statistic, final Double value) {
+	public Double setStat(@NotNull final Statistic statistic, @NotNull final Double value) {
 		playerStats.put(statistic, value);
 		return value;
 	}
 
-	public Double add(final Statistic statistic, final Double value) {
+	public Double add(@NotNull final Statistic statistic, @NotNull final Double value) {
 		playerStats.put(statistic, playerStats.get(statistic) + value);
 		return playerStats.get(statistic);
 	}
 
-	public Double subtract(final Statistic statistic, final Double value) {
+	public Double subtract(@NotNull final Statistic statistic, @NotNull final Double value) {
 		playerStats.put(statistic, playerStats.get(statistic) - value);
 		return playerStats.get(statistic);
 	}
 
-	public Double getValue(final Statistic statistic) {
+	public Double getValue(@NotNull final Statistic statistic) {
 		return playerStats.get(statistic);
 	}
 

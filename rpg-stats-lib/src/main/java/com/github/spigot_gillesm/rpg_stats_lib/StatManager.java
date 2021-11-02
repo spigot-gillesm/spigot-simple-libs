@@ -13,7 +13,7 @@ public class StatManager {
 
 	private final Set<StatHolder> HOLDERS = new HashSet<>();
 
-	public StatHolder newHolder(final UUID uuid) {
+	public StatHolder newHolder(@NotNull final UUID uuid) {
 		final var holder = new StatHolder(uuid);
 		HOLDERS.add(holder);
 		return holder;

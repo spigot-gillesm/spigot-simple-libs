@@ -36,7 +36,7 @@ public enum PlayerTag {
 		try {
 			PlayerTag.valueOf(name);
 			return true;
-		} catch(final IllegalArgumentException  e) {
+		} catch(final IllegalArgumentException e) {
 			return false;
 		}
 	}

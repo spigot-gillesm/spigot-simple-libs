@@ -12,8 +12,10 @@ public class SimpleMenuInteractEvent extends Event implements Cancellable {
 	private static final HandlerList HANDLERS_LIST = new HandlerList();
 
 	private boolean isCancelled;
+
 	@Getter
 	private final int slot;
+	
 	@Getter
 	private final ItemStack clickedItem;
 

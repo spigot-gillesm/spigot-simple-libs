@@ -7,6 +7,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +28,7 @@ public abstract class ListingMenu extends SimpleMenu {
 	@Setter(AccessLevel.PROTECTED)
 	private SimpleButton middleButton;
 
-	protected ListingMenu(final SimpleMenu parentMenu) {
+	protected ListingMenu(@NotNull final SimpleMenu parentMenu) {
 		super(parentMenu);
 		setSize(5*9);
 		generateNavButtons();
@@ -38,6 +40,7 @@ public abstract class ListingMenu extends SimpleMenu {
 
 	protected abstract List<SimpleButton> generateButtons(final Player viewer);
 
+	@Nullable
 	@Override
 	protected ItemStack getSlotItem(int slot) {
 		//Check for the navigation buttons
@@ -59,6 +62,7 @@ public abstract class ListingMenu extends SimpleMenu {
 		if(slot < currentContent.size()) {
 			return currentContent.get(slot) != null ? currentContent.get(slot).getIcon() : null;
 		}
+
 		return null;
 	}
 
@@ -79,7 +83,7 @@ public abstract class ListingMenu extends SimpleMenu {
 		return buttons;
 	}
 
-	private List<List<SimpleButton>> registerButtons(final List<SimpleButton> buttons) {
+	private List<List<SimpleButton>> registerButtons(@NotNull final List<SimpleButton> buttons) {
 		//i.e: 28 buttons will result in 2 pages. page 1 : 1 -> 27, page 2: 28
 		this.pageAmount = (int) (Math.ceil(buttons.size() * 1.0) / (size - 9));
 
@@ -114,7 +118,6 @@ public abstract class ListingMenu extends SimpleMenu {
 				.build()) {
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
-				//setCancelOpen(true);
 				final ListingMenu menu = (ListingMenu) SimpleMenu.getMenu(player);
 				menu.setCancelReinstantiation(true);
 				menu.setCurrentPage(currentPage + 1);
@@ -130,7 +133,6 @@ public abstract class ListingMenu extends SimpleMenu {
 				.build()) {
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
-				//setCancelOpen(true);
 				final ListingMenu menu = (ListingMenu) SimpleMenu.getMenu(player);
 				menu.setCancelReinstantiation(true);
 				menu.setCurrentPage(currentPage - 1);

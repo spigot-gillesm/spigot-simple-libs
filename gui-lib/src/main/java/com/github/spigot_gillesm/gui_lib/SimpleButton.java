@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class SimpleButton {
 
@@ -16,11 +17,11 @@ public abstract class SimpleButton {
 	@Getter
 	private boolean cancelOpen = false;
 
-	public SimpleButton(final ItemStack icon) {
+	public SimpleButton(@NotNull final ItemStack icon) {
 		this.icon = icon;
 	}
 
-	public SimpleButton(final SimpleItem icon) {
+	public SimpleButton(@NotNull final SimpleItem icon) {
 		this(icon.getItemStack());
 	}
 

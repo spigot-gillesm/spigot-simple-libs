@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.RoundingMode;
 
@@ -26,7 +27,7 @@ public abstract class SimpleSpell implements Spell {
 	private final SpellCooldown spellCooldown = new SpellCooldown();
 
 	@Override
-	public void cast(final LivingEntity entity) {
+	public void cast(@NotNull final LivingEntity entity) {
 		final var id = String.valueOf(entity.getEntityId());
 
 		if(cooldown > 0 && spellCooldown.isOnCooldown(id)) {

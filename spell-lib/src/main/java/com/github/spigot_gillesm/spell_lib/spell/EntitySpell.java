@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.jetbrains.annotations.NotNull;
 
 public interface EntitySpell {
 
@@ -14,11 +15,11 @@ public interface EntitySpell {
 
 	default void onHit(final Location location) { }
 
-	static void tagEntity(final Entity entity, final EntitySpell instance) {
+	static void tagEntity(@NotNull final Entity entity, @NotNull final EntitySpell instance) {
 		entity.setMetadata(TAG, new FixedMetadataValue(SpellLib.plugin, instance));
 	}
 
-	static EntitySpell getSpell(final Entity entity) {
+	static EntitySpell getSpell(@NotNull final Entity entity) {
 		if(entity.hasMetadata(TAG)) {
 			final Object o = entity.getMetadata(TAG).get(0).value();
 

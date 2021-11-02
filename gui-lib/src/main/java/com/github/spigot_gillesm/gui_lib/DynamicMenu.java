@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class DynamicMenu extends SimpleMenu {
 
@@ -14,7 +15,7 @@ public abstract class DynamicMenu extends SimpleMenu {
 	private long interval = 1;
 
 	@Override
-	public void display(final Player player) {
+	public void display(@NotNull final Player player) {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -32,7 +33,7 @@ public abstract class DynamicMenu extends SimpleMenu {
 	 *
 	 * @param player the player
 	 */
-	private void execute(final Player player) {
+	private void execute(@NotNull final Player player) {
 		update(player);
 		super.display(player);
 		setCancelReinstantiation(true);

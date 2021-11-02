@@ -10,6 +10,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
@@ -29,7 +30,7 @@ public class YamlItem {
 		this(FileUtils.getResource(path));
 	}
 
-	public SimpleItem.Builder getBuilderFromFile(final String id) {
+	public SimpleItem.Builder getBuilderFromFile(@NotNull final String id) {
 		if(!configuration.isConfigurationSection(id)) {
 			throw new IllegalArgumentException("Id " + id + " doesn't exist in this context.");
 		}
@@ -149,7 +150,7 @@ public class YamlItem {
 		return builder;
 	}
 
-	public SimpleItem getItemFromFile(final String id) {
+	public SimpleItem getItemFromFile(@NotNull final String id) {
 		return getBuilderFromFile(id).build();
 	}
 
@@ -161,15 +162,15 @@ public class YamlItem {
 		return getBuilderFromFile().build();
 	}
 
-	public static YamlItem fromConfiguration(final ConfigurationSection configuration) {
+	public static YamlItem fromConfiguration(@NotNull final ConfigurationSection configuration) {
 		return new YamlItem(configuration);
 	}
 
-	public static YamlItem fromFile(final File file) {
+	public static YamlItem fromFile(@NotNull final File file) {
 		return new YamlItem(FileUtils.getConfiguration(file));
 	}
 
-	public static YamlItem fromPath(final String path) {
+	public static YamlItem fromPath(@NotNull final String path) {
 		return new YamlItem(FileUtils.getResource(path));
 	}
 

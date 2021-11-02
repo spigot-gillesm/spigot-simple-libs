@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -72,7 +74,7 @@ public abstract class SimpleMenu {
 		}
 	}
 
-	public void display(final Player player) {
+	public void display(@NotNull final Player player) {
 		this.viewer = player;
 
 		if(buttonsRegistered && !cancelReinstantiation) {
@@ -95,6 +97,7 @@ public abstract class SimpleMenu {
 		}
 	}
 
+	@Nullable
 	protected SimpleMenu reInstantiate() {
 		try {
 			if(parentMenu != null) {
@@ -111,10 +114,11 @@ public abstract class SimpleMenu {
 		} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
 			Formatter.error("Error re instantiating " + getClass() + ". Make sure the constructor has no argument or only one extending SimpleMenu.");
 		}
+
 		return null;
 	}
 
-	private void registerButton(final Field field) {
+	private void registerButton(@NotNull final Field field) {
 		field.setAccessible(true);
 
 		if(SimpleButton.class.isAssignableFrom(field.getType())) {
@@ -129,7 +133,9 @@ public abstract class SimpleMenu {
 		}
 	}
 
-	protected List<SimpleButton> registerLastButtons() { return new ArrayList<>(); }
+	protected List<SimpleButton> registerLastButtons() {
+		return new ArrayList<>();
+	}
 
 	protected void registerButtons() {
 		registeredButtons.clear();
@@ -144,6 +150,7 @@ public abstract class SimpleMenu {
 		//default to no effect. Must be overridden
 	}
 
+	@Nullable
 	private ItemStack getLowerItem(final int slot) {
 		if(returnButton != null && slot == size - 9) {
 			return returnButton.getIcon();
@@ -152,6 +159,7 @@ public abstract class SimpleMenu {
 		return null;
 	}
 
+	@Nullable
 	private ItemStack getItemAt(final int slot) {
 		return getLowerItem(slot) != null ? getLowerItem(slot) : getSlotItem(slot);
 	}
@@ -166,7 +174,7 @@ public abstract class SimpleMenu {
 		return items;
 	}
 
-	public Optional<SimpleButton> getButton(final ItemStack item) {
+	public Optional<SimpleButton> getButton(@NotNull final ItemStack item) {
 		if(returnButton != null && returnButton.getIcon().equals(item)) {
 			return Optional.of(returnButton);
 		} else {
@@ -174,7 +182,7 @@ public abstract class SimpleMenu {
 		}
 	}
 
-	public static SimpleMenu getMenu(final Player player) {
+	public static SimpleMenu getMenu(@NotNull final Player player) {
 		return player.hasMetadata("SIMPLE_MENU") ? (SimpleMenu) player.getMetadata("SIMPLE_MENU").get(0).value()
 				: null;
 	}

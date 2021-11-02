@@ -21,11 +21,11 @@ public abstract class SimpleCommand extends Command {
 
 	private final Set<SimpleCommand> subCommands = new HashSet<>();
 
-	protected SimpleCommand(final String name) {
+	protected SimpleCommand(@NotNull final String name) {
 		super(name);
 	}
 
-	protected SimpleCommand(final SimpleCommand parentCommand, final String name) {
+	protected SimpleCommand(@NotNull final SimpleCommand parentCommand, @NotNull final String name) {
 		this(name);
 		parentCommand.subCommands.add(this);
 	}
@@ -65,7 +65,8 @@ public abstract class SimpleCommand extends Command {
 		return true;
 	}
 
-	private void runSubCommands(final CommandSender sender, final String commandLabel, final String[] args) {
+	private void runSubCommands(@NotNull final CommandSender sender, @NotNull final String commandLabel,
+								@NotNull final String[] args) {
 		final List<SimpleCommand> matchingCommands = subCommands.stream()
 				//Get the commands matching the arg or alias
 				.filter(command -> command.getName().equalsIgnoreCase(args[0]) || command.getAliases().contains(args[0]))
@@ -75,7 +76,7 @@ public abstract class SimpleCommand extends Command {
 				Arrays.copyOfRange(args, 1, args.length)));
 	}
 
-	private void displayHelp(final CommandSender sender) {
+	private void displayHelp(@NotNull final CommandSender sender) {
 		Formatter.tell(sender, "&7=============&8[&6&lHelp&8]&7=============");
 		Formatter.tell(sender, "&6Description&8: &7" + getDescription());
 
@@ -97,11 +98,11 @@ public abstract class SimpleCommand extends Command {
 		}
 	}
 
-	protected void addMandatoryArgument(final String arg) {
+	protected void addMandatoryArgument(@NotNull final String arg) {
 		mandatoryArgs.add(arg);
 	}
 
-	protected void addOptionalArgument(final String arg) {
+	protected void addOptionalArgument(@NotNull final String arg) {
 		optionalArgs.add(arg);
 	}
 

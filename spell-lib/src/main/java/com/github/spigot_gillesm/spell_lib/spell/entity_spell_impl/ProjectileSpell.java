@@ -11,6 +11,7 @@ import net.minecraft.server.v1_16_R3.PacketPlayOutEntityDestroy;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftArrow;
 import org.bukkit.entity.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +41,7 @@ public abstract class ProjectileSpell extends SimpleSpell implements EntitySpell
 	}
 
 	@Override
-	public void run(final LivingEntity entity) {
+	public void run(@NotNull final LivingEntity entity) {
 		final Projectile projectile = entity.launchProjectile(projectileType,
 				entity.getLocation().getDirection().multiply(vectorMultiplier));
 		projectile.setGravity(gravity);
@@ -69,7 +70,7 @@ public abstract class ProjectileSpell extends SimpleSpell implements EntitySpell
 	 *
 	 * @param projectile the projectile to make invisible
 	 */
-	private void makeInvisible(final Projectile projectile) {
+	private void makeInvisible(@NotNull final Projectile projectile) {
 		projectile.getNearbyEntities(25, 25, 25).stream()
 				.filter(Player.class::isInstance)
 				.forEach(player -> PacketUtil.sendPacket((Player) player,

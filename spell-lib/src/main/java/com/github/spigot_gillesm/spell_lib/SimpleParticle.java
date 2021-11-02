@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.NotNull;
 
 public class SimpleParticle {
 
@@ -42,10 +43,7 @@ public class SimpleParticle {
 	 *
 	 * @param entity the entity to attach the particle effect
 	 */
-	public void start(final Entity entity) {
-		if(entity == null) {
-			throw new IllegalArgumentException("Entity cannot be null.");
-		}
+	public void start(@NotNull final Entity entity) {
 		task = Bukkit.getServer().getScheduler().runTaskTimer(SpellLib.plugin,
 				() -> {
 					if(entity.isDead()) {

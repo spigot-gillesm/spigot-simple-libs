@@ -31,7 +31,7 @@ public class Formatter {
 	 * @param message the message to colorize
 	 * @return the colorized message
 	 */
-	public static String colorize(final String message) {
+	public static String colorize(@NotNull final String message) {
 		if(!StringUtils.isBlank(message)) {
 			return ChatColor.translateAlternateColorCodes('&', message);
 		} else {
@@ -61,7 +61,7 @@ public class Formatter {
 	 * @param toWhom the command sender
 	 * @param message the message
 	 */
-	public static void tell(@NotNull final CommandSender toWhom, final String message) {
+	public static void tell(@NotNull final CommandSender toWhom, @NotNull final String message) {
 		if(message != null) {
 			toWhom.sendMessage(colorize(message));
 		}
@@ -84,7 +84,7 @@ public class Formatter {
 	 *
 	 * @param message the info message
 	 */
-	public static void info(final String message) {
+	public static void info(@NotNull final String message) {
 		if(!StringUtils.isBlank(PREFIX)) {
 			Bukkit.getConsoleSender().sendMessage(colorize(PREFIX + " &f" + message));
 		} else {
@@ -97,7 +97,7 @@ public class Formatter {
 	 *
 	 * @param message the warning message
 	 */
-	public static void warning(final String message) {
+	public static void warning(@NotNull final String message) {
 		if(!StringUtils.isBlank(PREFIX)) {
 			Bukkit.getConsoleSender().sendMessage(colorize(PREFIX + " &f/&6!&f\\ &6" + message));
 		} else {
@@ -110,7 +110,7 @@ public class Formatter {
 	 *
 	 * @param message the error message
 	 */
-	public static void error(final String message) {
+	public static void error(@NotNull final String message) {
 		if(!StringUtils.isBlank(PREFIX)) {
 			Bukkit.getConsoleSender().sendMessage(colorize(PREFIX + " &f/&l&4!&cERROR&l&4!&f\\ &c" + message));
 		} else {
