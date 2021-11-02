@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This utility class provides various useful methods to help formatting text, messages, etc...
+ * This utility class provides various useful methods to help to format text, messages, etc...
  * Inspired by Kangarko (Matej Pacan).
  *
  * @author Gilles_M
@@ -31,7 +31,7 @@ public class Formatter {
 	 * @param message the message to colorize
 	 * @return the colorized message
 	 */
-	public static String colorize(final String message) {
+	public static String colorize(@NotNull final String message) {
 		if(!StringUtils.isBlank(message)) {
 			return ChatColor.translateAlternateColorCodes('&', message);
 		} else {
@@ -48,8 +48,9 @@ public class Formatter {
 	public static List<String> colorize(@NotNull final List<String> lines) {
 		final List<String> messages = new ArrayList<>();
 
-		for(final String line : lines)
+		for(final String line : lines) {
 			messages.add(colorize(line));
+		}
 
 		return messages;
 	}
@@ -60,7 +61,7 @@ public class Formatter {
 	 * @param toWhom the command sender
 	 * @param message the message
 	 */
-	public static void tell(@NotNull final CommandSender toWhom, final String message) {
+	public static void tell(@NotNull final CommandSender toWhom, @NotNull final String message) {
 		if(message != null) {
 			toWhom.sendMessage(colorize(message));
 		}
@@ -73,8 +74,9 @@ public class Formatter {
 	 * @param messages the messages
 	 */
 	public static void tell(@NotNull final CommandSender toWhom, @NotNull final String... messages) {
-		for (final String message : messages)
+		for (final String message : messages) {
 			tell(toWhom, message);
+		}
 	}
 
 	/**
@@ -82,7 +84,7 @@ public class Formatter {
 	 *
 	 * @param message the info message
 	 */
-	public static void info(final String message) {
+	public static void info(@NotNull final String message) {
 		if(!StringUtils.isBlank(PREFIX)) {
 			Bukkit.getConsoleSender().sendMessage(colorize(PREFIX + " &f" + message));
 		} else {
@@ -95,7 +97,7 @@ public class Formatter {
 	 *
 	 * @param message the warning message
 	 */
-	public static void warning(final String message) {
+	public static void warning(@NotNull final String message) {
 		if(!StringUtils.isBlank(PREFIX)) {
 			Bukkit.getConsoleSender().sendMessage(colorize(PREFIX + " &f/&6!&f\\ &6" + message));
 		} else {
@@ -108,7 +110,7 @@ public class Formatter {
 	 *
 	 * @param message the error message
 	 */
-	public static void error(final String message) {
+	public static void error(@NotNull final String message) {
 		if(!StringUtils.isBlank(PREFIX)) {
 			Bukkit.getConsoleSender().sendMessage(colorize(PREFIX + " &f/&l&4!&cERROR&l&4!&f\\ &c" + message));
 		} else {

@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
@@ -16,20 +17,20 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 @UtilityClass
-public class CommanderManager {
+public class CommandManager {
 
-	private void registerCommand(final Command command) {
+	private void registerCommand(@NotNull final Command command) {
 		Formatter.info("Registering " + command.getName() + " as a main command.");
 		try {
 			final var commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
 			commandMapField.setAccessible(true);
 			((CommandMap) commandMapField.get(Bukkit.getServer())).register(command.getLabel(), command);
-		} catch (Exception exception) {
-			exception.printStackTrace();
+		} catch (final Exception e) {
+			e.printStackTrace();
 		}
 	}
 
-	void registerMainCommands(final Plugin plugin) {
+	void registerMainCommands(@NotNull final Plugin plugin) {
 		new Reflections(ClasspathHelper.forPackage(plugin.getClass().getPackage().getName()),
 				plugin.getClass(), new TypeAnnotationsScanner(), new SubTypesScanner())
 				.getTypesAnnotatedWith(MainCommand.class)

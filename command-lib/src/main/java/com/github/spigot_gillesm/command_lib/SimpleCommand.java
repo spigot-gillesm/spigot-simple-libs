@@ -8,10 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class SimpleCommand extends Command {
@@ -19,21 +16,29 @@ public abstract class SimpleCommand extends Command {
 	@Setter(AccessLevel.PROTECTED)
 	private boolean playerCommand = false;
 
-	@Setter(AccessLevel.PROTECTED)
-	private String alias;
+	private final List<String> mandatoryArgs = new ArrayList<>();
+	private final List<String> optionalArgs = new ArrayList<>();
 
 	private final Set<SimpleCommand> subCommands = new HashSet<>();
 
-	public SimpleCommand(final String name) {
+	protected SimpleCommand(@NotNull final String name) {
 		super(name);
 	}
 
-	public SimpleCommand(final SimpleCommand parentCommand, final String name) {
+	protected SimpleCommand(@NotNull final SimpleCommand parentCommand, @NotNull final String name) {
 		this(name);
 		parentCommand.subCommands.add(this);
 	}
 
 	protected abstract void run(final CommandSender sender, final String[] args);
+
+	protected void tell(@NotNull final CommandSender sender, @NotNull final String message) {
+		if(!Formatter.PREFIX.isBlank()) {
+			Formatter.tell(sender, Formatter.PREFIX + " " + message);
+		} else {
+			Formatter.tell(sender, message);
+		}
+	}
 
 	@Override
 	public boolean execute(@NotNull final CommandSender sender, @NotNull final String commandLabel,
@@ -47,38 +52,58 @@ public abstract class SimpleCommand extends Command {
 			return false;
 		}
 
-		run(sender, args);
 		//Check for help calls
 		if(args.length == 1 && "help".equalsIgnoreCase(args[0])) {
 			displayHelp(sender);
+			return true;
 		}
-		//True if args match no sub commands name
-		if(args.length > 0 && runSubCommands(sender, commandLabel, args)) {
-			displayHelp(sender);
-		}
+		run(sender, args);
 
+		if(args.length > 0) {
+			runSubCommands(sender, commandLabel, args);
+		}
 		return true;
 	}
 
-	private boolean runSubCommands(final CommandSender sender, final String commandLabel, final String[] args) {
+	private void runSubCommands(@NotNull final CommandSender sender, @NotNull final String commandLabel,
+								@NotNull final String[] args) {
 		final List<SimpleCommand> matchingCommands = subCommands.stream()
 				//Get the commands matching the arg or alias
-				.filter(command -> command.getName().equalsIgnoreCase(args[0]) || args[0].equalsIgnoreCase(command.alias))
+				.filter(command -> command.getName().equalsIgnoreCase(args[0]) || command.getAliases().contains(args[0]))
 				.collect(Collectors.toList());
 		//Execute every available sub commands by feeding them their args
 		matchingCommands.forEach(command -> command.execute(sender, commandLabel,
 				Arrays.copyOfRange(args, 1, args.length)));
-
-		//Return true if no command was found
-		return matchingCommands.isEmpty();
 	}
 
-	private void displayHelp(final CommandSender sender) {
+	private void displayHelp(@NotNull final CommandSender sender) {
 		Formatter.tell(sender, "&7=============&8[&6&lHelp&8]&7=============");
-		Formatter.tell(sender, "");
-		subCommands.forEach(command -> Formatter.tell(sender,
-				"&7&l* &7/&6" + command.getName() + " &8: &7" + command.getDescription()));
-		Formatter.tell(sender, "");
+		Formatter.tell(sender, "&6Description&8: &7" + getDescription());
+
+		if(!subCommands.isEmpty()) {
+			Formatter.tell(sender, "");
+			for(final SimpleCommand command : subCommands) {
+				final var info = new StringBuilder("&7&l* &7/&6" + command.getName());
+
+				for(final String arg : command.mandatoryArgs) {
+					info.append(" &8<&7").append(arg).append("&7>");
+				}
+				for(final String arg : command.optionalArgs) {
+					info.append(" &8[&7").append(arg).append("&7]");
+				}
+				info.append(" &8: &7").append(command.getDescription());
+				Formatter.tell(sender, info.toString());
+			}
+			Formatter.tell(sender, "");
+		}
+	}
+
+	protected void addMandatoryArgument(@NotNull final String arg) {
+		mandatoryArgs.add(arg);
+	}
+
+	protected void addOptionalArgument(@NotNull final String arg) {
+		optionalArgs.add(arg);
 	}
 
 }
