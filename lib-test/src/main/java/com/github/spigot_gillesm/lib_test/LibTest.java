@@ -8,7 +8,6 @@ import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;
 import com.github.spigot_gillesm.lib_test.profession.WorkstationManager;
 import com.github.spigot_gillesm.player_lib.PlayerLib;
-import com.github.spigot_gillesm.spell_lib.SpellLib;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -21,7 +20,7 @@ public final class LibTest extends JavaPlugin {
 
 	private static void initialize(final Plugin plugin) {
 		instance = plugin;
-		Formatter.PREFIX = "&f[&2RPProfessions&f]";
+		Formatter.PREFIX = "&f[&2&lRP&9Professions&f]";
 		FileUtils.PLUGIN_DATA_FOLDER_PATH = instance.getDataFolder().getPath();
 	}
 
@@ -29,7 +28,6 @@ public final class LibTest extends JavaPlugin {
 	public void onEnable() {
 		initialize(this);
 		CommandLib.initialize(this);
-		SpellLib.initialize(this);
 		PlayerLib.initialize(this);
 		GuiLib.initialize(this);
 		Bukkit.getServer().getPluginManager().registerEvents(new PlayerListener(), this);

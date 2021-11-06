@@ -9,13 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>rp-professions</artifactId>
-    <name>RPProfessions</name>
+    <artifactId>rp-classes</artifactId>
+    <name>RPClasses</name>
 
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-        <main-class>com.github.spigot_gillesm.lib_test.LibTest</main-class>
+        <main-class>com.github.spigot_gillesm.rp_classes.RpClasses</main-class>
     </properties>
 
     <dependencies>
@@ -36,6 +36,16 @@
 
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
+            <artifactId>spell-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spigot_gillesm</groupId>
+            <artifactId>rpg-stats-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>player-lib</artifactId>
         </dependency>
 
@@ -48,7 +58,6 @@
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>file-utils</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -93,4 +102,14 @@
         </resources>
     </build>
 
+    <repositories>
+        <repository>
+            <id>spigotmc-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+    </repositories>
 </project>

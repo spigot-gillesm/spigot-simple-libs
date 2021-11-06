@@ -11,9 +11,9 @@ public interface EntitySpell {
 
 	String TAG = "ENTITY_SPELL";
 
-	void onHit(LivingEntity entity);
+	void onHit(LivingEntity entity, LivingEntity target);
 
-	default void onHit(final Location location) { }
+	default void onHit(final LivingEntity entity, final Location location) { }
 
 	static void tagEntity(@NotNull final Entity entity, @NotNull final EntitySpell instance) {
 		entity.setMetadata(TAG, new FixedMetadataValue(SpellLib.plugin, instance));

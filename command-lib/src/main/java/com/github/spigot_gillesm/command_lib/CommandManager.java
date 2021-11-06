@@ -42,8 +42,9 @@ public class CommandManager {
 							.findFirst()
 							.ifPresent(constructor -> {
 								try {
+									constructor.setAccessible(true);
 									registerCommand((Command) constructor.newInstance());
-								} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+								} catch (final InstantiationException | IllegalAccessException | InvocationTargetException e) {
 									Formatter.error("Error accessing " + clazz.getName() + " command class. Make sure to use a no args constructor.");
 								}
 							});
