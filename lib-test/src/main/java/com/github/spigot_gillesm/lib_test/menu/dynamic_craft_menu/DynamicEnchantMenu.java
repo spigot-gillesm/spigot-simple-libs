@@ -26,6 +26,7 @@ public class DynamicEnchantMenu extends DynamicCraftMenu {
 	private final Map<Integer, SimpleButton> colorButtons = new HashMap<>();
 
 	public DynamicEnchantMenu() {
+		super(RESULT_SLOT);
 		setSize(6*9);
 		setTitle("Enchanting Table");
 	}

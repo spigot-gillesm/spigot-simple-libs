@@ -45,6 +45,7 @@ public class CraftRecipe extends CraftEntity {
 			if(craftingMenu != null) {
 				final var menu = SimpleMenu.getMenu(player);
 
+				//Check if the right menu is used
 				if(menu != null && menu.getClass().equals(craftingMenu)) {
 					return profession.equals(playerProfession.get());
 				} else {

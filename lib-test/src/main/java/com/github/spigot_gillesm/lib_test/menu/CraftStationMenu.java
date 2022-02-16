@@ -1,8 +1,8 @@
 package com.github.spigot_gillesm.lib_test.menu;
 
 import com.github.spigot_gillesm.gui_lib.SimpleButton;
-import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
+import com.github.spigot_gillesm.lib_test.PlayerManager;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
 import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class CraftStationMenu extends SimpleMenu {
+public abstract class CraftStationMenu extends SimpleCraftingMenu {
 
 	private static final Set<Integer> CRAFTING_SLOTS = Stream.of(3+9, 4+9, 5+9, 12+9, 13+9, 14+9, 21+9, 22+9, 23+9)
 			.collect(Collectors.toCollection(HashSet::new));
@@ -30,6 +30,7 @@ public abstract class CraftStationMenu extends SimpleMenu {
 	private final SimpleButton craftButton;
 
 	protected CraftStationMenu() {
+		super(RESULT_SLOT);
 		this.craftButton = new SimpleButton(getCraftIcon()) {
 			@Override
 			public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
@@ -41,15 +42,22 @@ public abstract class CraftStationMenu extends SimpleMenu {
 				final var craftItem = CraftManager.getItemFromPattern(pattern);
 
 				//Check if patterns match any item, check if player can craft it, check if the result slot is empty
-				if(craftItem.isPresent() && craftItem.get().canCraft(player) && content[RESULT_SLOT] == null) {
-					runCraft(player, inventory, craftItem.get());
-				}
+				craftItem.ifPresent(item -> {
+					if(isDisplayed(item, player, content)) {
+						runCraft(player, inventory, item);
+					}
+				});
 
 				return false;
 			}
 		};
 		setTitle("&8" + getTitle());
 		setSize(6*9);
+	}
+
+	private boolean isDisplayed(final CraftEntity craftEntity, final Player player, final ItemStack[] content) {
+		return craftEntity.canCraft(player) && PlayerManager.meetRequirements(player, craftEntity)
+				&& content[RESULT_SLOT] == null;
 	}
 
 	private void clearGrid(final Player player, final Inventory inventory) {
@@ -87,7 +95,7 @@ public abstract class CraftStationMenu extends SimpleMenu {
 					runDynamicCraft(player, craftEntity);
 				} else {
 					//If not then just set the result immediately
-					inventory.setItem(RESULT_SLOT, craftEntity.getResult());
+					completeCraft(player, inventory, craftEntity);
 				}
 
 			}
@@ -101,7 +109,7 @@ public abstract class CraftStationMenu extends SimpleMenu {
 				runDynamicCraft(player, craftEntity);
 			} else {
 				//If not then just set the result immediately
-				inventory.setItem(RESULT_SLOT, craftEntity.getResult());
+				completeCraft(player, inventory, craftEntity);
 			}
 		}
 	}

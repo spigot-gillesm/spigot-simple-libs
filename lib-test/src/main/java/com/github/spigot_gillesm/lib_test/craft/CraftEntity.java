@@ -15,28 +15,36 @@ import org.jetbrains.annotations.NotNull;
 public abstract class CraftEntity {
 
 	@Getter
-	protected Profession profession;
+	protected final String id;
 
 	@Getter
-	protected ItemStack item;
+	protected final Profession profession;
 
 	@Getter
-	protected int amount = 1;
+	protected final ItemStack item;
 
 	@Getter
-	protected ItemStack reagent;
+	protected final int amount;
 
 	@Getter
-	protected Class<? extends SimpleMenu> craftingMenu;
+	protected final ItemStack reagent;
 
 	@Getter
-	protected Class<? extends DynamicCraftMenu> dynamicCraftMenu;
+	protected final CraftEntityMeta metaData;
+
+	@Getter
+	protected final Class<? extends SimpleMenu> craftingMenu;
+
+	@Getter
+	protected final Class<? extends DynamicCraftMenu> dynamicCraftMenu;
 
 	protected CraftEntity(final Builder<? extends Builder<?>> builder) {
+		this.id = builder.id;
 		this.profession = builder.profession;
 		this.item = builder.item;
 		this.amount = builder.amount;
 		this.reagent = builder.reagent;
+		this.metaData = builder.metaData;
 		this.craftingMenu = builder.craftingMenu;
 		this.dynamicCraftMenu = builder.dynamicCraftMenu;
 	}
@@ -84,6 +92,8 @@ public abstract class CraftEntity {
 	@NoArgsConstructor
 	protected abstract static class Builder<T extends Builder<T>> {
 
+		protected String id;
+
 		protected Profession profession;
 
 		protected ItemStack item;
@@ -91,6 +101,8 @@ public abstract class CraftEntity {
 		protected int amount = 1;
 
 		protected ItemStack reagent;
+
+		protected CraftEntityMeta metaData;
 
 		protected Class<? extends SimpleMenu> craftingMenu;
 
@@ -100,6 +112,11 @@ public abstract class CraftEntity {
 		@SuppressWarnings("unchecked")
 		protected T thisObject() {
 			return (T) this;
+		}
+
+		public T id(@NotNull final String id) {
+			this.id = id;
+			return thisObject();
 		}
 
 		public T profession(@NotNull final Profession profession) {
@@ -139,6 +156,11 @@ public abstract class CraftEntity {
 					.amount(amount)
 					.build()
 					.getItemStack();
+			return thisObject();
+		}
+
+		public T metaData(final CraftEntityMeta metaData) {
+			this.metaData = metaData;
 			return thisObject();
 		}
 

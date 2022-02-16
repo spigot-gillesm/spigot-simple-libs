@@ -1,15 +1,19 @@
 package com.github.spigot_gillesm.lib_test.craft.craft_entity.craft_recipe;
 
 import com.github.spigot_gillesm.format_lib.Formatter;
+import com.github.spigot_gillesm.item_lib.ItemUtil;
 import com.github.spigot_gillesm.lib_test.LibTest;
+import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
+import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.CraftRecipe;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.DynamicCraft;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.RecipeRunnable;
+import com.github.spigot_gillesm.lib_test.event.CompleteCraftEntityEvent;
 import com.github.spigot_gillesm.lib_test.menu.DynamicCraftMenu;
 import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicAnvilMenu;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -49,61 +53,63 @@ public class AnvilCraftRecipe extends CraftRecipe implements DynamicCraft {
 		return runnable;
 	}
 
+	private void callEvent(final Player player, final CraftEntity craftEntity) {
+		final var event = new CompleteCraftEntityEvent(player, craftEntity);
+		Bukkit.getServer().getPluginManager().callEvent(event);
+	}
+
 	//Called when using the item in its cold state on the anvil
 	@Override
 	public boolean reWork(final Player player, final ItemStack itemStack) {
 		//If the item is already finished (= the result from the super class), do nothing
 		//If the item isn't cold, do nothing
-		if(itemStack.hasItemMeta() && itemStack.getItemMeta().hasLore()
-				&& itemStack.getItemMeta().getLore().contains(Formatter.colorize("&bCold"))
-				&& !itemStack.isSimilar(super.getResult())) {
+		if(itemStack.isSimilar(super.getResult())) {
+			return false;
+		}
+		if(ItemUtil.hasLineInLore(itemStack, "&bCold")) {
+			Formatter.info("Cold!");
 			final var menu = new DynamicAnvilMenu();
 			menu.setRecipeRunnable(start(player, menu));
-			menu.setResult(harden(itemStack, false));
+			final var hardenItem = harden(player, itemStack, false);
+			menu.setResult(hardenItem);
 			menu.display(player);
 
 			return true;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	//Called when using the item with a filled cauldron to cool the item down
-	public ItemStack coolDown(final ItemStack itemStack) {
-		if(itemStack.getItemMeta().getLore().contains(Formatter.colorize("&cHot"))) {
-			return harden(itemStack, true);
+	public ItemStack coolDown(final Player player, final ItemStack itemStack) {
+		if(ItemUtil.hasLineInLore(itemStack, "&cHot")) {
+			return harden(player, itemStack, true);
 		} else {
 			return itemStack;
 		}
 	}
 
 	//Called to modify the hardening data of the item
-	public ItemStack harden(final ItemStack itemStack, final boolean isHot) {
+	public ItemStack harden(final Player player, final ItemStack itemStack, final boolean isHot) {
 		final ItemMeta meta = itemStack.getItemMeta();
 
 		if(meta == null) {
 			return null;
 		}
-		final var lore = meta.getLore();
+		final var currentHardeningAmount = getCurrentHardeningAmount(itemStack);
 
-		//Check if the item is being hardened
-		if(lore != null && lore.size() >= 3 && "".equals(lore.get(0))
-				&& ChatColor.stripColor(lore.get(1)).startsWith("Hardening: ")
-				&& "CANCEL_USE".equals(meta.getLocalizedName())) {
-			final var line = ChatColor.stripColor(lore.get(1));
-			//The split -> " <x>/<hardeningAmount>". charAt(0) -> '<x>'
-			final int amount = Integer.parseInt(String.valueOf(line.split(": ")[1].charAt(0)));
-
+		if(currentHardeningAmount > 0 && "CANCEL_USE".equals(meta.getLocalizedName())) {
 			//Check if the item is about to be hardened enough and is hot -> cold
-			if(amount >= hardeningAmount && isHot) {
+			if(currentHardeningAmount >= hardeningAmount && isHot) {
+				CraftManager.getCraftItem(itemStack).ifPresent(item -> callEvent(player, item));
 				return super.getResult();
 			} else {
 				//Clone the data
 				final var newItem = itemStack.clone();
 				final var newMeta = newItem.getItemMeta();
-				final var newLore = new ArrayList<>(lore);
+				final var newLore = ItemUtil.getLore(itemStack);
 				//Update the hardening data
-				final var hardenData = "&cHardening: " + (amount + 1) + "/" + hardeningAmount;
+				final var hardenData = "&cHardening: " + (currentHardeningAmount + 1) + "/" + hardeningAmount;
 
 				if(isHot) {
 					//Only increase harden amount if the item hot -> cold (= isHot)
@@ -113,7 +119,6 @@ public class AnvilCraftRecipe extends CraftRecipe implements DynamicCraft {
 					newLore.set(2, Formatter.colorize("&cHot"));
 				}
 				newMeta.setLore(newLore);
-				//newMeta.setAttributeModifiers(HashMultimap.create());
 				newItem.setItemMeta(newMeta);
 
 				return newItem;
@@ -151,12 +156,8 @@ public class AnvilCraftRecipe extends CraftRecipe implements DynamicCraft {
 		if(meta == null) {
 			return false;
 		}
-		final var lore = meta.getLore();
-
-		//Check if the item is being hardened
-		if(lore != null && lore.size() >= 3 && "".equals(lore.get(0))
-				&& ChatColor.stripColor(lore.get(1)).startsWith("Hardening: ")) {
-			final List<String> newLore = new ArrayList<>(lore);
+		if(getCurrentHardeningAmount(itemStack) > 0) {
+			final List<String> newLore = ItemUtil.getLore(itemStack);
 			//Remove the 3 first lines for further comparison
 			newLore.remove(0); //Remove the empty line
 			newLore.remove(0); //Remove the hardening amount
@@ -181,6 +182,21 @@ public class AnvilCraftRecipe extends CraftRecipe implements DynamicCraft {
 		} else {
 			//If there are no hardening data attach to the item -> compare the items
 			return getItem().isSimilar(itemStack);
+		}
+	}
+
+	private int getCurrentHardeningAmount(final ItemStack itemStack) {
+		final var hardeningData = ItemUtil.getStringFromLore(itemStack, "Hardening");
+
+		if(!hardeningData.contains("/")) {
+			return 0;
+		}
+		final var splitData = hardeningData.split("/");
+
+		try {
+			return Integer.parseInt(splitData[0]);
+		} catch (NumberFormatException exception) {
+			return 0;
 		}
 	}
 

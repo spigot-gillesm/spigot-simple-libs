@@ -75,10 +75,10 @@ public abstract class SimpleCommand extends Command {
 				final var info = new StringBuilder("&7&l* &7/&6" + command.getName());
 
 				for(final String arg : command.mandatoryArgs) {
-					info.append(" &8<&7").append(arg).append("&7>");
+					info.append(" &8<&7").append(arg).append("&8>");
 				}
 				for(final String arg : command.optionalArgs) {
-					info.append(" &8[&7").append(arg).append("&7]");
+					info.append(" &8[&7").append(arg).append("&8]");
 				}
 				info.append(" &8: &7").append(command.getDescription());
 				Formatter.tell(sender, info.toString());

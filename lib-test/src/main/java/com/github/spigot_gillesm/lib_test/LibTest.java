@@ -41,7 +41,7 @@ public final class LibTest extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		// Plugin shutdown logic
+		PlayerLib.saveAllData();
 	}
 
 }

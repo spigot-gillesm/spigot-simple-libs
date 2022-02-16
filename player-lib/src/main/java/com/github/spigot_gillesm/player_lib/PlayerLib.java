@@ -15,4 +15,8 @@ public class PlayerLib {
 		Bukkit.getServer().getPluginManager().registerEvents(new PlayerListener(), plugin);
 	}
 
+	public void saveAllData() {
+		Bukkit.getServer().getOnlinePlayers().forEach(p -> DataManager.getData(p).writeToFile());
+	}
+
 }

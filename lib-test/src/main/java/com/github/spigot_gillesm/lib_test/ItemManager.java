@@ -57,21 +57,26 @@ public class ItemManager {
 		}
 
 		final List<String> conditions = new ArrayList<>();
-		if(itemSection.contains("required-level")) {
-			conditions.add("&2Required Level&f: " + itemSection.getInt("required-level"));
-		}
-		if(itemSection.contains("required-professions")) {
-			conditions.add("&eProfessions&f:");
 
-			for(final var profession : itemSection.getStringList("required-professions")) {
-				conditions.add("&f- " + profession.substring(0, 1).toUpperCase() + profession.substring(1).toLowerCase());
+		if(itemSection.isConfigurationSection("conditions")) {
+			final var conditionSection = itemSection.getConfigurationSection("conditions");
+
+			if(conditionSection.contains("level")) {
+				conditions.add("&2Required Level&f: " + conditionSection.getInt("level"));
 			}
-		}
-		if(!conditions.isEmpty()) {
-			conditions.add(0, "");
+			if(conditionSection.contains("professions")) {
+				conditions.add("&eProfessions&f:");
 
-			for(final var line : conditions) {
-				item.addLore(line);
+				for(final var profession : conditionSection.getStringList("professions")) {
+					conditions.add("&f- " + PluginUtil.reformat(profession));
+				}
+			}
+			if(!conditions.isEmpty()) {
+				conditions.add(0, "");
+
+				for(final var line : conditions) {
+					item.addLore(line);
+				}
 			}
 		}
 

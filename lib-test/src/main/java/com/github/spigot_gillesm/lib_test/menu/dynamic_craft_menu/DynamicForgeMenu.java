@@ -22,6 +22,7 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 	private final SimpleButton coolButton;
 
 	public DynamicForgeMenu() {
+		super(RESULT_SLOT);
 		this.heatButton = new SimpleButton(SimpleItem.newBuilder()
 				.material(Material.LAVA_BUCKET)
 				.displayName("&cHeat Up")

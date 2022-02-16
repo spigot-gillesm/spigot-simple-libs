@@ -1,8 +1,12 @@
 package com.github.spigot_gillesm.rp_classes.talent;
 
+import com.github.spigot_gillesm.format_lib.Formatter;
+import com.github.spigot_gillesm.rp_classes.YamlBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.*;
 
@@ -11,11 +15,15 @@ public class TalentTree {
 	@Getter
 	private final String displayName;
 
+	@Getter
+	private final Material icon;
+
 	//Each index holds several talents of the same tier (= they require the same amount of talents to be unlocked)
 	private final List<Set<Talent>> talents;
 
 	private TalentTree(final Builder builder) {
 		this.displayName = builder.displayName;
+		this.icon = builder.icon;
 		this.talents = sortTalents(builder.talents);
 	}
 
@@ -73,11 +81,18 @@ public class TalentTree {
 
 		private String displayName;
 
+		private Material icon;
+
 		//Unsorted talents
 		private final Set<Talent> talents = new HashSet<>();
 
 		public Builder displayName(final String displayName) {
 			this.displayName = displayName;
+			return this;
+		}
+
+		public Builder icon(final Material icon) {
+			this.icon = icon;
 			return this;
 		}
 
@@ -88,6 +103,37 @@ public class TalentTree {
 
 		public TalentTree build() {
 			return new TalentTree(this);
+		}
+
+	}
+
+	public static class YamlTalentTree extends YamlBuilder<Builder> {
+
+		public YamlTalentTree(final ConfigurationSection section) {
+			super(section);
+		}
+
+		@Override
+		public Optional<Builder> getBuilderFromFile(final String id) {
+			if(!configuration.isConfigurationSection(id)) {
+				throw new IllegalArgumentException("Id " + id + " doesn't exist in this context.");
+			}
+			final var section = configuration.getConfigurationSection(id);
+			final var builder = TalentTree.newBuilder();
+
+			if(!containsFields(section, "display-name")) {
+				return Optional.empty();
+			}
+			builder.displayName(section.getString("display-name"));
+
+			try {
+				builder.icon(Material.valueOf(section.getString("icon").toUpperCase()));
+			} catch(final IllegalArgumentException e) {
+				Formatter.error("Invalid icon for talent tree " + id + ".");
+				return Optional.empty();
+			}
+
+			return Optional.of(builder);
 		}
 
 	}
