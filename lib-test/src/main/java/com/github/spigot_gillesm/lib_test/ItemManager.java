@@ -106,13 +106,4 @@ public class ItemManager {
 		return loadedItems.containsKey(id);
 	}
 
-	public boolean decrementItemAmount(@NotNull final ItemStack item) {
-		if(item.getAmount() <= 1) {
-			return true;
-		} else {
-			item.setAmount(item.getAmount() - 1);
-			return false;
-		}
-	}
-
 }

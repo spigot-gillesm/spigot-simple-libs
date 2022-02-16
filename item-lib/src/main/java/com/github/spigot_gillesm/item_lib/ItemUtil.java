@@ -13,6 +13,21 @@ import java.util.List;
 public class ItemUtil {
 
 	/**
+	 * Reduce the item amount by one
+	 *
+	 * @param itemStack the item
+	 * @return true if the current amount is equal or smaller than 1 (the item should disappear)
+	 */
+	public boolean decrementItemAmount(@NotNull final ItemStack itemStack) {
+		if(itemStack.getAmount() <= 1) {
+			return true;
+		} else {
+			itemStack.setAmount(itemStack.getAmount() - 1);
+			return false;
+		}
+	}
+
+	/**
 	 * Get the item's lore.
 	 *
 	 * @param itemStack the item
