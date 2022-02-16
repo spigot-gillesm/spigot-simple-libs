@@ -15,9 +15,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class BreweryCraftRecipe extends CraftEntity {
 
-	//item = result = the bottles you get at the end
-	//reagent = ingredient = blaze powder in regular potion crafting
-
 	@Getter
 	private final ItemStack fuel;
 
@@ -25,14 +22,27 @@ public class BreweryCraftRecipe extends CraftEntity {
 	@Getter
 	private final ItemStack receptacle;
 
+	@Getter
+	private final boolean fuelConsumed;
+
 	private BreweryCraftRecipe(final Builder builder) {
 		super(builder);
 		this.fuel = builder.fuel;
 		this.receptacle = builder.receptacle;
+		this.fuelConsumed = builder.fuelConsumed;
 	}
 
 	public void start(final BrewerInventory inventory) {
+		updateFuelLevel(inventory.getHolder());
 		new BrewRunnable(this, inventory, 400).runTaskTimer(LibTest.getInstance(), 0, 1);
+	}
+
+	private void updateFuelLevel(final BrewingStand brewingStand) {
+		if(fuelConsumed) {
+			final var newFuelLevel = Math.max(brewingStand.getFuelLevel() - 1, 0);
+			brewingStand.setFuelLevel(newFuelLevel);
+			brewingStand.update(true);
+		}
 	}
 
 	@Override
@@ -76,6 +86,8 @@ public class BreweryCraftRecipe extends CraftEntity {
 		//The "bottles" that will be changed into the result
 		private ItemStack receptacle;
 
+		private boolean fuelConsumed = false;
+
 		public Builder fuel(final ItemStack fuel) {
 			this.fuel = fuel;
 			return this;
@@ -92,6 +104,11 @@ public class BreweryCraftRecipe extends CraftEntity {
 
 		public Builder receptacle(final Material receptacle) {
 			return receptacle(new ItemStack(receptacle));
+		}
+
+		public Builder fuelConsumed(final boolean fuelConsumed) {
+			this.fuelConsumed = fuelConsumed;
+			return this;
 		}
 
 		@Override

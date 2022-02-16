@@ -4,6 +4,7 @@ import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.BreweryCraftRecipe;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.ItemStack;
@@ -44,7 +45,8 @@ public class BrewManager {
 
 			getBrewingRecipeFromPattern(inventory).ifPresent(
 					recipe -> {
-						if(recipe.canCraft(player) && PlayerManager.meetRequirements(player, recipe)) {
+						if(recipe.canCraft(player) && PlayerManager.meetRequirements(player, recipe)
+								&& isFueled(inventory.getHolder(), recipe)) {
 							recipe.start(inventory);
 						}
 					});
@@ -54,32 +56,49 @@ public class BrewManager {
 	public Optional<BreweryCraftRecipe> getBrewingRecipeFromPattern(final BrewerInventory inventory) {
 		for(final var craft : CraftManager.getCraftItems()) {
 			if(craft instanceof BreweryCraftRecipe) {
-				final var brewCraft = (BreweryCraftRecipe) craft;
+				final var recipe = (BreweryCraftRecipe) craft;
 				//No need to check the fuel
-				if(brewCraft.getFuel() == null) {
+				if(recipe.getFuel() == null) {
 					/*
 					 * Check if the ingredient is similar
 					 * Check if ONE of THE receptacles is similar (only one is needed)
 					 */
-					if(brewCraft.getReagent().isSimilar(inventory.getIngredient())
-							&& (brewCraft.getReceptacle().isSimilar(inventory.getItem(0))
-							|| brewCraft.getReceptacle().isSimilar(inventory.getItem(1))
-							|| brewCraft.getReceptacle().isSimilar(inventory.getItem(2)))) {
-						return Optional.of(brewCraft);
+					if(isIngredientSimilar(inventory, recipe) && areReceptacleSimilar(inventory, recipe)) {
+						return Optional.of(recipe);
 					}
 				} else {
 					//Check the fuel too
-					if(brewCraft.getReagent().isSimilar(inventory.getIngredient())
-							&& (brewCraft.getReceptacle().isSimilar(inventory.getItem(0))
-							|| brewCraft.getReceptacle().isSimilar(inventory.getItem(1))
-							|| brewCraft.getReceptacle().isSimilar(inventory.getItem(2)))
-							&& brewCraft.getFuel().isSimilar(inventory.getFuel())) {
-						return Optional.of(brewCraft);
+					if(isIngredientSimilar(inventory, recipe) && areReceptacleSimilar(inventory, recipe)
+							&& isFuelSimilar(inventory, recipe)) {
+						return Optional.of(recipe);
 					}
 				}
 			}
 		}
+
 		return Optional.empty();
+	}
+
+	private boolean areReceptacleSimilar(final BrewerInventory inventory, final BreweryCraftRecipe recipe) {
+		return recipe.getReceptacle().isSimilar(inventory.getItem(0))
+				|| recipe.getReceptacle().isSimilar(inventory.getItem(1))
+				|| recipe.getReceptacle().isSimilar(inventory.getItem(2));
+	}
+
+	private boolean isFuelSimilar(final BrewerInventory inventory, final BreweryCraftRecipe recipe) {
+		return recipe.getFuel().isSimilar(inventory.getFuel());
+	}
+
+	private boolean isIngredientSimilar(final BrewerInventory inventory, final BreweryCraftRecipe recipe) {
+		return recipe.getReagent().isSimilar(inventory.getIngredient());
+	}
+
+	private boolean isFueled(final BrewingStand brewingStand, final BreweryCraftRecipe recipe) {
+		if(recipe.isFuelConsumed()) {
+			return brewingStand.getFuelLevel() > 0;
+		} else {
+			return true;
+		}
 	}
 
 }

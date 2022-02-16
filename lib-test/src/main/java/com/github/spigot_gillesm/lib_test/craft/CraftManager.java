@@ -43,7 +43,8 @@ public class CraftManager {
 			Formatter.error("BREWING_STAND recipes must have a reagent for " + section.getName() + ".");
 			return Optional.empty();
 		}
-		getFuelFromConfig(section).ifPresentOrElse(builder::fuel, () -> valid.set(false));
+		builder.fuelConsumed(section.getBoolean("fuel-consumed", false));
+		getFuelFromConfig(section).ifPresent(builder::fuel);
 		getReceptacleFromConfig(section).ifPresentOrElse(builder::receptacle, () -> valid.set(false));
 
 		if(valid.get()) {
