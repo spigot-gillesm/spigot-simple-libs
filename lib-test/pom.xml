@@ -36,16 +36,6 @@
 
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
-            <artifactId>spell-lib</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.spigot_gillesm</groupId>
-            <artifactId>rpg-stats-lib</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>player-lib</artifactId>
         </dependency>
 
@@ -57,6 +47,13 @@
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>file-utils</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

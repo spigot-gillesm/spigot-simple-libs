@@ -44,7 +44,7 @@ public class BrewManager {
 
 			getBrewingRecipeFromPattern(inventory).ifPresent(
 					recipe -> {
-						if(recipe.canCraft(player)) {
+						if(recipe.canCraft(player) && PlayerManager.meetRequirements(player, recipe)) {
 							recipe.start(inventory);
 						}
 					});

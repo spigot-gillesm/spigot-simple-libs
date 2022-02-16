@@ -167,6 +167,7 @@ public class EnchantCraftRecipe extends CraftRecipe implements DynamicCraft {
 					getMenu().setFinished(true);
 					getMenu().setCancelReinstantiation(true);
 					getMenu().display(player);
+					getMenu().runEvent(player);
 					cancel();
 
 					return true;

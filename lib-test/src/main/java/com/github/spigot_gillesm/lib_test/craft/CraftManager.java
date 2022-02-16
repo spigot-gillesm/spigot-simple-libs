@@ -2,6 +2,7 @@ package com.github.spigot_gillesm.lib_test.craft;
 
 import com.github.spigot_gillesm.file_utils.FileUtils;
 import com.github.spigot_gillesm.format_lib.Formatter;
+import com.github.spigot_gillesm.item_lib.SimpleItem;
 import com.github.spigot_gillesm.item_lib.YamlItem;
 import com.github.spigot_gillesm.lib_test.ItemManager;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
@@ -26,59 +27,83 @@ import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @UtilityClass
 public class CraftManager {
 
-	private final Map<String, CraftEntity> loadedCrafts = new HashMap<>();
+	private final Map<String, CraftEntity> loadedCrafts = new LinkedHashMap<>();
 
 	private Optional<BreweryCraftRecipe.Builder> loadBreweryRecipe(final ConfigurationSection section) {
 		final var builder = BreweryCraftRecipe.newBuilder();
+		final AtomicBoolean valid = new AtomicBoolean(true);
 
-		try {
-			final var fuelName = section.getString("fuel");
-
-			if(fuelName != null) {
-				if(ItemManager.exists(fuelName)) {
-					builder.fuel(ItemManager.getItem(fuelName).get().getItemStack());
-				} else if(!fuelName.isBlank()) {
-					builder.fuel(Material.valueOf(fuelName.toUpperCase()));
-				}
-			}
-
-			//Check if the receptacle must be built from file
-			if(section.isConfigurationSection("recipe")) {
-				final var recipeSection = section.getConfigurationSection("recipe");
-
-				if(!section.contains("material")) {
-					Formatter.error("The recipe section must contain at least the material.");
-					return Optional.empty();
-				}
-				final var recipe = YamlItem.fromConfiguration(recipeSection).getItemFromFile();
-
-				if(recipe == null) {
-					Formatter.error("Invalid recipe.");
-					return Optional.empty();
-				} else {
-					return Optional.of(builder.receptacle(recipe.getItemStack()));
-				}
-
-				//Else check if the item is a custom item
-			} else {
-				final var recipe = ItemManager.getItem(section.getString("recipe"));
-
-				if(recipe.isPresent()) {
-					return Optional.of(builder.receptacle(recipe.get().getItemStack()));
-				} else {
-					Formatter.error("Unknown item: " + section.getString("recipe") + " for recipe.");
-					return Optional.empty();
-				}
-			}
-
-		} catch (final IllegalArgumentException e) {
-			Formatter.error("Invalid fuel.");
+		if(!section.contains("reagent")) {
+			Formatter.error("BREWING_STAND recipes must have a reagent for " + section.getName() + ".");
 			return Optional.empty();
+		}
+		getFuelFromConfig(section).ifPresentOrElse(builder::fuel, () -> valid.set(false));
+		getReceptacleFromConfig(section).ifPresentOrElse(builder::receptacle, () -> valid.set(false));
+
+		if(valid.get()) {
+			return Optional.of(builder);
+		} else {
+			return Optional.empty();
+		}
+	}
+
+	private Optional<ItemStack> getFuelFromConfig(final ConfigurationSection section) {
+		if(!section.contains("fuel")) {
+			return Optional.empty();
+		}
+		final var fuelName = section.getString("fuel");
+
+		if(fuelName == null || fuelName.isBlank()) {
+			return Optional.empty();
+		}
+		try {
+			return ItemManager.getItem(fuelName).map(SimpleItem::getItemStack)
+					.or(() -> Optional.of(
+							SimpleItem.newBuilder()
+									.material(Material.valueOf(fuelName.toUpperCase()))
+									.build().getItemStack()
+							)
+					);
+		} catch (final IllegalArgumentException e) {
+			Formatter.error("Invalid fuel for " + section.getName() + ".");
+			return Optional.empty();
+		}
+	}
+
+	private Optional<ItemStack> getReceptacleFromConfig(final ConfigurationSection section) {
+		if(!section.contains("recipe")) {
+			return Optional.empty();
+		}
+		//Check if the receptacle must be built from file
+		if(section.isConfigurationSection("recipe")) {
+			final var recipeSection = section.getConfigurationSection("recipe");
+
+			if(!section.contains("material")) {
+				Formatter.error("The recipe section must contain at least the material for " + section.getName() + ".");
+				return Optional.empty();
+			}
+			final var recipe = YamlItem.fromConfiguration(recipeSection).getItemFromFile();
+
+			if(recipe == null) {
+				Formatter.error("Invalid recipe for " + section.getName() + ".");
+				return Optional.empty();
+			} else {
+				return Optional.of(recipe.getItemStack());
+			}
+
+			//Else check if the item is a custom item
+		} else {
+			return ItemManager.getItem(section.getString("recipe")).map(SimpleItem::getItemStack)
+					.or(() -> {
+						Formatter.error("Unknown item: " + section.getString("recipe") + " for " + section.getName() + ".");
+						return Optional.empty();
+					});
 		}
 	}
 
@@ -88,6 +113,7 @@ public class CraftManager {
 		final var recipeSection = section.getConfigurationSection("recipe");
 		CraftRecipe.Builder builder = CraftRecipe.newBuilder();
 
+		//TODO: improve that shitty code
 		if(section.getBoolean("dynamic", false) && station.hasDynamicCraftMenu()) {
 			final var menu = station.getDynamicMenu();
 			if(menu.equals(DynamicAnvilMenu.class)) {
@@ -108,15 +134,11 @@ public class CraftManager {
 
 				if(position < 9 && position >= 0) {
 					final var name = recipeSection.getString(key);
-					try {
-						//Check if the component is a custom item or a vanilla item
-						final var component = ItemManager.getItem(name).isPresent() ?
-								ItemManager.getItem(name).get().getItemStack() :
-								new ItemStack(Material.valueOf(name.toUpperCase()));
+					final var item = getPatternItemFromConfig(section, name);
 
-						builder.setPatternItem(position, component);
-					} catch (final IllegalArgumentException e) {
-						Formatter.error("The component " + recipeSection.getString(key) + " doesn't exist.");
+					if(item.isPresent()) {
+						builder.setPatternItem(position, item.get());
+					} else {
 						return Optional.empty();
 					}
 				}
@@ -126,53 +148,69 @@ public class CraftManager {
 		return Optional.of(builder);
 	}
 
+	private Optional<ItemStack> getPatternItemFromConfig(final ConfigurationSection section, final String itemName) {
+		try {
+			return ItemManager.getItem(itemName).map(SimpleItem::getItemStack)
+					.or(() -> Optional.of(
+									SimpleItem.newBuilder()
+											.material(Material.valueOf(itemName.toUpperCase()))
+											.build().getItemStack()
+							)
+					);
+		} catch (final IllegalArgumentException e) {
+			Formatter.error("Invalid pattern item for " + section.getName() + ".");
+			return Optional.empty();
+		}
+	}
+
 	private Optional<? extends CraftEntity.Builder<?>> loadSpecific(final ConfigurationSection section,
 																	final Workstation station) {
 		Optional<? extends CraftEntity.Builder<?>> builder;
 
 		if(station.getMenu().equals(PotionMenu.class) && section.getBoolean("dynamic", false)) {
-			if(!section.contains("reagent")) {
-				Formatter.error("BREWING_STAND recipes must have a reagent.");
-				return Optional.empty();
-			}
 			builder = loadBreweryRecipe(section);
 		} else {
 			if(section.isConfigurationSection("recipe")) {
 				builder = loadCraftRecipe(section, station);
 			} else {
-				Formatter.error("Invalid recipe data.");
+				Formatter.error("Invalid recipe data for " + section.getName() + ".");
 				return Optional.empty();
 			}
 		}
-
-		builder.ifPresent(b -> {
-			if(section.contains("reagent")) {
-				if(section.isConfigurationSection("reagent")) {
-					final var reagent = YamlItem.fromConfiguration(section.getConfigurationSection("reagent")).getItemFromFile();
-
-					if(reagent == null) {
-						Formatter.warning("Invalid reagent data.");
-					} else {
-						b.reagent(reagent.getItemStack());
-					}
-				} else {
-					final var reagentName = section.getString("reagent");
-					final var reagentAmount = section.getInt("reagent-amount", 1);
-
-					if(ItemManager.exists(reagentName)) {
-						b.reagent(ItemManager.getItem(reagentName).get().getItemStack(), reagentAmount);
-					} else {
-						try {
-							b.reagent(Material.valueOf(reagentName.toUpperCase()), reagentAmount);
-						} catch (final IllegalArgumentException e) {
-							Formatter.warning("Unknown reagent: " + reagentName + ".");
-						}
-					}
-				}
-			}
-		});
+		builder.ifPresent(b -> getReagentFromConfig(section).ifPresent(b::reagent));
 
 		return builder;
+	}
+
+	private Optional<ItemStack> getReagentFromConfig(final ConfigurationSection section) {
+		if(!section.contains("reagent")) {
+			return Optional.empty();
+		}
+		if(section.isConfigurationSection("reagent")) {
+			final var reagent = YamlItem.fromConfiguration(section.getConfigurationSection("reagent")).getItemFromFile();
+
+			if(reagent == null) {
+				Formatter.warning("Invalid reagent data for " + section.getName() + ".");
+				return Optional.empty();
+			} else {
+				return Optional.of(reagent.getItemStack());
+			}
+		} else {
+			final var reagentName = section.getString("reagent");
+			final var reagentAmount = section.getInt("reagent-amount", 1);
+			final var item = ItemManager.getItem(reagentName);
+
+			return item.map(SimpleItem::getItemStack)
+					.or(() -> {
+						try {
+							return Optional.of(SimpleItem.newBuilder().material(Material.valueOf(reagentName.toUpperCase()))
+									.amount(reagentAmount).build().getItemStack());
+						} catch (final IllegalArgumentException e) {
+							Formatter.warning("Unknown reagent: " + reagentName + " for " + section.getName() + ".");
+							return Optional.empty();
+						}
+					});
+		}
 	}
 
 	public void loadCrafts() {
@@ -190,7 +228,7 @@ public class CraftManager {
 
 	public Map<String, CraftEntity> loadCraftsFromFile(final File file) {
 		final var conf = FileUtils.getConfiguration(file);
-		final Map<String, CraftEntity> crafts = new HashMap<>();
+		final Map<String, CraftEntity> crafts = new LinkedHashMap<>();
 
 		for(final String id : conf.getKeys(false)) {
 			if(conf.isConfigurationSection(id)) {
@@ -232,14 +270,35 @@ public class CraftManager {
 		}
 
 		return loadSpecific(section, station.get())
-				.map(value -> value.profession(profession.get())
-				.craftingMenu(station.get().getMenu())
-				.item(item.get().getItemStack())
-				.amount(section.getInt("amount", 1)).build());
+					.map(value -> value
+							.profession(profession.get())
+							.id(id)
+							.craftingMenu(station.get().getMenu())
+							.item(item.get().getItemStack())
+							.amount(section.getInt("amount", 1))
+							.metaData(CraftEntityMeta.newBuilder()
+									.requiredLevel(section.getInt("required-level", 0))
+									.levelGain(section.getInt("level-gain", 1))
+									.levelCap(section.getInt("level-cap", 10))
+									.knownByDefault(section.getBoolean("default", true))
+									.build())
+							.build()
+					);
 	}
 
 	public List<CraftEntity> getCraftItems() {
-		return new ArrayList<>(loadedCrafts.values());
+		final List<CraftEntity> craftEntities = new ArrayList<>();
+
+		//Using keySet to keep order
+		/*for(final var key : loadedCrafts.keySet()) {
+			craftEntities.add(loadedCrafts.get(key));
+		}*/
+
+		for(final var entrySet : loadedCrafts.entrySet()) {
+			craftEntities.add(entrySet.getValue());
+		}
+
+		return craftEntities;
 	}
 
 	public Optional<CraftEntity> getCraftItem(final String id) {
@@ -275,9 +334,15 @@ public class CraftManager {
 	}
 
 	public List<CraftEntity> getItemsFromProfession(final Profession profession) {
-		return getCraftItems().stream()
-				.filter(c -> c.getProfession().equals(profession))
-				.collect(Collectors.toList());
+		final List<CraftEntity> craftEntities = new ArrayList<>();
+
+		for(final CraftEntity craftEntity : getCraftItems()) {
+			if(craftEntity.getProfession().equals(profession)) {
+				craftEntities.add(craftEntity);
+			}
+		}
+
+		return craftEntities;
 	}
 
 	public Optional<CraftEntity> getItemFromPattern(final ItemStack[] pattern) {
@@ -288,6 +353,12 @@ public class CraftManager {
 		}
 
 		return Optional.empty();
+	}
+
+	public List<CraftEntity> getItemsWithRequiredLevel(final Profession profession, final int level) {
+		return getItemsFromProfession(profession).stream()
+				.filter(craftEntity -> craftEntity.getMetaData().getRequiredLevel() == level)
+				.collect(Collectors.toList());
 	}
 
 }

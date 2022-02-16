@@ -18,6 +18,7 @@
         <module>rpg-stats-lib</module>
         <module>player-lib</module>
         <module>file-utils</module>
+        <module>yaml-lib</module>
     </modules>
 
     <properties>
@@ -32,8 +33,10 @@
         <player-lib.version>1.0.0</player-lib.version>
         <gui-lib.version>1.0.0</gui-lib.version>
         <file-utils.version>1.0.0</file-utils.version>
+        <yaml-lib.version>1.0.0</yaml-lib.version>
         <spigot.version>1.17.1-R0.1-SNAPSHOT</spigot.version>
-        <lombok.version>1.18.20</lombok.version>
+        <lombok.version>1.18.22</lombok.version>
+        <annotations.version>23.0.0</annotations.version>
     </properties>
 
     <repositories>
@@ -97,6 +100,12 @@
                 <artifactId>gui-lib</artifactId>
                 <version>${gui-lib.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.github.spigot_gillesm</groupId>
+                <artifactId>yaml-lib</artifactId>
+                <version>${yaml-lib.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -117,7 +126,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
+            <version>${annotations.version}</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

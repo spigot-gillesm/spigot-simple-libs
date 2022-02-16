@@ -76,6 +76,24 @@ public class PlayerData {
 				.orElse(null);
 	}
 
+	@Nullable
+	public <T> T getRawValue(final String tag, @NotNull final Class<T> clazz) {
+		return getRawValue(tag, clazz, null);
+	}
+
+	public <T> T getRawValue(final String tag, @NotNull final Class<T> clazz, final T defaultValue) {
+		final var value = getRawValue(tag);
+
+		if(value == null) {
+			return defaultValue;
+		}
+		if(clazz.equals(value.getClass())) {
+			return clazz.cast(value);
+		}
+
+		return defaultValue;
+	}
+
 	/**
 	 * Get the tag's current value.
 	 *
@@ -85,6 +103,15 @@ public class PlayerData {
 	@Nullable
 	public Object getTagValue(final PlayerTag tag) {
 		return getRawValue(tag.toString());
+	}
+
+	@Nullable
+	public <T> T getTagValue(final PlayerTag tag, @NotNull final Class<T> clazz) {
+		return getRawValue(tag.toString(), clazz);
+	}
+
+	public <T> T getTagValue(final PlayerTag tag, @NotNull final Class<T> clazz, final T defaultValue) {
+		return getRawValue(tag.toString(), clazz, defaultValue);
 	}
 
 	/**
@@ -215,7 +242,8 @@ public class PlayerData {
 
 		getMap().forEach((tag, value) -> {
 			if(saveOnQuit(tag) && value != null) {
-				conf.set("tags." + tag, value.toString());
+				final var valueToWrite = value.getClass().isEnum() ? value.toString() : value;
+				conf.set("tags." + tag, valueToWrite);
 			}
 		});
 		getPlayer().ifPresent(p -> conf.set("name", p.getName()));

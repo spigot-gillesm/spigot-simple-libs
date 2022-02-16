@@ -1,5 +1,6 @@
 package com.github.spigot_gillesm.item_lib;
 
+import com.github.spigot_gillesm.format_lib.Formatter;
 import lombok.experimental.UtilityClass;
 import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
@@ -25,6 +26,30 @@ public class ItemUtil {
 
 			return meta.hasLore() ? meta.getLore() : new ArrayList<>();
 		}
+	}
+
+	public boolean hasLineInLore(@NotNull final ItemStack itemStack, @NotNull final String line) {
+		return getLore(itemStack).contains(Formatter.colorize(line));
+	}
+
+	public boolean hasStringInLore(@NotNull final ItemStack itemStack, @NotNull final String string) {
+		return hasStringInLore(itemStack, string, false);
+	}
+
+	public boolean hasStringInLore(@NotNull final ItemStack itemStack, @NotNull final String string, final boolean checkColor) {
+		for(final var line : getLore(itemStack)) {
+			if(checkColor) {
+				if(line.contains(Formatter.colorize(string))) {
+					return true;
+				}
+			} else {
+				if(line.contains(string)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -109,7 +134,21 @@ public class ItemUtil {
 	 * @return the integer being the value of the key
 	 */
 	public int getIntFromLore(@NotNull final ItemStack itemStack, @NotNull final String key) {
-		return Integer.parseInt(getStringFromLore(itemStack, key));
+		return getIntFromLore(itemStack, key, 0);
+	}
+
+	public int getIntFromLore(@NotNull final ItemStack itemStack, @NotNull final String key, final int defaultValue) {
+		final var value = getStringFromLore(itemStack, key);
+
+		if(!value.isBlank()) {
+			try {
+				return Integer.parseInt(getStringFromLore(itemStack, key));
+			} catch (final NumberFormatException exception) {
+				return defaultValue;
+			}
+		} else {
+			return defaultValue;
+		}
 	}
 
 	/**

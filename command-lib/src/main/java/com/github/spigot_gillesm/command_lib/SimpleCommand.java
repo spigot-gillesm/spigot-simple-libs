@@ -65,18 +65,7 @@ public abstract class SimpleCommand extends Command {
 		return true;
 	}
 
-	private void runSubCommands(@NotNull final CommandSender sender, @NotNull final String commandLabel,
-								@NotNull final String[] args) {
-		final List<SimpleCommand> matchingCommands = subCommands.stream()
-				//Get the commands matching the arg or alias
-				.filter(command -> command.getName().equalsIgnoreCase(args[0]) || command.getAliases().contains(args[0]))
-				.collect(Collectors.toList());
-		//Execute every available sub commands by feeding them their args
-		matchingCommands.forEach(command -> command.execute(sender, commandLabel,
-				Arrays.copyOfRange(args, 1, args.length)));
-	}
-
-	private void displayHelp(@NotNull final CommandSender sender) {
+	protected void displayHelp(@NotNull final CommandSender sender) {
 		Formatter.tell(sender, "&7=============&8[&6&lHelp&8]&7=============");
 		Formatter.tell(sender, "&6Description&8: &7" + getDescription());
 
@@ -86,16 +75,27 @@ public abstract class SimpleCommand extends Command {
 				final var info = new StringBuilder("&7&l* &7/&6" + command.getName());
 
 				for(final String arg : command.mandatoryArgs) {
-					info.append(" &8<&7").append(arg).append("&7>");
+					info.append(" &8<&7").append(arg).append("&8>");
 				}
 				for(final String arg : command.optionalArgs) {
-					info.append(" &8[&7").append(arg).append("&7]");
+					info.append(" &8[&7").append(arg).append("&8]");
 				}
 				info.append(" &8: &7").append(command.getDescription());
 				Formatter.tell(sender, info.toString());
 			}
 			Formatter.tell(sender, "");
 		}
+	}
+
+	private void runSubCommands(@NotNull final CommandSender sender, @NotNull final String commandLabel,
+								@NotNull final String[] args) {
+		final List<SimpleCommand> matchingCommands = subCommands.stream()
+				//Get the commands matching the arg or alias
+				.filter(command -> command.getName().equalsIgnoreCase(args[0]) || command.getAliases().contains(args[0]))
+				.collect(Collectors.toList());
+		//Execute every available sub commands by feeding them their args
+		matchingCommands.forEach(command -> command.execute(sender, commandLabel,
+				Arrays.copyOfRange(args, 1, args.length)));
 	}
 
 	protected void addMandatoryArgument(@NotNull final String arg) {

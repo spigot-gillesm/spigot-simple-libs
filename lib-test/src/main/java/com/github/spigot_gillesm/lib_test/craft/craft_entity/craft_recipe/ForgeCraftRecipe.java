@@ -134,6 +134,7 @@ public class ForgeCraftRecipe extends CraftRecipe implements DynamicCraft {
 				getMenu().setCancelReinstantiation(true);
 				//And re displays it
 				getMenu().display(player);
+				getMenu().runEvent(player);
 				cancel();
 
 				return true;

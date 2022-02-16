@@ -14,6 +14,7 @@ public class SpellListener implements Listener {
 	@EventHandler
 	private void onProjectileHit(final ProjectileHitEvent event) {
 		final var projectile = event.getEntity();
+		final var shooter = projectile.getShooter();
 		final var spell = EntitySpell.getSpell(projectile);
 
 		if(!(spell instanceof ProjectileSpell)) {
@@ -21,15 +22,19 @@ public class SpellListener implements Listener {
 		}
 		final var target = event.getHitEntity();
 
-		if(target != null) {
+		if(target != null && shooter != null) {
 
-			if(target instanceof LivingEntity) {
-				spell.onHit((LivingEntity) target);
+			if(shooter instanceof LivingEntity) {
+				if(target instanceof LivingEntity) {
+					spell.onHit((LivingEntity) shooter, (LivingEntity) target);
+				}
+				spell.onHit((LivingEntity) shooter, target.getLocation());
 			}
-			spell.onHit(target.getLocation());
 
 		} else {
-			spell.onHit(event.getHitBlock().getLocation());
+			if(shooter instanceof LivingEntity) {
+				spell.onHit((LivingEntity) shooter, event.getHitBlock().getLocation());
+			}
 		}
 		projectile.remove();
 	}
@@ -44,8 +49,8 @@ public class SpellListener implements Listener {
 			return;
 		}
 
-		if(target instanceof LivingEntity) {
-			spell.onHit((LivingEntity) target);
+		if(source instanceof LivingEntity && target instanceof LivingEntity) {
+			spell.onHit((LivingEntity) source, (LivingEntity) target);
 		}
 	}
 

@@ -8,12 +8,12 @@ import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class CraftingMenu extends SimpleMenu {
+public class RecipeMenu extends SimpleMenu {
 
 	@Setter(AccessLevel.PACKAGE)
 	private CraftRecipe item;
 
-	public CraftingMenu(final SimpleMenu parentMenu) {
+	public RecipeMenu(final SimpleMenu parentMenu) {
 		super(parentMenu);
 		setSize(6*9);
 		setTitle("&8Recipe");

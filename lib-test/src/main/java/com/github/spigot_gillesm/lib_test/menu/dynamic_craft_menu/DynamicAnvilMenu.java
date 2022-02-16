@@ -23,6 +23,7 @@ public class DynamicAnvilMenu extends DynamicCraftMenu {
 	private final SimpleButton wrongSpotButton;
 
 	public DynamicAnvilMenu() {
+		super(RESULT_SLOT);
 		this.hitSpotButton = new SimpleButton(SimpleItem.newBuilder()
 				.material(Material.BLACK_STAINED_GLASS_PANE)
 				.displayName("&f")

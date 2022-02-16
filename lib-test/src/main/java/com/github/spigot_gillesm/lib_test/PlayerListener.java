@@ -4,6 +4,7 @@ import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.gui_lib.SimpleMenuInteractEvent;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
+import com.github.spigot_gillesm.lib_test.event.CompleteCraftEntityEvent;
 import com.github.spigot_gillesm.lib_test.profession.Privilege;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;
 import com.github.spigot_gillesm.player_lib.DataManager;
@@ -152,7 +153,7 @@ public class PlayerListener implements Listener {
 			final var block = player.getTargetBlock(null, 3);
 
 			if(blacksmithItem.isPresent() && block.getType() == Material.WATER_CAULDRON) {
-				final var hardenedItem = blacksmithItem.get().coolDown(heldItem);
+				final var hardenedItem = blacksmithItem.get().coolDown(player, heldItem);
 
 				if(hardenedItem != null) {
 					player.getInventory().removeItem(heldItem);
@@ -170,7 +171,7 @@ public class PlayerListener implements Listener {
 		final var player = event.getPlayer();
 		final var item = event.getPlayer().getInventory().getItemInMainHand();
 
-		if(item.hasItemMeta() && "CANCEL_USE".contains(item.getItemMeta().getLocalizedName())) {
+		if(item.hasItemMeta() && item.getItemMeta().getLocalizedName().contains("CANCEL_USE")) {
 			event.setCancelled(true);
 		}
 		if(!PlayerManager.canEquip(player, item)) {
@@ -287,6 +288,28 @@ public class PlayerListener implements Listener {
 	private void onInventoryClosed(final InventoryCloseEvent event) {
 		//Remove the tag when a menu is closed
 		DataManager.getData((Player) event.getPlayer()).removeRawValue("BREWING_MENU");
+	}
+
+	@EventHandler
+	private void onCompleteCraftEntityEvent(final CompleteCraftEntityEvent event) {
+		final var player = event.getPlayer();
+		final var profession = PlayerManager.getProfession(player);
+
+		if(PlayerManager.updateProfessionLevel(event.getPlayer(), event.getCraftEntity())) {
+			final var level = PlayerManager.getProfessionLevel(player);
+
+			Formatter.tell(player, "&aYou're now a level &9" + PlayerManager.getProfessionLevel(player)
+					+ " " + profession.get().getDisplayName());
+
+			for(final var craftEntity : CraftManager.getItemsWithRequiredLevel(profession.get(), level)) {
+				if(craftEntity.getItem().hasItemMeta() && craftEntity.getItem().getItemMeta().hasDisplayName()) {
+					Formatter.tell(player, "&aYou've learned to craft "
+							+ craftEntity.getItem().getItemMeta().getDisplayName() + "&a!");
+				} else {
+					Formatter.tell(player, "&aYou've learned to craft a new item!");
+				}
+			}
+		}
 	}
 
 }

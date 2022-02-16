@@ -9,6 +9,7 @@ public enum PlayerTag {
 	LOCATION(true),
 	CLASS(true),
 	PROFESSION(true),
+	PROFESSION_LEVEL(true),
 	LEVEL(true),
 	EXPERIENCE(true),
 	HEALTH(true),
