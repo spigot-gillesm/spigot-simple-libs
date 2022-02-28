@@ -88,6 +88,7 @@ public class SimpleItem {
      * @param builder the builder
      */
     private SimpleItem(final Builder builder) {
+        this.itemStack = builder.itemStack;
         this.material = builder.material;
         this.amount = builder.amount;
         this.damage = builder.damage;
@@ -212,6 +213,8 @@ public class SimpleItem {
      */
     public static class Builder {
 
+        private ItemStack itemStack;
+
         private Material material = Material.WOODEN_SWORD;
 
         private int amount = 1;
@@ -245,6 +248,11 @@ public class SimpleItem {
         private Map<Attribute, AttributeModifier> attributeModifiers = new EnumMap<>(Attribute.class);
 
         private Builder() { }
+
+        public Builder itemStack(final ItemStack itemStack) {
+            this.itemStack = itemStack;
+            return this;
+        }
 
         /**
          * Set the item's material.
@@ -352,7 +360,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder addItemFlags(final ItemFlag... itemFlags) {
-            final List<ItemFlag> currentFlags = new ArrayList<>(Arrays.asList(itemFlags));
+            final List<ItemFlag> currentFlags = new ArrayList<>(Arrays.asList(this.itemFlags));
             currentFlags.addAll(Arrays.asList(itemFlags));
             this.itemFlags = currentFlags.toArray(new ItemFlag[0]);
             return this;

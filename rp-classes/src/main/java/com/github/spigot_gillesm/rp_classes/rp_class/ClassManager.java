@@ -9,7 +9,7 @@ import java.util.*;
 @UtilityClass
 public class ClassManager {
 
-	private final Map<String, RpClass> LOADED_CLASSES = new HashMap<>();
+	private final Map<String, RpClass> LOADED_CLASSES = new LinkedHashMap<>();
 
 	public void loadClasses() {
 		LOADED_CLASSES.clear();
@@ -33,7 +33,8 @@ public class ClassManager {
 	public Optional<RpClass> getRpClass(final String id) {
 		return LOADED_CLASSES.entrySet().stream()
 				.filter(entry -> entry.getKey().equals(id))
-				.map(Map.Entry::getValue).findFirst();
+				.map(Map.Entry::getValue)
+				.findFirst();
 	}
 
 	public String getId(final RpClass rpClass) {

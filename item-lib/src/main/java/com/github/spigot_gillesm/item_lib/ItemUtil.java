@@ -7,6 +7,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @UtilityClass
@@ -44,11 +46,25 @@ public class ItemUtil {
 	}
 
 	public boolean hasLineInLore(@NotNull final ItemStack itemStack, @NotNull final String line) {
-		return getLore(itemStack).contains(Formatter.colorize(line));
+		return hasLineInLore(itemStack, line, true);
+	}
+
+	public boolean hasLineInLore(@NotNull final ItemStack itemStack, @NotNull final String line, final boolean checkColor) {
+		if(checkColor) {
+			return getLore(itemStack).contains(Formatter.colorize(line));
+		} else {
+			for(final var l : getLore(itemStack)) {
+				if(ChatColor.stripColor(l).equals(ChatColor.stripColor(line))) {
+					return true;
+				}
+			}
+
+			return false;
+		}
 	}
 
 	public boolean hasStringInLore(@NotNull final ItemStack itemStack, @NotNull final String string) {
-		return hasStringInLore(itemStack, string, false);
+		return hasStringInLore(itemStack, string, true);
 	}
 
 	public boolean hasStringInLore(@NotNull final ItemStack itemStack, @NotNull final String string, final boolean checkColor) {
@@ -88,6 +104,24 @@ public class ItemUtil {
 		}
 
 		return "";
+	}
+
+	public List<String> getStringsFromLore(@NotNull final ItemStack itemStack, @NotNull final String key,
+									@NotNull final String separator) {
+		final var lore = getLore(itemStack);
+
+		if(lore.isEmpty()) {
+			return Collections.emptyList();
+		}
+		lore.forEach(ChatColor::stripColor);
+
+		for(final var line : lore) {
+			if(line.startsWith(key)) {
+				return new ArrayList<>(Arrays.asList(line.replace(key, "").split(separator)));
+			}
+		}
+
+		return Collections.emptyList();
 	}
 
 	/**

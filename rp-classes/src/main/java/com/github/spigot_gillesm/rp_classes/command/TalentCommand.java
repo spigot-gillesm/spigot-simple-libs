@@ -1,13 +1,12 @@
 package com.github.spigot_gillesm.rp_classes.command;
 
-import com.github.spigot_gillesm.command_lib.MainCommand;
 import com.github.spigot_gillesm.command_lib.SimpleCommand;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-@MainCommand
+//@MainCommand
 public class TalentCommand extends SimpleCommand {
 
 	public TalentCommand() {
@@ -21,11 +20,11 @@ public class TalentCommand extends SimpleCommand {
 
 	@Override
 	protected void run(final CommandSender sender, final String[] args) {
-		if(args.length == 0) {
-			//new ClassesMenu().display((Player) sender);
+		/*if(args.length == 0) {
+			new ClassesMenu().display((Player) sender);
 		} else {
 			super.displayHelp(sender);
-		}
+		}*/
 	}
 
 }

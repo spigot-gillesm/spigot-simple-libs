@@ -21,10 +21,10 @@ public interface EntitySpell {
 
 	static EntitySpell getSpell(@NotNull final Entity entity) {
 		if(entity.hasMetadata(TAG)) {
-			final Object o = entity.getMetadata(TAG).get(0).value();
+			final Object obj = entity.getMetadata(TAG).get(0).value();
 
-			if(o instanceof EntitySpell) {
-				return (EntitySpell) o;
+			if(obj instanceof EntitySpell) {
+				return (EntitySpell) obj;
 			}
 		}
 		return null;

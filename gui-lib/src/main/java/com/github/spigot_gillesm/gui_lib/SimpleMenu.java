@@ -183,8 +183,14 @@ public abstract class SimpleMenu {
 	}
 
 	public static SimpleMenu getMenu(@NotNull final Player player) {
-		return player.hasMetadata("SIMPLE_MENU") ? (SimpleMenu) player.getMetadata("SIMPLE_MENU").get(0).value()
-				: null;
+		if(player.hasMetadata("SIMPLE_MENU")) {
+			final var obj = player.getMetadata("SIMPLE_MENU").get(0).value();
+
+			if(obj instanceof SimpleMenu) {
+				return (SimpleMenu) obj;
+			}
+		}
+		return null;
 	}
 
 }

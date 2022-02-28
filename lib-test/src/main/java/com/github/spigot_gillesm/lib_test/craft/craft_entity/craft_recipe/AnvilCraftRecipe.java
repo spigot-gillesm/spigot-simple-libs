@@ -130,6 +130,9 @@ public class AnvilCraftRecipe extends CraftRecipe implements DynamicCraft {
 
 	@Override
 	public ItemStack getResult() {
+		if(hardeningAmount <= 0) {
+			return super.getResult();
+		}
 		//Get the original result
 		final var item = super.getResult().clone();
 		final var meta = item.getItemMeta();
@@ -207,7 +210,7 @@ public class AnvilCraftRecipe extends CraftRecipe implements DynamicCraft {
 	@NoArgsConstructor
 	public static class Builder extends CraftRecipe.Builder {
 
-		private int hardeningAmount = 1;
+		private int hardeningAmount = 0;
 
 		private int requiredHammering = 10;
 
@@ -239,8 +242,8 @@ public class AnvilCraftRecipe extends CraftRecipe implements DynamicCraft {
 		@Override
 		public AnvilCraftRecipe build() {
 			super.build();
-			if(hardeningAmount < 1) {
-				throw new IllegalArgumentException("The hardening amount cannot be smaller than 1");
+			if(hardeningAmount < 0) {
+				throw new IllegalArgumentException("The hardening amount cannot be smaller than 0");
 			}
 			if(dynamicCraftMenu == null) {
 				throw new IllegalArgumentException("Dynamic craft menu cannot be null for an instance of DynamicCraft.");

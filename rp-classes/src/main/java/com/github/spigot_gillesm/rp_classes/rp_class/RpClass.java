@@ -2,8 +2,7 @@ package com.github.spigot_gillesm.rp_classes.rp_class;
 
 import com.github.spigot_gillesm.file_utils.FileUtils;
 import com.github.spigot_gillesm.format_lib.Formatter;
-import com.github.spigot_gillesm.rp_classes.talent.TalentTree;
-import com.github.spigot_gillesm.rpg_stats_lib.Statistic;
+import com.github.spigot_gillesm.rp_classes.GearRestriction;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +15,9 @@ import java.util.*;
 public class RpClass {
 
 	@Getter
+	private final String id;
+
+	@Getter
 	private final Material icon;
 
 	@Getter
@@ -25,21 +27,26 @@ public class RpClass {
 	private final List<String> description;
 
 	@Getter
+	private final List<GearRestriction> gearRestrictions;
+
+	/*@Getter
 	private final String resourceName;
 
 	private final Map<Statistic, Double> baseStats;
 
 	private final Map<Statistic, Double> scaleStats;
 
-	private final Set<TalentTree> talents = new HashSet<>();
+	private final Set<TalentTree> talents = new HashSet<>();*/
 
 	private RpClass(final Builder builder) {
+		this.id = builder.id;
 		this.icon = builder.icon;
 		this.displayName = builder.displayName;
 		this.description = builder.description;
-		this.resourceName = builder.resourceName;
+		this.gearRestrictions = builder.gearRestrictions;
+		/*this.resourceName = builder.resourceName;
 		this.baseStats = builder.baseStats;
-		this.scaleStats = builder.scaleStats;
+		this.scaleStats = builder.scaleStats;*/
 	}
 
 	public static Builder newBuilder() {
@@ -49,17 +56,26 @@ public class RpClass {
 	@NoArgsConstructor(access = AccessLevel.PRIVATE)
 	public static class Builder {
 
+		private String id;
+
 		private Material icon;
 
 		private String displayName;
 
 		private List<String> description = new ArrayList<>();
 
-		private String resourceName;
+		private List<GearRestriction> gearRestrictions = new ArrayList<>();
+
+		/*private String resourceName;
 
 		private final Map<Statistic, Double> baseStats = new EnumMap<>(Statistic.class);
 
-		private final Map<Statistic, Double> scaleStats = new EnumMap<>(Statistic.class);
+		private final Map<Statistic, Double> scaleStats = new EnumMap<>(Statistic.class);*/
+
+		public Builder id(final String id) {
+			this.id = id;
+			return this;
+		}
 
 		public Builder icon(final Material icon) {
 			this.icon = icon;
@@ -81,7 +97,12 @@ public class RpClass {
 			return this;
 		}
 
-		public Builder resourceName(final String resourceName) {
+		public Builder gearRestrictions(final List<GearRestriction> gearRestrictions) {
+			this.gearRestrictions = gearRestrictions;
+			return this;
+		}
+
+		/*public Builder resourceName(final String resourceName) {
 			this.resourceName = resourceName;
 			return this;
 		}
@@ -94,7 +115,7 @@ public class RpClass {
 		public Builder addScaleStat(final Statistic statistic, final double value) {
 			scaleStats.put(statistic, value);
 			return this;
-		}
+		}*/
 
 		public RpClass build() {
 			if(icon == null) {
@@ -121,6 +142,24 @@ public class RpClass {
 			this(FileUtils.getConfiguration(file));
 		}
 
+		private List<GearRestriction> loadGearRestrictions(final ConfigurationSection section) {
+			if(section.contains("gear-restrictions")) {
+				final List<GearRestriction> gearRestrictions = new ArrayList<>();
+
+				for(final var restriction : section.getStringList("gear-restrictions")) {
+					try {
+						gearRestrictions.add(GearRestriction.valueOf(restriction.toUpperCase()));
+					} catch(final IllegalArgumentException exception) {
+						Formatter.error("Gear restriction " + restriction.toUpperCase() + " doesn't exist.");
+					}
+				}
+
+				return gearRestrictions;
+			} else {
+				return Collections.emptyList();
+			}
+		}
+
 		private boolean containsFields(final ConfigurationSection section, final String... fields) {
 			var contains = true;
 
@@ -141,18 +180,27 @@ public class RpClass {
 			final var section = configuration.getConfigurationSection(id);
 			final var builder = RpClass.newBuilder();
 
-			if(!containsFields(section, "display-name", "resource-name", "base-resource", "scale-resource",
-					"base-health", "scale-health", "icon")) {
+			if(!containsFields(section, "display-name", "icon"/*"resource-name", "base-resource", "scale-resource",
+					"base-health", "scale-health", */)) {
+				return Optional.empty();
+			}
+			final var restrictions = loadGearRestrictions(section);
+
+			if(restrictions.isEmpty()) {
+				Formatter.error("Class " + id + " has no gear restrictions.");
 				return Optional.empty();
 			}
 			builder
+					.id(id)
 					.displayName(section.getString("display-name"))
 					.description(section.getStringList("description"))
-					.resourceName(section.getString("resource-name"))
-					.addBaseStat(Statistic.HEALTH, section.getDouble("base-health"))
+					.gearRestrictions(restrictions);
+
+					//.resourceName(section.getString("resource-name"))
+					/*.addBaseStat(Statistic.HEALTH, section.getDouble("base-health"))
 					.addBaseStat(Statistic.MANA, section.getDouble("base-resource"))
 					.addScaleStat(Statistic.HEALTH, section.getDouble("scale-health"))
-					.addScaleStat(Statistic.MANA, section.getDouble("scale-resource"));
+					.addScaleStat(Statistic.MANA, section.getDouble("scale-resource"));*/
 
 			try {
 				builder.icon(Material.valueOf(section.getString("icon").toUpperCase()));

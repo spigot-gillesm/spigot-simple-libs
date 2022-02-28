@@ -119,7 +119,7 @@ public class CraftManager {
 			final var menu = station.getDynamicMenu();
 			if(menu.equals(DynamicAnvilMenu.class)) {
 				builder = AnvilCraftRecipe.newBuilder()
-						.hardeningAmount(section.getInt("hardening-amount", 1));
+						.hardeningAmount(section.getInt("hardening-amount", 0));
 			} else if(menu.equals(DynamicForgeMenu.class)) {
 				builder = ForgeCraftRecipe.newBuilder();
 			} else if(menu.equals(DynamicEnchantMenu.class)) {

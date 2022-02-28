@@ -13,7 +13,8 @@ public enum MenuType {
 	ANVIL(AnvilMenu.class, DynamicAnvilMenu.class),
 	ENCHANTMENT(EnchantMenu.class, DynamicEnchantMenu.class),
 	LECTERN(LecternMenu.class, DynamicEnchantMenu.class),
-	POTION(PotionMenu.class, null);
+	POTION(PotionMenu.class, null),
+	CRAFT(CraftMenu.class, null);
 
 	@Getter
 	private final Class<? extends CraftStationMenu> menu;
