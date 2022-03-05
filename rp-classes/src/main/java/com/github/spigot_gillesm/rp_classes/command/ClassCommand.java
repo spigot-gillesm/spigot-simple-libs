@@ -67,7 +67,7 @@ public class ClassCommand extends SimpleCommand {
 			rpClass.ifPresentOrElse(c -> {
 					tell(sender, "&9" + args[0] + " &ais now a " + c.getDisplayName());
 					Formatter.tell(player, "&aYou're now a " + c.getDisplayName() + "&a!");
-					PlayerManager.setPlayerClass(player, c);
+					PlayerManager.setPlayerRpClass(player, c);
 			},
 					() -> tell(sender, "&cUnknown class"));
 		}

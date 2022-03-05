@@ -27,6 +27,7 @@ public final class LibTest extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		initialize(this);
+		DependencyManager.loadDependencies();
 		CommandLib.initialize(this);
 		PlayerLib.initialize(this);
 		GuiLib.initialize(this);
@@ -43,5 +44,7 @@ public final class LibTest extends JavaPlugin {
 	public void onDisable() {
 		PlayerLib.saveAllData();
 	}
+
+
 
 }

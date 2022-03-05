@@ -41,7 +41,6 @@ public class ItemManager {
 		final Map<String, SimpleItem> items = new HashMap<>();
 
 		for(final String id : conf.getKeys(false)) {
-
 			loadItemFromFile(conf, id).ifPresent(simpleItem -> items.put(id, simpleItem));
 		}
 
@@ -49,8 +48,14 @@ public class ItemManager {
 	}
 
 	public Optional<SimpleItem> loadItemFromFile(@NotNull final YamlConfiguration configuration, @NotNull final String id) {
-		final var item = YamlItem.fromConfiguration(configuration).getBuilderFromFile(id);
 		final var itemSection = configuration.getConfigurationSection(id);
+
+		//Check if the items should be loaded from mmoitems plugin
+		if(itemSection.contains("mmo-item")) {
+			return DependencyManager.getMmoItem(itemSection.getString("mmo-item"))
+					.map(mi -> SimpleItem.newBuilder().itemStack(mi).build());
+		}
+		final var item = YamlItem.fromConfiguration(configuration).getBuilderFromFile(id);
 
 		if(item == null || itemSection == null) {
 			return Optional.empty();

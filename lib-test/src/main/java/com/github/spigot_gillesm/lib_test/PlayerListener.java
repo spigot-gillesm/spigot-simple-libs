@@ -43,9 +43,9 @@ public class PlayerListener implements Listener {
 		}
 		if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			//Prevent the use of beds
-			if(block.getType().name().contains("BED")) {
+			/*if(block.getType().name().contains("BED")) {
 				event.setCancelled(true);
-			}
+			}*/
 
 			profession.ifPresent(p -> {
 				//Check if the player is not supposed to use this block
@@ -58,6 +58,7 @@ public class PlayerListener implements Listener {
 					event.setCancelled(true);
 				}
 			});
+		} else {
 		}
 	}
 
@@ -121,6 +122,7 @@ public class PlayerListener implements Listener {
 		}
 	}
 
+
 	@EventHandler
 	private void onPlayerInteract(final PlayerInteractEvent event) {
 		final var player = event.getPlayer();
@@ -131,26 +133,16 @@ public class PlayerListener implements Listener {
 
 		if(event.getAction().name().contains("RIGHT")) {
 			final var heldItem = player.getInventory().getItemInMainHand();
-			final var blacksmithItem = CraftManager.getAnvilCraftRecipe(heldItem);
 
 			if(heldItem == null || heldItem.getType() == Material.AIR) {
 				return;
 			}
-
-			/*if(heldItem.isSimilar(CraftManager.EMPTY_EXPERIENCE_BOTTLE) && player.getLevel() >= 1) {
-				if(player.getInventory().firstEmpty() == -1) {
-					Formatter.tell(player, "&cYour inventory is full.");
-				} else {
-					//Decrement the item or remove it if amount == 1
-					if(ItemManager.decrementItemAmount(heldItem)) {
-						player.getInventory().remove(heldItem);
-					}
-					PlayerManager.decrementLevel(player);
-					player.getInventory().addItem(new ItemStack(Material.EXPERIENCE_BOTTLE));
-					player.getWorld().playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
-				}
-			}*/
+			final var blacksmithItem = CraftManager.getAnvilCraftRecipe(heldItem);
 			final var block = player.getTargetBlock(null, 3);
+
+			if(block == null) {
+				return;
+			}
 
 			if(blacksmithItem.isPresent() && block.getType() == Material.WATER_CAULDRON) {
 				final var hardenedItem = blacksmithItem.get().coolDown(player, heldItem);
@@ -163,13 +155,16 @@ public class PlayerListener implements Listener {
 				block.setType(Material.CAULDRON);
 			}
 		}
-
 	}
 
 	@EventHandler
 	private void onPlayerUseItem(final PlayerInteractEvent event) {
 		final var player = event.getPlayer();
 		final var item = event.getPlayer().getInventory().getItemInMainHand();
+
+		if(item == null || item.getType() == Material.AIR) {
+			return;
+		}
 
 		if(item.hasItemMeta() && item.getItemMeta().getLocalizedName().contains("CANCEL_USE")) {
 			event.setCancelled(true);
@@ -281,7 +276,6 @@ public class PlayerListener implements Listener {
 			event.setCancelled(true);
 			Formatter.tell(player, "&cYou cannot equip that item");
 		}
-
 	}
 
 	@EventHandler
