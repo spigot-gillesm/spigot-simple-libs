@@ -115,7 +115,8 @@ public abstract class ListingMenu extends SimpleMenu {
 		this.nextPageButton = new SimpleButton(SimpleItem.newBuilder()
 				.material(Material.ARROW)
 				.displayName("&7Next Page")
-				.build()) {
+				.build()
+				.make()) {
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
 				final ListingMenu menu = (ListingMenu) SimpleMenu.getMenu(player);
@@ -130,7 +131,8 @@ public abstract class ListingMenu extends SimpleMenu {
 		this.previousPageButton = new SimpleButton(SimpleItem.newBuilder()
 				.material(Material.ARROW)
 				.displayName("&7Previous Page")
-				.build()) {
+				.build()
+				.make()) {
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
 				final ListingMenu menu = (ListingMenu) SimpleMenu.getMenu(player);

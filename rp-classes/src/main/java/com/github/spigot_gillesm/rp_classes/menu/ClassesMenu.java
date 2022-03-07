@@ -27,7 +27,8 @@ public class ClassesMenu extends ListingMenu {
 					.displayName(rpClass.getDisplayName())
 					.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS)
 					.lore(generateLore(rpClass))
-					.build()) {
+					.build()
+					.make()) {
 				@Override
 				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
 					if(PlayerManager.hasClass(player)) {

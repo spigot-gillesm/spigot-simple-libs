@@ -15,7 +15,7 @@
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-        <main-class>com.github.spigot_gillesm.lib_test.LibTest</main-class>
+        <main-class>com.github.spigot_gillesm.lib_test.RpProfessions</main-class>
         <mmoitems.version>6.7.1</mmoitems.version>
     </properties>
 

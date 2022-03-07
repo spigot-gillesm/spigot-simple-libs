@@ -2,7 +2,7 @@ package com.github.spigot_gillesm.lib_test.craft.craft_entity.craft_recipe;
 
 import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.item_lib.ItemUtil;
-import com.github.spigot_gillesm.lib_test.LibTest;
+import com.github.spigot_gillesm.lib_test.RpProfessions;
 import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.CraftRecipe;
@@ -49,7 +49,7 @@ public class AnvilCraftRecipe extends CraftRecipe implements DynamicCraft {
 	public RecipeRunnable<AnvilCraftRecipe, DynamicAnvilMenu> start(final Player player,
 																	final DynamicCraftMenu anvilMenu) {
 		var runnable = new AnvilCraftRunnable(this, player, (DynamicAnvilMenu) anvilMenu);
-		runnable.runTaskTimer(LibTest.getInstance(), 30, 1);
+		runnable.runTaskTimer(RpProfessions.getInstance(), 30, 1);
 		return runnable;
 	}
 

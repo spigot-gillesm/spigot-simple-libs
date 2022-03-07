@@ -1,6 +1,6 @@
 package com.github.spigot_gillesm.lib_test.craft.craft_entity.craft_recipe;
 
-import com.github.spigot_gillesm.lib_test.LibTest;
+import com.github.spigot_gillesm.lib_test.RpProfessions;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.CraftRecipe;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.DynamicCraft;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.RecipeRunnable;
@@ -36,7 +36,7 @@ public class EnchantCraftRecipe extends CraftRecipe implements DynamicCraft {
 	public RecipeRunnable<EnchantCraftRecipe, DynamicEnchantMenu> start(final Player player,
 																		final DynamicCraftMenu dynamicCraftMenu) {
 		final var runnable = new EnchantCraftRunnable(this, player, (DynamicEnchantMenu) dynamicCraftMenu);
-		runnable.runTaskTimer(LibTest.getInstance(), 0, 1);
+		runnable.runTaskTimer(RpProfessions.getInstance(), 0, 1);
 		return runnable;
 	}
 

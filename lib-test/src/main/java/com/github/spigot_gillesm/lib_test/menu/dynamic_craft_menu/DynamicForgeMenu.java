@@ -26,7 +26,8 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 		this.heatButton = new SimpleButton(SimpleItem.newBuilder()
 				.material(Material.LAVA_BUCKET)
 				.displayName("&cHeat Up")
-				.build()) {
+				.build()
+				.make()) {
 			@Override
 			public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
 				getRecipeRunnable().heatUp();
@@ -38,7 +39,8 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 		this.coolButton = new SimpleButton(SimpleItem.newBuilder()
 				.material(Material.WATER_BUCKET)
 				.displayName("&bCool Down")
-				.build()) {
+				.build()
+				.make()) {
 			@Override
 			public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
 				getRecipeRunnable().coolDown();
@@ -70,6 +72,7 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 							.displayName("&f")
 							.localizedName("CANCEL_MENU")
 							.build()
+							.make()
 							.getItemStack();
 				}
 			}
@@ -85,6 +88,7 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 					.displayName("&cFailure")
 					.localizedName("CANCEL_MENU")
 					.build()
+					.make()
 					.getItemStack();
 		}
 		if(slot == 3*9 + 3) {
@@ -99,6 +103,7 @@ public class DynamicForgeMenu extends DynamicCraftMenu {
 					.displayName("&f")
 					.localizedName("CANCEL_MENU")
 					.build()
+					.make()
 					.getItemStack();
 		}
 	}

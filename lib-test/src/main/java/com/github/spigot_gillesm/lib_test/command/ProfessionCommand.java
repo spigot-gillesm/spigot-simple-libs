@@ -2,8 +2,8 @@ package com.github.spigot_gillesm.lib_test.command;
 
 import com.github.spigot_gillesm.command_lib.MainCommand;
 import com.github.spigot_gillesm.command_lib.SimpleCommand;
-import com.github.spigot_gillesm.lib_test.ItemManager;
-import com.github.spigot_gillesm.lib_test.PlayerManager;
+import com.github.spigot_gillesm.lib_test.item.ItemManager;
+import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.menu.ProfessionMenu;

@@ -3,7 +3,7 @@ package com.github.spigot_gillesm.lib_test.menu;
 import com.github.spigot_gillesm.gui_lib.ListingMenu;
 import com.github.spigot_gillesm.gui_lib.SimpleButton;
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
-import com.github.spigot_gillesm.lib_test.PlayerManager;
+import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.BreweryCraftRecipe;

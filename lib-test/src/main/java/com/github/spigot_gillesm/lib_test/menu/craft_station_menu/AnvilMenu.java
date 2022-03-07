@@ -14,7 +14,8 @@ public class AnvilMenu extends CraftStationMenu {
 				.material(Material.IRON_SHOVEL)
 				.displayName("&b&lForge")
 				.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-				.build();
+				.build()
+				.make();
 	}
 
 	@Override

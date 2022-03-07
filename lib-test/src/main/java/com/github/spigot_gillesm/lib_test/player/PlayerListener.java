@@ -1,8 +1,9 @@
-package com.github.spigot_gillesm.lib_test;
+package com.github.spigot_gillesm.lib_test.player;
 
 import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.gui_lib.SimpleMenuInteractEvent;
+import com.github.spigot_gillesm.lib_test.BrewManager;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.event.CompleteCraftEntityEvent;
 import com.github.spigot_gillesm.lib_test.profession.Privilege;

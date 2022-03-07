@@ -2,6 +2,7 @@ package com.github.spigot_gillesm.lib_test;
 
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.BreweryCraftRecipe;
+import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import lombok.experimental.UtilityClass;
 import org.bukkit.Bukkit;
 import org.bukkit.block.BrewingStand;
@@ -38,7 +39,7 @@ public class BrewManager {
 
 	public void setBrewerInventoryItems(final Player player, final BrewerInventory inventory, final int slot,
 										 final ItemStack draggedItem, final ItemStack clickedItem) {
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(LibTest.getInstance(), () -> {
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(RpProfessions.getInstance(), () -> {
 			player.setItemOnCursor(draggedItem);
 			inventory.setItem(slot, clickedItem);
 			player.updateInventory();

@@ -14,7 +14,8 @@ public class CraftMenu extends CraftStationMenu {
 				.material(Material.LEATHER)
 				.displayName("&a&lCraft")
 				.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
-				.build();
+				.build()
+				.make();
 	}
 
 	@Override

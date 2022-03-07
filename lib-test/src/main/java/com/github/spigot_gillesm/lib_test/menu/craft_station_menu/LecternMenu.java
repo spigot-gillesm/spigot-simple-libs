@@ -12,7 +12,8 @@ public class LecternMenu extends CraftStationMenu {
 		return SimpleItem.newBuilder()
 				.material(Material.ENCHANTED_BOOK)
 				.displayName("&e&lBless")
-				.build();
+				.build()
+				.make();
 	}
 
 	@Override

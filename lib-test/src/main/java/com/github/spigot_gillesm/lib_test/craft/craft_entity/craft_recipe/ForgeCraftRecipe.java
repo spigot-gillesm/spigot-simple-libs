@@ -1,7 +1,7 @@
 package com.github.spigot_gillesm.lib_test.craft.craft_entity.craft_recipe;
 
-import com.github.spigot_gillesm.lib_test.LibTest;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
+import com.github.spigot_gillesm.lib_test.RpProfessions;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.CraftRecipe;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.DynamicCraft;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.RecipeRunnable;
@@ -38,7 +38,7 @@ public class ForgeCraftRecipe extends CraftRecipe implements DynamicCraft {
 	public RecipeRunnable<ForgeCraftRecipe, DynamicForgeMenu> start(final Player player,
 																	final DynamicCraftMenu forgeMenu) {
 		var runnable = new ForgeCraftRunnable(this, player, (DynamicForgeMenu) forgeMenu);
-		runnable.runTaskTimer(LibTest.getInstance(), 0, 1);
+		runnable.runTaskTimer(RpProfessions.getInstance(), 0, 1);
 		return runnable;
 	}
 
