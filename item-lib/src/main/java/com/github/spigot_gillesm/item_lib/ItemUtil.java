@@ -3,13 +3,12 @@ package com.github.spigot_gillesm.item_lib;
 import com.github.spigot_gillesm.format_lib.Formatter;
 import lombok.experimental.UtilityClass;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @UtilityClass
 public class ItemUtil {
@@ -210,6 +209,47 @@ public class ItemUtil {
 	 */
 	public double getDoubleFromLore(@NotNull final ItemStack itemStack, @NotNull final String key) {
 		return Double.parseDouble(getStringFromLore(itemStack, key));
+	}
+
+	public <T, Z> void setPersistentData(@NotNull final ItemStack itemStack, @NotNull final PersistentDataType<T, Z> persistentDataType,
+								  @NotNull final String key, @NotNull final Z value) {
+		final var meta = itemStack.getItemMeta();
+
+		if(meta == null) {
+			return;
+		}
+		meta.getPersistentDataContainer().set(new NamespacedKey(ItemLib.getPlugin(), key), persistentDataType, value);
+	}
+
+	/**
+	 * Get the given persistent data from the item stack
+	 *
+	 * @param itemStack the itemStack
+	 * @param persistentDataType the persistentDataType
+	 * @param key the key
+	 * @param <T> T
+	 * @param <Z> Z
+	 * @return the persistent data
+	 */
+	public <T, Z> Optional<Z> getPersistentData(@NotNull final ItemStack itemStack, @NotNull final PersistentDataType<T, Z> persistentDataType,
+											 @NotNull final String key) {
+		final var meta = itemStack.getItemMeta();
+
+		if(meta == null) {
+			return Optional.empty();
+		}
+		final var dataContainer = meta.getPersistentDataContainer();
+		final var namespacedKey = new NamespacedKey(ItemLib.getPlugin(), key);
+
+		if(dataContainer.has(namespacedKey, persistentDataType)) {
+			return Optional.of(dataContainer.get(namespacedKey, persistentDataType));
+		}
+
+		return Optional.empty();
+	}
+
+	public Optional<String> getPersistentString(@NotNull final ItemStack itemStack, @NotNull final String key) {
+		return getPersistentData(itemStack, PersistentDataType.STRING, key);
 	}
 
 }

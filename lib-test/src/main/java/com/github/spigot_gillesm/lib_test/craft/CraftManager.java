@@ -4,7 +4,7 @@ import com.github.spigot_gillesm.file_utils.FileUtils;
 import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
 import com.github.spigot_gillesm.item_lib.YamlItem;
-import com.github.spigot_gillesm.lib_test.ItemManager;
+import com.github.spigot_gillesm.lib_test.item.ItemManager;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.BreweryCraftRecipe;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.CraftRecipe;
@@ -155,7 +155,9 @@ public class CraftManager {
 					.or(() -> Optional.of(
 									SimpleItem.newBuilder()
 											.material(Material.valueOf(itemName.toUpperCase()))
-											.build().getItemStack()
+											.build()
+											.make()
+											.getItemStack()
 							)
 					);
 		} catch (final IllegalArgumentException e) {
@@ -205,7 +207,7 @@ public class CraftManager {
 					.or(() -> {
 						try {
 							return Optional.of(SimpleItem.newBuilder().material(Material.valueOf(reagentName.toUpperCase()))
-									.amount(reagentAmount).build().getItemStack());
+									.amount(reagentAmount).build().make().getItemStack());
 						} catch (final IllegalArgumentException e) {
 							Formatter.warning("Unknown reagent: " + reagentName + " for " + section.getName() + ".");
 							return Optional.empty();

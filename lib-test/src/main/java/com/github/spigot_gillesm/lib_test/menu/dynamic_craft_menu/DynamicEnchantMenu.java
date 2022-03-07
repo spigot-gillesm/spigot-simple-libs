@@ -48,7 +48,8 @@ public class DynamicEnchantMenu extends DynamicCraftMenu {
 					.material(color)
 					.displayName("&f")
 					.localizedName(slot + " CANCEL_MENU")
-					.build()) {
+					.build()
+					.make()) {
 				@Override
 				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
 					getRecipeRunnable().clickedOn(slot);
@@ -76,6 +77,7 @@ public class DynamicEnchantMenu extends DynamicCraftMenu {
 					.displayName("&cFailure")
 					.localizedName("CANCEL_MENU")
 					.build()
+					.make()
 					.getItemStack();
 		}
 		//Display colors if not finished nor failed
@@ -85,6 +87,7 @@ public class DynamicEnchantMenu extends DynamicCraftMenu {
 					.displayName("&f")
 					.localizedName("CANCEL_MENU")
 					.build()
+					.make()
 					.getItemStack();
 		}
 		else if (!(finished || failed)){
@@ -100,6 +103,7 @@ public class DynamicEnchantMenu extends DynamicCraftMenu {
 				.displayName("&f")
 				.localizedName("CANCEL_MENU")
 				.build()
+				.make()
 				.getItemStack();
 	}
 

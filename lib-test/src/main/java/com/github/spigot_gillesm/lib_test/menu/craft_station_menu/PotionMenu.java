@@ -12,7 +12,8 @@ public class PotionMenu extends CraftStationMenu {
 		return SimpleItem.newBuilder()
 				.material(Material.DRAGON_BREATH)
 				.displayName("&5&lBrew")
-				.build();
+				.build()
+				.make();
 	}
 
 	@Override

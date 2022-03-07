@@ -12,7 +12,8 @@ public class ForgeMenu extends CraftStationMenu {
 		return SimpleItem.newBuilder()
 				.material(Material.GOLD_INGOT)
 				.displayName("&c&lSmelt")
-				.build();
+				.build()
+				.make();
 	}
 
 	@Override

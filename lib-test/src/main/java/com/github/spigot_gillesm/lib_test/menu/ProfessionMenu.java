@@ -4,7 +4,7 @@ import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.gui_lib.ListingMenu;
 import com.github.spigot_gillesm.gui_lib.SimpleButton;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
-import com.github.spigot_gillesm.lib_test.PlayerManager;
+import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
 import com.github.spigot_gillesm.lib_test.profession.Profession;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;

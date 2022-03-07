@@ -63,6 +63,7 @@ public abstract class SimpleMenu {
 					.material(Material.BOOK)
 					.displayName("&9Return")
 					.build()
+					.make()
 			) {
 				@Override
 				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {

@@ -12,7 +12,8 @@ public class EnchantMenu extends CraftStationMenu {
 		return SimpleItem.newBuilder()
 				.material(Material.ENDER_EYE)
 				.displayName("&b&lEnchant")
-				.build();
+				.build()
+				.make();
 	}
 
 	@Override

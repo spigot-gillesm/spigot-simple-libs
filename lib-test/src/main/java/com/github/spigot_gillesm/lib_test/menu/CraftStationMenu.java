@@ -2,7 +2,7 @@ package com.github.spigot_gillesm.lib_test.menu;
 
 import com.github.spigot_gillesm.gui_lib.SimpleButton;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
-import com.github.spigot_gillesm.lib_test.PlayerManager;
+import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
 import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
@@ -140,6 +140,7 @@ public abstract class CraftStationMenu extends SimpleCraftingMenu {
 					.displayName("&f")
 					.localizedName("CANCEL_MENU")
 					.build()
+					.make()
 					.getItemStack();
 		}
 	}

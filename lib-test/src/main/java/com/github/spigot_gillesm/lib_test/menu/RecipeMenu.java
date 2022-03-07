@@ -62,6 +62,7 @@ public class RecipeMenu extends SimpleMenu {
 					.displayName("&f")
 					.localizedName("CANCEL_MENU")
 					.build()
+					.make()
 					.getItemStack();
 		}
 	}

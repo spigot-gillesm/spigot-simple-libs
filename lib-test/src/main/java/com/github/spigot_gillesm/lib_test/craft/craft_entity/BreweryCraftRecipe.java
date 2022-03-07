@@ -1,7 +1,7 @@
 package com.github.spigot_gillesm.lib_test.craft.craft_entity;
 
-import com.github.spigot_gillesm.lib_test.LibTest;
-import com.github.spigot_gillesm.lib_test.PlayerManager;
+import com.github.spigot_gillesm.lib_test.player.PlayerManager;
+import com.github.spigot_gillesm.lib_test.RpProfessions;
 import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,7 +34,7 @@ public class BreweryCraftRecipe extends CraftEntity {
 
 	public void start(final BrewerInventory inventory) {
 		updateFuelLevel(inventory.getHolder());
-		new BrewRunnable(this, inventory, 400).runTaskTimer(LibTest.getInstance(), 0, 1);
+		new BrewRunnable(this, inventory, 400).runTaskTimer(RpProfessions.getInstance(), 0, 1);
 	}
 
 	private void updateFuelLevel(final BrewingStand brewingStand) {

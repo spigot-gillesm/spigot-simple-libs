@@ -1,6 +1,7 @@
-package com.github.spigot_gillesm.lib_test;
+package com.github.spigot_gillesm.lib_test.player;
 
 import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
+import com.github.spigot_gillesm.lib_test.item.ItemManager;
 import com.github.spigot_gillesm.lib_test.profession.Privilege;
 import com.github.spigot_gillesm.lib_test.profession.Profession;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;

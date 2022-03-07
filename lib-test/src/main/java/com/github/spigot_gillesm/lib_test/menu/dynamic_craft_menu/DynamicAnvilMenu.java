@@ -28,7 +28,8 @@ public class DynamicAnvilMenu extends DynamicCraftMenu {
 				.material(Material.BLACK_STAINED_GLASS_PANE)
 				.displayName("&f")
 				.localizedName("CANCEL_MENU")
-				.build()) {
+				.build()
+				.make()) {
 			@Override
 			public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
 				getRecipeRunnable().buildUp();
@@ -40,7 +41,8 @@ public class DynamicAnvilMenu extends DynamicCraftMenu {
 				.material(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
 				.displayName("&f")
 				.localizedName("CANCEL_MENU")
-				.build()) {
+				.build()
+				.make()) {
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
 				getRecipeRunnable().fail();
@@ -79,6 +81,7 @@ public class DynamicAnvilMenu extends DynamicCraftMenu {
 					.displayName("&cFailure")
 					.localizedName("CANCEL_MENU")
 					.build()
+					.make()
 					.getItemStack();
 		}
 		//If the craft is not failed nor finished -> display the progress bar
@@ -90,6 +93,7 @@ public class DynamicAnvilMenu extends DynamicCraftMenu {
 							.displayName("&cFailure")
 							.localizedName("CANCEL_MENU")
 							.build()
+							.make()
 							.getItemStack();
 				}
 			}
@@ -100,6 +104,7 @@ public class DynamicAnvilMenu extends DynamicCraftMenu {
 				.displayName("&f")
 				.localizedName("CANCEL_MENU")
 				.build()
+				.make()
 				.getItemStack();
 	}
 
