@@ -75,11 +75,11 @@ public class PlayerManager {
 		return getProfession(player).isPresent();
 	}
 
-	private boolean hasRequiredProfessionLevel(final Player player, final CraftEntity craftEntity) {
+	public boolean hasRequiredProfessionLevel(final Player player, final CraftEntity craftEntity) {
 		return getProfessionLevel(player) >= craftEntity.getMetaData().getRequiredLevel();
 	}
 
-	private boolean knowCraft(final Player player, final CraftEntity craftEntity) {
+	public boolean knowCraft(final Player player, final CraftEntity craftEntity) {
 		if(craftEntity.getMetaData().isKnownByDefault()) {
 			return true;
 		} else {

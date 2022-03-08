@@ -3,6 +3,7 @@ package com.github.spigot_gillesm.lib_test.command;
 import com.github.spigot_gillesm.command_lib.MainCommand;
 import com.github.spigot_gillesm.command_lib.SimpleCommand;
 import com.github.spigot_gillesm.lib_test.item.ItemManager;
+import com.github.spigot_gillesm.lib_test.pattern.RecipePatternManager;
 import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
@@ -73,8 +74,29 @@ public class ProfessionCommand extends SimpleCommand {
 			super(parentCommand, "get");
 			setAliases(new ArrayList<>(Collections.singletonList("g")));
 			setPlayerCommand(true);
-			setDescription("Get items from the plugin");
+			setDescription("Get entities from the plugin");
 			setPermission("profession.get");
+
+			new GetItemCommand(this);
+			new GetPatternCommand(this);
+		}
+
+		@Override
+		protected void run(final CommandSender sender, final String[] args) {
+			if(args.length == 0) {
+				displayHelp(sender);
+			}
+		}
+	}
+
+	private static class GetItemCommand extends SimpleCommand {
+
+		private GetItemCommand(final SimpleCommand parentCommand) {
+			super(parentCommand, "item");
+			setAliases(new ArrayList<>(Collections.singletonList("i")));
+			setPlayerCommand(true);
+			setDescription("Get items from the plugin");
+			setPermission("profession.get.item");
 			addMandatoryArgument("item id");
 			addOptionalArgument("amount");
 		}
@@ -109,6 +131,51 @@ public class ProfessionCommand extends SimpleCommand {
 				tell(sender, "&cUnknown item");
 			}
 		}
+
+	}
+
+	private static class GetPatternCommand extends SimpleCommand {
+
+		private GetPatternCommand(final SimpleCommand parentCommand) {
+			super(parentCommand, "pattern");
+			setAliases(new ArrayList<>(Collections.singletonList("p")));
+			setPlayerCommand(true);
+			setDescription("Get craft patterns from the plugin");
+			setPermission("profession.get.pattern");
+			addMandatoryArgument("item id");
+			addOptionalArgument("amount");
+		}
+
+		@Override
+		protected void run(final CommandSender sender, final String[] args) {
+			if(args.length < 1) {
+				tell(sender, "&cThis command takes at least 1 argument");
+				return;
+			}
+			if(args.length > 2) {
+				tell(sender, "&cThis command takes at most 2 arguments");
+				return;
+			}
+			final var item = RecipePatternManager.getRecipePattern(args[0]);
+
+			if(item.isPresent()) {
+				var amount = 1;
+				if(args.length > 1) {
+					if(PluginUtil.isInt(args[1])) {
+						amount = PluginUtil.clamp(Integer.parseInt(args[1]), 0, 64);
+					} else {
+						tell(sender, "&cItem amount must be a positive integer between 1 and 64");
+						return;
+					}
+				}
+				final var stack = item.get().getPhysicalPattern().clone();
+				stack.setAmount(amount);
+				((Player) sender).getInventory().addItem(stack);
+			} else {
+				tell(sender, "&cUnknown pattern");
+			}
+		}
+
 	}
 
 	private static class TeachCommand extends SimpleCommand {

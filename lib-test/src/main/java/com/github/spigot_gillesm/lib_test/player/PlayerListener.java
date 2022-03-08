@@ -4,11 +4,15 @@ import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
 import com.github.spigot_gillesm.gui_lib.SimpleMenuInteractEvent;
 import com.github.spigot_gillesm.lib_test.BrewManager;
+import com.github.spigot_gillesm.lib_test.RpProfessions;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.event.CompleteCraftEntityEvent;
+import com.github.spigot_gillesm.lib_test.event.InteractWithPatternEvent;
+import com.github.spigot_gillesm.lib_test.pattern.RecipePatternManager;
 import com.github.spigot_gillesm.lib_test.profession.Privilege;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;
 import com.github.spigot_gillesm.player_lib.DataManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Animals;
@@ -25,6 +29,7 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 public class PlayerListener implements Listener {
 
@@ -59,7 +64,6 @@ public class PlayerListener implements Listener {
 					event.setCancelled(true);
 				}
 			});
-		} else {
 		}
 	}
 
@@ -304,6 +308,28 @@ public class PlayerListener implements Listener {
 					Formatter.tell(player, "&aYou've learned to craft a new item!");
 				}
 			}
+		}
+	}
+
+	@EventHandler
+	private void onPlayerClickItem(final PlayerInteractEvent event) {
+		if(event.getAction().name().contains("RIGHT")) {
+			RecipePatternManager.getRecipePattern(event.getItem())
+					.ifPresent(pattern -> Bukkit.getServer().getPluginManager()
+							.callEvent(new InteractWithPatternEvent(event.getPlayer(), pattern))
+					);
+		}
+	}
+
+	@EventHandler
+	private void onInteractWithPatternEvent(final InteractWithPatternEvent event) {
+		final var pattern = event.getRecipePattern();
+		final var player = event.getPlayer();
+
+		if(pattern.teach(player) && pattern.isConsumedOnUse()) {
+			Bukkit.getServer().getScheduler().runTaskLater(RpProfessions.getInstance(),
+					() -> player.getInventory().setItemInMainHand(new ItemStack(Material.AIR)),
+					2L);
 		}
 	}
 
