@@ -15,6 +15,7 @@ import com.github.spigot_gillesm.lib_test.menu.craft_station_menu.PotionMenu;
 import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicAnvilMenu;
 import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicEnchantMenu;
 import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicForgeMenu;
+import com.github.spigot_gillesm.lib_test.pattern.RecipePatternManager;
 import com.github.spigot_gillesm.lib_test.profession.Profession;
 import com.github.spigot_gillesm.lib_test.profession.ProfessionManager;
 import com.github.spigot_gillesm.lib_test.profession.Workstation;
@@ -235,7 +236,13 @@ public class CraftManager {
 
 		for(final String id : conf.getKeys(false)) {
 			if(conf.isConfigurationSection(id)) {
-				loadCraftFromFile(conf, id, file.getName()).ifPresent(craftItem -> crafts.put(id, craftItem));
+				loadCraftFromFile(conf, id, file.getName()).ifPresent(craftItem -> {
+					crafts.put(id, craftItem);
+
+					if(!craftItem.getMetaData().isKnownByDefault()) {
+						RecipePatternManager.loadPattern(craftItem);
+					}
+				});
 			}
 		}
 

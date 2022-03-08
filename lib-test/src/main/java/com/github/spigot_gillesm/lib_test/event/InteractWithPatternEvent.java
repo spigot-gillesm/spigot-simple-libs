@@ -1,25 +1,25 @@
 package com.github.spigot_gillesm.lib_test.event;
 
-import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
+import com.github.spigot_gillesm.lib_test.pattern.RecipePattern;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class CompleteCraftEntityEvent extends Event {
+public class InteractWithPatternEvent extends Event {
 
 	private static final HandlerList HANDLERS_LIST = new HandlerList();
 
 	@Getter
-	private final CraftEntity craftEntity;
+	private final RecipePattern recipePattern;
 
 	@Getter
 	private final Player player;
 
-	public CompleteCraftEntityEvent(final Player player, final CraftEntity craftEntity) {
+	public InteractWithPatternEvent(final Player player, final RecipePattern recipePattern) {
 		this.player = player;
-		this.craftEntity = craftEntity;
+		this.recipePattern = recipePattern;
 	}
 
 	@Override
