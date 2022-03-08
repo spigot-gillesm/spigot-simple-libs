@@ -4,13 +4,13 @@ import com.github.spigot_gillesm.file_utils.FileUtils;
 import com.github.spigot_gillesm.format_lib.Formatter;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
 import com.github.spigot_gillesm.item_lib.YamlItem;
-import com.github.spigot_gillesm.lib_test.item.ItemManager;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.BreweryCraftRecipe;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.CraftRecipe;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.craft_recipe.AnvilCraftRecipe;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.craft_recipe.EnchantCraftRecipe;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.craft_recipe.ForgeCraftRecipe;
+import com.github.spigot_gillesm.lib_test.item.ItemManager;
 import com.github.spigot_gillesm.lib_test.menu.craft_station_menu.PotionMenu;
 import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicAnvilMenu;
 import com.github.spigot_gillesm.lib_test.menu.dynamic_craft_menu.DynamicEnchantMenu;
@@ -292,11 +292,6 @@ public class CraftManager {
 	public List<CraftEntity> getCraftItems() {
 		final List<CraftEntity> craftEntities = new ArrayList<>();
 
-		//Using keySet to keep order
-		/*for(final var key : loadedCrafts.keySet()) {
-			craftEntities.add(loadedCrafts.get(key));
-		}*/
-
 		for(final var entrySet : loadedCrafts.entrySet()) {
 			craftEntities.add(entrySet.getValue());
 		}
@@ -313,7 +308,13 @@ public class CraftManager {
 	}
 
 	public Optional<AnvilCraftRecipe> getAnvilCraftRecipe(final ItemStack itemStack) {
-		final var items = getCraftItems().stream()
+		return ItemManager.getItemId(itemStack).flatMap(id -> getCraftItems().stream()
+				.filter(AnvilCraftRecipe.class::isInstance)
+				.filter(recipe -> recipe.getId().equals(id))
+				.findFirst()
+				.map(AnvilCraftRecipe.class::cast)
+				.or(Optional::empty));
+		/*final var items = getCraftItems().stream()
 				.filter(AnvilCraftRecipe.class::isInstance)
 				.collect(Collectors.toList());
 		for(final CraftEntity item : items) {
@@ -323,7 +324,7 @@ public class CraftManager {
 			}
 		}
 
-		return Optional.empty();
+		return Optional.empty();*/
 	}
 
 	public Optional<CraftEntity> getCraftItem(final ItemStack itemStack) {

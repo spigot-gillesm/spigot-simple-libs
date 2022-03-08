@@ -2,11 +2,11 @@ package com.github.spigot_gillesm.lib_test.menu;
 
 import com.github.spigot_gillesm.gui_lib.SimpleButton;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
-import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import com.github.spigot_gillesm.lib_test.PluginUtil;
 import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
 import com.github.spigot_gillesm.lib_test.craft.CraftManager;
 import com.github.spigot_gillesm.lib_test.craft.craft_entity.DynamicCraft;
+import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

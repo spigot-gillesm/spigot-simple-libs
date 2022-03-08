@@ -30,7 +30,8 @@ public class ProfessionMenu extends ListingMenu {
 					.displayName(profession.getDisplayName())
 					.addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
 					.lore(generateLore(profession))
-					.build()) {
+					.build()
+					.make()) {
 				@Override
 				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
 					if(PlayerManager.hasProfession(player)) {
@@ -48,7 +49,8 @@ public class ProfessionMenu extends ListingMenu {
 				.material(Material.WRITABLE_BOOK)
 				.displayName("&4&lOublier")
 				.addLore("", "&cShift &7+ &cClique Droit &7Pour", "&7oublier son métier")
-				.build()) {
+				.build()
+				.make()) {
 			@Override
 			public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
 				if(PlayerManager.hasProfession(player) && click == ClickType.SHIFT_RIGHT) {
