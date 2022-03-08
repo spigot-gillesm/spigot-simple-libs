@@ -32,15 +32,11 @@ public class ItemManager {
 		final var folder = FileUtils.getResource("items/");
 
 		if(folder != null && folder.isDirectory()) {
-
 			Arrays.stream(folder.listFiles())
 					.filter(f -> !f.isDirectory())
 					.forEach(f -> LOADED_ITEMS.putAll(loadItemsFromFile(f)));
 		}
 		Formatter.info("Loaded " + LOADED_ITEMS.size() + " item(s).");
-		
-		LOADED_ITEMS.values().forEach(item -> ItemUtil.getPersistentString(item.getItemStack(), KEY_ID)
-				.ifPresent(id -> Formatter.info("ID: " + id)));
 	}
 
 	public Map<String, SimpleItem> loadItemsFromFile(@NotNull final File file) {
@@ -101,6 +97,14 @@ public class ItemManager {
 
 	public Optional<SimpleItem> getItem(@NotNull final String id) {
 		return Optional.ofNullable(LOADED_ITEMS.get(id));
+	}
+
+	public Optional<SimpleItem> getItem(@NotNull final ItemStack itemStack) {
+		return ItemUtil.getPersistentString(itemStack, KEY_ID).map(LOADED_ITEMS::get).or(Optional::empty);
+	}
+
+	public Optional<String> getItemId(@NotNull final ItemStack itemStack) {
+		return ItemUtil.getPersistentString(itemStack, KEY_ID);
 	}
 
 	public Set<Profession> getItemProfessions(@NotNull final ItemStack itemStack) {

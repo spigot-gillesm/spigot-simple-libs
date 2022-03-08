@@ -1,8 +1,8 @@
 package com.github.spigot_gillesm.lib_test.craft.craft_entity;
 
 import com.github.spigot_gillesm.gui_lib.SimpleMenu;
-import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import com.github.spigot_gillesm.lib_test.craft.CraftEntity;
+import com.github.spigot_gillesm.lib_test.player.PlayerManager;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bukkit.Material;
