@@ -20,6 +20,7 @@
         <module>file-utils</module>
         <module>yaml-lib</module>
         <module>rp-classes</module>
+        <module>epicworlds-utils</module>
     </modules>
 
     <properties>
@@ -39,6 +40,7 @@
         <spigot.version>1.17.1-R0.1-SNAPSHOT</spigot.version>
         <lombok.version>1.18.22</lombok.version>
         <annotations.version>23.0.0</annotations.version>
+        <epicworlds-utils.version>1.0.0</epicworlds-utils.version>
     </properties>
 
     <repositories>
@@ -113,6 +115,12 @@
                 <groupId>com.github.spigot_gillesm</groupId>
                 <artifactId>rp-classes</artifactId>
                 <version>${rp-classes.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.spigot_gillesm</groupId>
+                <artifactId>epicworlds-utils</artifactId>
+                <version>${epicworlds-utils.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
