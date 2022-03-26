@@ -13,16 +13,16 @@ import com.github.spigot_gillesm.lib_test.profession.WorkstationManager;
 import com.github.spigot_gillesm.player_lib.PlayerLib;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class RpProfessions extends JavaPlugin {
 
 	@Getter
-	private static Plugin instance;
+	private static RpProfessions instance;
 
-	private static void initialize(final Plugin plugin) {
+	private static void initialize(final RpProfessions plugin) {
 		instance = plugin;
+		Formatter.info("Instance: " + getInstance());
 		Formatter.PREFIX = "&f[&2&lRP&9Professions&f]";
 		FileUtils.PLUGIN_DATA_FOLDER_PATH = instance.getDataFolder().getPath();
 	}
@@ -42,6 +42,7 @@ public final class RpProfessions extends JavaPlugin {
 		ProfessionManager.loadProfessions();
 		ItemManager.loadItems();
 		CraftManager.loadCrafts();
+		Formatter.info("Instance when enabling is over: " + getInstance());
 	}
 
 	@Override
@@ -49,6 +50,8 @@ public final class RpProfessions extends JavaPlugin {
 		PlayerLib.saveAllData();
 	}
 
-
+	public static RpProfessionsAPI getAPI() {
+		return RpProfessionsAPI.getInstance();
+	}
 
 }

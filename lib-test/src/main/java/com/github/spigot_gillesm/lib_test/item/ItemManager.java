@@ -96,7 +96,11 @@ public class ItemManager {
 	}
 
 	public Optional<SimpleItem> getItem(@NotNull final String id) {
-		return Optional.ofNullable(LOADED_ITEMS.get(id));
+		if(LOADED_ITEMS.containsKey(id)) {
+			return Optional.of(LOADED_ITEMS.get(id));
+		} else {
+			return Optional.empty();
+		}
 	}
 
 	public Optional<SimpleItem> getItem(@NotNull final ItemStack itemStack) {

@@ -28,6 +28,12 @@
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>item-lib</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.spigot_gillesm</groupId>
+            <artifactId>rp-professions</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
