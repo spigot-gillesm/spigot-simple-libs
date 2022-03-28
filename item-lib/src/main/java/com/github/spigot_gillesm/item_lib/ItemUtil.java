@@ -233,6 +233,9 @@ public class ItemUtil {
 	 */
 	public <T, Z> Optional<Z> getPersistentData(@NotNull final ItemStack itemStack, @NotNull final PersistentDataType<T, Z> persistentDataType,
 											 @NotNull final String key) {
+		if(!itemStack.hasItemMeta()) {
+			return Optional.empty();
+		}
 		final var meta = itemStack.getItemMeta();
 
 		if(meta == null) {

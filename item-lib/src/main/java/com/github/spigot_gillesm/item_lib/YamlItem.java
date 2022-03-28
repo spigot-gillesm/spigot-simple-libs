@@ -36,14 +36,18 @@ public class YamlItem {
 		}
 		final var section = configuration.getConfigurationSection(id);
 		final var builder = SimpleItem.newBuilder();
+		var material = Material.WOODEN_SWORD;
 
 		if(section.contains("material")) {
-			final var material = section.getString("material");
+			final var strMaterial = section.getString("material");
 			try {
-				builder.material(Material.valueOf(material.toUpperCase()));
+				material = Material.valueOf(strMaterial.toUpperCase());
+				builder.material(material);
 			} catch(final IllegalArgumentException e) {
-				Formatter.error("Invalid material name for " + id + ": " + material + ".");
+				Formatter.error("Invalid material name for " + id + ": " + strMaterial + ".");
 			}
+		} else {
+			Formatter.warning(String.format("The material data in the configuration section %s is not defined", id));
 		}
 		if(section.contains("display-name")) {
 			builder.displayName(section.getString("display-name"));
@@ -111,17 +115,16 @@ public class YamlItem {
 			builder.color(colorSection.getInt("r", 0), colorSection.getInt("g", 0),colorSection.getInt("b", 0));
 		}
 		var slot = EquipmentSlot.HAND;
-		final var material = section.getString("material").toUpperCase();
 
-		if(material.contains("SHIELD")) {
+		if(material.name().contains("SHIELD")) {
 			slot = EquipmentSlot.OFF_HAND;
-		} else if(material.contains("HELMET")) {
+		} else if(material.name().contains("HELMET")) {
 			slot = EquipmentSlot.HEAD;
-		} else if(material.contains("CHESTPLATE") || material.contains("ELYTRA")) {
+		} else if(material.name().contains("CHESTPLATE") || material.name().contains("ELYTRA")) {
 			slot = EquipmentSlot.CHEST;
-		} else if(material.contains("LEGGINGS")) {
+		} else if(material.name().contains("LEGGINGS")) {
 			slot = EquipmentSlot.LEGS;
-		} else if(material.contains("BOOTS")) {
+		} else if(material.name().contains("BOOTS")) {
 			slot = EquipmentSlot.FEET;
 		}
 

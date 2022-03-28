@@ -8,6 +8,7 @@
     <artifactId>spigot-simple-libs</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0</version>
+
     <modules>
         <module>format-lib</module>
         <module>command-lib</module>
@@ -39,6 +40,7 @@
         <spigot.version>1.17.1-R0.1-SNAPSHOT</spigot.version>
         <lombok.version>1.18.22</lombok.version>
         <annotations.version>23.0.0</annotations.version>
+        <epicworlds-utils.version>1.0.0</epicworlds-utils.version>
     </properties>
 
     <repositories>
