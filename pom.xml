@@ -8,6 +8,7 @@
     <artifactId>spigot-simple-libs</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0</version>
+
     <modules>
         <module>format-lib</module>
         <module>command-lib</module>
@@ -20,7 +21,6 @@
         <module>file-utils</module>
         <module>yaml-lib</module>
         <module>rp-classes</module>
-        <module>epicworlds-utils</module>
     </modules>
 
     <properties>
@@ -115,12 +115,6 @@
                 <groupId>com.github.spigot_gillesm</groupId>
                 <artifactId>rp-classes</artifactId>
                 <version>${rp-classes.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.github.spigot_gillesm</groupId>
-                <artifactId>epicworlds-utils</artifactId>
-                <version>${epicworlds-utils.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

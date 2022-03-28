@@ -50,7 +50,7 @@ public final class RpProfessions extends JavaPlugin {
 		PlayerLib.saveAllData();
 	}
 
-	public static RpProfessionsAPI getAPI() {
+	public RpProfessionsAPI getAPI() {
 		return RpProfessionsAPI.getInstance();
 	}
 
