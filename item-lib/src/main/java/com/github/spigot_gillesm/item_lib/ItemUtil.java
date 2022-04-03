@@ -231,8 +231,11 @@ public class ItemUtil {
 	 * @param <Z> Z
 	 * @return the persistent data
 	 */
-	public <T, Z> Optional<Z> getPersistentData(@NotNull final ItemStack itemStack, @NotNull final PersistentDataType<T, Z> persistentDataType,
+	public <T, Z> Optional<Z> getPersistentData(final ItemStack itemStack, @NotNull final PersistentDataType<T, Z> persistentDataType,
 											 @NotNull final String key) {
+		if(itemStack == null) {
+			return Optional.empty();
+		}
 		if(!itemStack.hasItemMeta()) {
 			return Optional.empty();
 		}
