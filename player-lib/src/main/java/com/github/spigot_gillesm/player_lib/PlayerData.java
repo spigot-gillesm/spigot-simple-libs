@@ -4,11 +4,13 @@ import com.github.spigot_gillesm.file_utils.FileUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.*;
 
 public class PlayerData {
@@ -17,6 +19,8 @@ public class PlayerData {
 	private final UUID uuid;
 
 	private final Map<String, Boolean> values = new HashMap<>();
+
+	private YamlConfiguration configuration;
 
 	PlayerData(final UUID uuid) {
 		this.uuid = uuid;
@@ -254,10 +258,23 @@ public class PlayerData {
 	 * Load from the player's data file all the stored tags and their value.
 	 */
 	public void loadFromFile() {
-		final var conf = FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
-		if(conf.contains("tags")) {
-			conf.getConfigurationSection("tags").getValues(false).forEach(this::setRawValue);
+		this.configuration = FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
+
+		if(configuration.contains("tags")) {
+			configuration.getConfigurationSection("tags").getValues(false).forEach(this::setRawValue);
 		}
+	}
+
+	public YamlConfiguration getConfiguration() {
+		if(configuration == null) {
+			return FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
+		}
+
+		return configuration;
+	}
+
+	public File getConfigurationFile() {
+		return FileUtils.getResource("player_data/" + uuid.toString() + ".yml");
 	}
 
 }

@@ -28,7 +28,7 @@ public abstract class ListingMenu extends SimpleMenu {
 	@Setter(AccessLevel.PROTECTED)
 	private SimpleButton middleButton;
 
-	protected ListingMenu(@NotNull final SimpleMenu parentMenu) {
+	protected ListingMenu(final SimpleMenu parentMenu) {
 		super(parentMenu);
 		setSize(5*9);
 		generateNavButtons();
