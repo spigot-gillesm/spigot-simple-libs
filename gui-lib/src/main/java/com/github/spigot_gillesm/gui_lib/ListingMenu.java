@@ -28,7 +28,7 @@ public abstract class ListingMenu extends SimpleMenu {
 	@Setter(AccessLevel.PROTECTED)
 	private SimpleButton middleButton;
 
-	protected ListingMenu(@NotNull final SimpleMenu parentMenu) {
+	protected ListingMenu(final SimpleMenu parentMenu) {
 		super(parentMenu);
 		setSize(5*9);
 		generateNavButtons();
@@ -103,7 +103,7 @@ public abstract class ListingMenu extends SimpleMenu {
 
 			newPage.add(button);
 		}
-		//Check for an non full page to add
+		//Check for a non-full page to add
 		if(!newPage.isEmpty()) {
 			content.add(newPage);
 		}

@@ -30,7 +30,7 @@ public abstract class SimpleMenu {
 
 	protected final SimpleMenu parentMenu;
 
-	private SimpleButton returnButton;
+	protected SimpleButton returnButton;
 
 	@Setter(AccessLevel.PROTECTED)
 	protected int size = 3*9;
