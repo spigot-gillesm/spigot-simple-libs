@@ -49,7 +49,8 @@ public class YamlItem {
 		} else {
 			Formatter.warning(String.format("The material data in the configuration section %s is not defined", id));
 		}
-		builder.amount(section.getInt("amount", 1));
+		final var amount = section.getInt("amount", 1);
+		builder.amount(section.getInt("amount", amount));
 
 		if(section.contains("display-name")) {
 			builder.displayName(section.getString("display-name"));

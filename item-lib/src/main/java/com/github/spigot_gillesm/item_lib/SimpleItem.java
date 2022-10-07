@@ -138,7 +138,6 @@ public class SimpleItem {
 
         final var item = new ItemStack(material);
         final var meta = Bukkit.getServer().getItemFactory().getItemMeta(material);
-        item.setAmount(amount);
 
         if(meta != null) {
             meta.setDisplayName(Formatter.colorize(displayName));
@@ -156,9 +155,10 @@ public class SimpleItem {
 
             meta.setLore(Formatter.colorize(lore));
             item.setItemMeta(meta);
-
-            this.itemStack = item;
         }
+
+        item.setAmount(amount);
+        this.itemStack = item;
 
         return this;
     }
@@ -212,8 +212,8 @@ public class SimpleItem {
 
     private void setPersistentData(final ItemMeta itemMeta) {
         for(final var data : persistentDataString) {
-            itemMeta.getPersistentDataContainer().set(new NamespacedKey(ItemLib.getPlugin(), data.getKey()),
-                    data.getPersistentDataType(), data.getValue());
+            itemMeta.getPersistentDataContainer()
+                    .set(new NamespacedKey(ItemLib.getPlugin(), data.getKey()), data.getPersistentDataType(), data.getValue());
         }
     }
 
