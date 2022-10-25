@@ -32,3 +32,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Incomplete libraries ###
+rp-classes/
+rpg-stats-lib/
+spell-lib/
+yaml-lib/
