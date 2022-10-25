@@ -5,16 +5,15 @@ import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.inventory.meta.*;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -79,6 +78,9 @@ public class SimpleItem {
     @Getter
     private final Map<Attribute, AttributeModifier> attributeModifiers;
 
+    private final Set<SimplePersistentData<String, String>> persistentDataString;
+
+    @Getter
     private ItemStack itemStack;
 
     /**
@@ -88,6 +90,7 @@ public class SimpleItem {
      * @param builder the builder
      */
     private SimpleItem(final Builder builder) {
+        this.itemStack = builder.itemStack;
         this.material = builder.material;
         this.amount = builder.amount;
         this.damage = builder.damage;
@@ -104,6 +107,7 @@ public class SimpleItem {
         this.color = builder.color;
         this.localizedName = builder.localizedName;
         this.attributeModifiers = builder.attributeModifiers;
+        this.persistentDataString = builder.persistentDataString;
     }
 
     /**
@@ -111,9 +115,13 @@ public class SimpleItem {
      *
      * @return a new instance of ItemStack matching the current instance data
      */
-    public ItemStack getItemStack() {
+    public SimpleItem make() {
         if(itemStack != null) {
-            return itemStack;
+            final var meta = itemStack.getItemMeta();
+            setPersistentData(meta);
+            itemStack.setItemMeta(meta);
+
+            return this;
         }
         if(material == null) {
             throw new IllegalArgumentException("material cannot be null.");
@@ -130,57 +138,83 @@ public class SimpleItem {
 
         final var item = new ItemStack(material);
         final var meta = Bukkit.getServer().getItemFactory().getItemMeta(material);
-        item.setAmount(amount);
 
         if(meta != null) {
             meta.setDisplayName(Formatter.colorize(displayName));
             meta.addItemFlags(itemFlags);
-
-            if(meta instanceof EnchantmentStorageMeta) {
-                enchantments.forEach((enchantment, level) -> ((EnchantmentStorageMeta) meta)
-                        .addStoredEnchant(enchantment, level,true));
-            } else {
-                enchantments.forEach((enchantment, level) -> meta.addEnchant(enchantment, level, true));
-            }
-
-            if(meta instanceof PotionMeta && potionType != null) {
-                var potionMeta = (PotionMeta) meta;
-                potionMeta.setBasePotionData(new PotionData(potionType, extended, upgraded));
-                potionEffects.forEach(e -> potionMeta.addCustomEffect(e, true));
-            }
-
             meta.setUnbreakable(unbreakable);
             meta.setCustomModelData(customModelData);
             meta.setLocalizedName(localizedName);
-            attributeModifiers.forEach(meta::addAttributeModifier);
 
-            if(damage > 0 && meta instanceof Damageable) {
-                ((Damageable) meta).setDamage(damage);
-            }
-            if(color != null && meta instanceof LeatherArmorMeta) {
-                ((LeatherArmorMeta) meta).setColor(color);
-            }
+            setEnchantmentsData(meta);
+            setPotionData(meta);
+            setDamageData(meta);
+            setColorData(meta);
+            setAttributeModifiersData(meta);
+            setPersistentData(meta);
 
-            final var isArmor = material.name().contains("HELMET") || material.name().contains("CHESTPLATE")
-                    || material.name().contains("LEGGINGS") || material.name().contains("BOOTS");
-            //If there are attributes and the item is not an armor and the item is not hiding its attributes
-            //-> override them with a clean lore
-            if(!attributeModifiers.isEmpty() && !isArmor && Arrays.stream(itemFlags).noneMatch(f -> f == ItemFlag.HIDE_ATTRIBUTES)) {
-                meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-                lore.add("");
-                lore.add("&7When in Main Hand:");
-
-                for(final var attributeSet : attributeModifiers.entrySet()) {
-                    lore.add(generateAttributeString(attributeSet.getKey(), attributeSet.getValue()));
-                }
-            }
             meta.setLore(Formatter.colorize(lore));
-
             item.setItemMeta(meta);
-            this.itemStack = item;
         }
 
-        return item;
+        item.setAmount(amount);
+        this.itemStack = item;
+
+        return this;
+    }
+
+    private void setEnchantmentsData(final ItemMeta itemMeta) {
+        if(itemMeta instanceof EnchantmentStorageMeta) {
+            enchantments.forEach((enchantment, level) -> ((EnchantmentStorageMeta) itemMeta)
+                    .addStoredEnchant(enchantment, level,true));
+        } else {
+            enchantments.forEach((enchantment, level) -> itemMeta.addEnchant(enchantment, level, true));
+        }
+    }
+
+    private void setPotionData(final ItemMeta itemMeta) {
+        if(itemMeta instanceof PotionMeta && potionType != null) {
+            var potionMeta = (PotionMeta) itemMeta;
+            potionMeta.setBasePotionData(new PotionData(potionType, extended, upgraded));
+            potionEffects.forEach(e -> potionMeta.addCustomEffect(e, true));
+        }
+    }
+
+    private void setDamageData(final ItemMeta itemMeta) {
+        if(damage > 0 && itemMeta instanceof Damageable) {
+            ((Damageable) itemMeta).setDamage(damage);
+        }
+    }
+
+    private void setColorData(final ItemMeta itemMeta) {
+        if(color != null && itemMeta instanceof LeatherArmorMeta) {
+            ((LeatherArmorMeta) itemMeta).setColor(color);
+        }
+    }
+
+    private void setAttributeModifiersData(final ItemMeta itemMeta) {
+        attributeModifiers.forEach(itemMeta::addAttributeModifier);
+
+        final var isArmor = material.name().contains("HELMET") || material.name().contains("CHESTPLATE")
+                || material.name().contains("LEGGINGS") || material.name().contains("BOOTS");
+        //If there are attributes and the item is not an armor and the item is not hiding its attributes
+        //-> override them with a clean lore
+        if(!attributeModifiers.isEmpty() && !isArmor && Arrays.stream(itemFlags).noneMatch(f -> f == ItemFlag.HIDE_ATTRIBUTES)) {
+            itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            lore.add("");
+            lore.add("&7When in Main Hand:");
+
+            for(final var attributeSet : attributeModifiers.entrySet()) {
+                lore.add(generateAttributeString(attributeSet.getKey(), attributeSet.getValue()));
+            }
+        }
+    }
+
+    private void setPersistentData(final ItemMeta itemMeta) {
+        for(final var data : persistentDataString) {
+            itemMeta.getPersistentDataContainer()
+                    .set(new NamespacedKey(ItemLib.getPlugin(), data.getKey()), data.getPersistentDataType(), data.getValue());
+        }
     }
 
     private String generateAttributeString(final Attribute attribute, final AttributeModifier modifier) {
@@ -211,6 +245,8 @@ public class SimpleItem {
      * The builder class of SimpleItem
      */
     public static class Builder {
+
+        private ItemStack itemStack;
 
         private Material material = Material.WOODEN_SWORD;
 
@@ -244,7 +280,14 @@ public class SimpleItem {
 
         private Map<Attribute, AttributeModifier> attributeModifiers = new EnumMap<>(Attribute.class);
 
+        private final Set<SimplePersistentData<String, String>> persistentDataString = new HashSet<>();
+
         private Builder() { }
+
+        public Builder itemStack(final ItemStack itemStack) {
+            this.itemStack = itemStack;
+            return this;
+        }
 
         /**
          * Set the item's material.
@@ -352,7 +395,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder addItemFlags(final ItemFlag... itemFlags) {
-            final List<ItemFlag> currentFlags = new ArrayList<>(Arrays.asList(itemFlags));
+            final List<ItemFlag> currentFlags = new ArrayList<>(Arrays.asList(this.itemFlags));
             currentFlags.addAll(Arrays.asList(itemFlags));
             this.itemFlags = currentFlags.toArray(new ItemFlag[0]);
             return this;
@@ -609,6 +652,11 @@ public class SimpleItem {
             return addAttributeModifier(Attribute.GENERIC_FLYING_SPEED,
                     new AttributeModifier(UUID.randomUUID(), "flyingSpeed", flyingSpeed,
                             AttributeModifier.Operation.ADD_NUMBER, slot));
+        }
+
+        public Builder addPersistentString(final String key, final String value) {
+            persistentDataString.add(new SimplePersistentData<>(key, PersistentDataType.STRING, value));
+            return this;
         }
 
         /**

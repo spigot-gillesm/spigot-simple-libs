@@ -30,7 +30,7 @@ public abstract class SimpleMenu {
 
 	protected final SimpleMenu parentMenu;
 
-	private SimpleButton returnButton;
+	protected SimpleButton returnButton;
 
 	@Setter(AccessLevel.PROTECTED)
 	protected int size = 3*9;
@@ -63,6 +63,7 @@ public abstract class SimpleMenu {
 					.material(Material.BOOK)
 					.displayName("&9Return")
 					.build()
+					.make()
 			) {
 				@Override
 				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
@@ -183,8 +184,14 @@ public abstract class SimpleMenu {
 	}
 
 	public static SimpleMenu getMenu(@NotNull final Player player) {
-		return player.hasMetadata("SIMPLE_MENU") ? (SimpleMenu) player.getMetadata("SIMPLE_MENU").get(0).value()
-				: null;
+		if(player.hasMetadata("SIMPLE_MENU")) {
+			final var obj = player.getMetadata("SIMPLE_MENU").get(0).value();
+
+			if(obj instanceof SimpleMenu) {
+				return (SimpleMenu) obj;
+			}
+		}
+		return null;
 	}
 
 }

@@ -10,12 +10,15 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class SimpleButton {
 
+	@Setter
 	@Getter
-	protected final ItemStack icon;
+	protected ItemStack icon;
 
 	@Setter
 	@Getter
 	private boolean cancelOpen = false;
+
+	public SimpleButton() { }
 
 	public SimpleButton(@NotNull final ItemStack icon) {
 		this.icon = icon;

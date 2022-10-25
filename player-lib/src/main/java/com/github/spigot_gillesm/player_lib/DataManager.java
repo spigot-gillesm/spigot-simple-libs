@@ -19,11 +19,15 @@ public class DataManager {
 		return data;
 	}
 
-	public PlayerData getData(@NotNull final Player player) {
+	public PlayerData getData(@NotNull final UUID uuid) {
 		return REGISTERED_PLAYER_DATA.stream()
-				.filter(d -> d.getUuid().equals(player.getUniqueId()))
+				.filter(d -> d.getUuid().equals(uuid))
 				.findFirst()
-				.orElseGet(() -> registerNew(player.getUniqueId()));
+				.orElseGet(() -> registerNew(uuid));
+	}
+
+	public PlayerData getData(@NotNull final Player player) {
+		return getData(player.getUniqueId());
 	}
 
 }

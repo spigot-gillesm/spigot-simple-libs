@@ -1,15 +1,32 @@
 package com.github.spigot_gillesm.item_lib;
 
+import com.github.spigot_gillesm.format_lib.Formatter;
 import lombok.experimental.UtilityClass;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @UtilityClass
 public class ItemUtil {
+
+	/**
+	 * Reduce the item amount by one
+	 *
+	 * @param itemStack the item
+	 * @return true if the current amount is equal or smaller than 1 (the item should disappear)
+	 */
+	public boolean decrementItemAmount(@NotNull final ItemStack itemStack) {
+		if(itemStack.getAmount() <= 1) {
+			return true;
+		} else {
+			itemStack.setAmount(itemStack.getAmount() - 1);
+			return false;
+		}
+	}
 
 	/**
 	 * Get the item's lore.
@@ -25,6 +42,44 @@ public class ItemUtil {
 
 			return meta.hasLore() ? meta.getLore() : new ArrayList<>();
 		}
+	}
+
+	public boolean hasLineInLore(@NotNull final ItemStack itemStack, @NotNull final String line) {
+		return hasLineInLore(itemStack, line, true);
+	}
+
+	public boolean hasLineInLore(@NotNull final ItemStack itemStack, @NotNull final String line, final boolean checkColor) {
+		if(checkColor) {
+			return getLore(itemStack).contains(Formatter.colorize(line));
+		} else {
+			for(final var l : getLore(itemStack)) {
+				if(ChatColor.stripColor(l).equals(ChatColor.stripColor(line))) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+	}
+
+	public boolean hasStringInLore(@NotNull final ItemStack itemStack, @NotNull final String string) {
+		return hasStringInLore(itemStack, string, true);
+	}
+
+	public boolean hasStringInLore(@NotNull final ItemStack itemStack, @NotNull final String string, final boolean checkColor) {
+		for(final var line : getLore(itemStack)) {
+			if(checkColor) {
+				if(line.contains(Formatter.colorize(string))) {
+					return true;
+				}
+			} else {
+				if(line.contains(string)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -48,6 +103,24 @@ public class ItemUtil {
 		}
 
 		return "";
+	}
+
+	public List<String> getStringsFromLore(@NotNull final ItemStack itemStack, @NotNull final String key,
+									@NotNull final String separator) {
+		final var lore = getLore(itemStack);
+
+		if(lore.isEmpty()) {
+			return Collections.emptyList();
+		}
+		lore.forEach(ChatColor::stripColor);
+
+		for(final var line : lore) {
+			if(line.startsWith(key)) {
+				return new ArrayList<>(Arrays.asList(line.replace(key, "").split(separator)));
+			}
+		}
+
+		return Collections.emptyList();
 	}
 
 	/**
@@ -109,7 +182,21 @@ public class ItemUtil {
 	 * @return the integer being the value of the key
 	 */
 	public int getIntFromLore(@NotNull final ItemStack itemStack, @NotNull final String key) {
-		return Integer.parseInt(getStringFromLore(itemStack, key));
+		return getIntFromLore(itemStack, key, 0);
+	}
+
+	public int getIntFromLore(@NotNull final ItemStack itemStack, @NotNull final String key, final int defaultValue) {
+		final var value = getStringFromLore(itemStack, key);
+
+		if(!value.isBlank()) {
+			try {
+				return Integer.parseInt(getStringFromLore(itemStack, key));
+			} catch (final NumberFormatException exception) {
+				return defaultValue;
+			}
+		} else {
+			return defaultValue;
+		}
 	}
 
 	/**
@@ -122,6 +209,53 @@ public class ItemUtil {
 	 */
 	public double getDoubleFromLore(@NotNull final ItemStack itemStack, @NotNull final String key) {
 		return Double.parseDouble(getStringFromLore(itemStack, key));
+	}
+
+	public <T, Z> void setPersistentData(@NotNull final ItemStack itemStack, @NotNull final PersistentDataType<T, Z> persistentDataType,
+								  @NotNull final String key, @NotNull final Z value) {
+		final var meta = itemStack.getItemMeta();
+
+		if(meta == null) {
+			return;
+		}
+		meta.getPersistentDataContainer().set(new NamespacedKey(ItemLib.getPlugin(), key), persistentDataType, value);
+	}
+
+	/**
+	 * Get the given persistent data from the item stack
+	 *
+	 * @param itemStack the itemStack
+	 * @param persistentDataType the persistentDataType
+	 * @param key the key
+	 * @param <T> T
+	 * @param <Z> Z
+	 * @return the persistent data
+	 */
+	public <T, Z> Optional<Z> getPersistentData(final ItemStack itemStack, @NotNull final PersistentDataType<T, Z> persistentDataType,
+											 @NotNull final String key) {
+		if(itemStack == null) {
+			return Optional.empty();
+		}
+		if(!itemStack.hasItemMeta()) {
+			return Optional.empty();
+		}
+		final var meta = itemStack.getItemMeta();
+
+		if(meta == null) {
+			return Optional.empty();
+		}
+		final var dataContainer = meta.getPersistentDataContainer();
+		final var namespacedKey = new NamespacedKey(ItemLib.getPlugin(), key);
+
+		if(dataContainer.has(namespacedKey, persistentDataType)) {
+			return Optional.of(dataContainer.get(namespacedKey, persistentDataType));
+		}
+
+		return Optional.empty();
+	}
+
+	public Optional<String> getPersistentString(@NotNull final ItemStack itemStack, @NotNull final String key) {
+		return getPersistentData(itemStack, PersistentDataType.STRING, key);
 	}
 
 }

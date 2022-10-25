@@ -4,11 +4,13 @@ import com.github.spigot_gillesm.file_utils.FileUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.*;
 
 public class PlayerData {
@@ -17,6 +19,8 @@ public class PlayerData {
 	private final UUID uuid;
 
 	private final Map<String, Boolean> values = new HashMap<>();
+
+	private YamlConfiguration configuration;
 
 	PlayerData(final UUID uuid) {
 		this.uuid = uuid;
@@ -76,6 +80,24 @@ public class PlayerData {
 				.orElse(null);
 	}
 
+	@Nullable
+	public <T> T getRawValue(final String tag, @NotNull final Class<T> clazz) {
+		return getRawValue(tag, clazz, null);
+	}
+
+	public <T> T getRawValue(final String tag, @NotNull final Class<T> clazz, final T defaultValue) {
+		final var value = getRawValue(tag);
+
+		if(value == null) {
+			return defaultValue;
+		}
+		if(clazz.equals(value.getClass())) {
+			return clazz.cast(value);
+		}
+
+		return defaultValue;
+	}
+
 	/**
 	 * Get the tag's current value.
 	 *
@@ -85,6 +107,15 @@ public class PlayerData {
 	@Nullable
 	public Object getTagValue(final PlayerTag tag) {
 		return getRawValue(tag.toString());
+	}
+
+	@Nullable
+	public <T> T getTagValue(final PlayerTag tag, @NotNull final Class<T> clazz) {
+		return getRawValue(tag.toString(), clazz);
+	}
+
+	public <T> T getTagValue(final PlayerTag tag, @NotNull final Class<T> clazz, final T defaultValue) {
+		return getRawValue(tag.toString(), clazz, defaultValue);
 	}
 
 	/**
@@ -215,7 +246,8 @@ public class PlayerData {
 
 		getMap().forEach((tag, value) -> {
 			if(saveOnQuit(tag) && value != null) {
-				conf.set("tags." + tag, value.toString());
+				final var valueToWrite = value.getClass().isEnum() ? value.toString() : value;
+				conf.set("tags." + tag, valueToWrite);
 			}
 		});
 		getPlayer().ifPresent(p -> conf.set("name", p.getName()));
@@ -226,10 +258,23 @@ public class PlayerData {
 	 * Load from the player's data file all the stored tags and their value.
 	 */
 	public void loadFromFile() {
-		final var conf = FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
-		if(conf.contains("tags")) {
-			conf.getConfigurationSection("tags").getValues(false).forEach(this::setRawValue);
+		this.configuration = FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
+
+		if(configuration.contains("tags")) {
+			configuration.getConfigurationSection("tags").getValues(false).forEach(this::setRawValue);
 		}
+	}
+
+	public YamlConfiguration getConfiguration() {
+		if(configuration == null) {
+			return FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
+		}
+
+		return configuration;
+	}
+
+	public File getConfigurationFile() {
+		return FileUtils.getResource("player_data/" + uuid.toString() + ".yml");
 	}
 
 }

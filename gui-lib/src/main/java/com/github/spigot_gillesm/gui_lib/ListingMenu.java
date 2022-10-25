@@ -28,7 +28,7 @@ public abstract class ListingMenu extends SimpleMenu {
 	@Setter(AccessLevel.PROTECTED)
 	private SimpleButton middleButton;
 
-	protected ListingMenu(@NotNull final SimpleMenu parentMenu) {
+	protected ListingMenu(final SimpleMenu parentMenu) {
 		super(parentMenu);
 		setSize(5*9);
 		generateNavButtons();
@@ -103,7 +103,7 @@ public abstract class ListingMenu extends SimpleMenu {
 
 			newPage.add(button);
 		}
-		//Check for an non full page to add
+		//Check for a non-full page to add
 		if(!newPage.isEmpty()) {
 			content.add(newPage);
 		}
@@ -115,7 +115,8 @@ public abstract class ListingMenu extends SimpleMenu {
 		this.nextPageButton = new SimpleButton(SimpleItem.newBuilder()
 				.material(Material.ARROW)
 				.displayName("&7Next Page")
-				.build()) {
+				.build()
+				.make()) {
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
 				final ListingMenu menu = (ListingMenu) SimpleMenu.getMenu(player);
@@ -130,7 +131,8 @@ public abstract class ListingMenu extends SimpleMenu {
 		this.previousPageButton = new SimpleButton(SimpleItem.newBuilder()
 				.material(Material.ARROW)
 				.displayName("&7Previous Page")
-				.build()) {
+				.build()
+				.make()) {
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
 				final ListingMenu menu = (ListingMenu) SimpleMenu.getMenu(player);
