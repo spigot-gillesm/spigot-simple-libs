@@ -5,13 +5,15 @@ import lombok.AccessLevel;
 import lombok.Setter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class SimpleCommand extends Command {
+public abstract class SimpleCommand extends Command implements TabCompleter {
 
 	@Setter(AccessLevel.PROTECTED)
 	private boolean playerCommand = false;
@@ -51,9 +53,8 @@ public abstract class SimpleCommand extends Command {
 			Formatter.tell(sender, "&cYou don't have the required permission to run this command.");
 			return false;
 		}
-
-		//Check for help calls
-		if(args.length == 1 && "help".equalsIgnoreCase(args[0])) {
+		//Check for help calls: no args when subcommands exist or "help" arg
+		if((args.length == 1 && "help".equalsIgnoreCase(args[0])) || (args.length == 0 && !subCommands.isEmpty())) {
 			displayHelp(sender);
 			return true;
 		}
@@ -62,6 +63,7 @@ public abstract class SimpleCommand extends Command {
 		if(args.length > 0) {
 			runSubCommands(sender, commandLabel, args);
 		}
+
 		return true;
 	}
 
@@ -89,13 +91,35 @@ public abstract class SimpleCommand extends Command {
 
 	private void runSubCommands(@NotNull final CommandSender sender, @NotNull final String commandLabel,
 								@NotNull final String[] args) {
+		if(subCommands.isEmpty()) {
+			return;
+		}
 		final List<SimpleCommand> matchingCommands = subCommands.stream()
 				//Get the commands matching the arg or alias
 				.filter(command -> command.getName().equalsIgnoreCase(args[0]) || command.getAliases().contains(args[0]))
 				.collect(Collectors.toList());
+
+		//If the sub command doesn't match anything, display help
+		if(matchingCommands.isEmpty()) {
+			displayHelp(sender);
+			return;
+		}
+
 		//Execute every available sub commands by feeding them their args
 		matchingCommands.forEach(command -> command.execute(sender, commandLabel,
 				Arrays.copyOfRange(args, 1, args.length)));
+	}
+
+	@Override
+	public List<String> onTabComplete(final @NotNull CommandSender sender, final @NotNull Command command,
+									  final @NotNull String alias, final String[] args) {
+		final List<String> completions = new ArrayList<>();
+		StringUtil.copyPartialMatches(args[0],
+				subCommands.stream().map(Command::getLabel).collect(Collectors.toList()),
+				completions);
+		Collections.sort(completions);
+
+		return completions;
 	}
 
 	protected void addMandatoryArgument(@NotNull final String arg) {
