@@ -26,7 +26,12 @@ public class FileUtils {
 			}
 
 			try {
-				file.createNewFile();
+				if(path.endsWith("/")) {
+					file.mkdir();
+				} else {
+					file.createNewFile();
+				}
+
 				return file;
 			} catch (IOException e) {
 				Formatter.error("Error creating file " + path);
