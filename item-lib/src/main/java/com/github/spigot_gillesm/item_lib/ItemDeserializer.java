@@ -9,12 +9,13 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionType;
 
 import java.io.IOException;
 
-public class ItemDeserializer {
+class ItemDeserializer {
+
+    protected ItemDeserializer() { }
 
     public static class MaterialDeserializer extends StdDeserializer<Material> {
 
@@ -33,7 +34,8 @@ public class ItemDeserializer {
             try {
                 return Material.valueOf(data.toUpperCase());
             } catch(final IllegalArgumentException exception) {
-                throw new IllegalArgumentException(String.format("Invalid material: %s", data));
+                Formatter.error(String.format("Invalid material: %s", data));
+                throw new IllegalArgumentException("Invalid material");
             }
         }
 
@@ -57,7 +59,7 @@ public class ItemDeserializer {
                 return ItemFlag.valueOf(data.toUpperCase());
             } catch(final IllegalArgumentException exception) {
                 Formatter.error(String.format("Invalid item flag: %s", data));
-                throw new IllegalArgumentException(String.format("Invalid item flag: %s", data));
+                throw new IllegalArgumentException("Invalid item flag");
             }
         }
 
@@ -66,15 +68,16 @@ public class ItemDeserializer {
     public static class EnchantmentDeserializer extends KeyDeserializer {
 
         @Override
-        public Enchantment deserializeKey(final String key, final DeserializationContext ctxt) throws IOException {
-            try {
-                return Enchantment.getByKey(NamespacedKey.minecraft(key.toLowerCase()));
-            } catch(final IllegalArgumentException | ClassCastException exception) {
-                Formatter.error(String.format("Invalid enchantment: %s", key));
-                throw new IllegalArgumentException(String.format("Invalid enchantment: %s", key));
-            }
-        }
+        public Enchantment deserializeKey(final String key, final DeserializationContext context) {
+            final var enchant = Enchantment.getByKey(NamespacedKey.minecraft(key.toLowerCase()));
 
+            if(enchant == null) {
+                Formatter.error(String.format("Invalid enchantment name: %s", key));
+                throw new IllegalArgumentException("Invalid enchantment name");
+            }
+
+            return enchant;
+        }
     }
 
     public static class PotionTypeDeserializer extends StdDeserializer<PotionType> {
@@ -95,34 +98,10 @@ public class ItemDeserializer {
                 return PotionType.valueOf(data.toUpperCase());
             } catch(final IllegalArgumentException exception) {
                 Formatter.error(String.format("Invalid potion type: %s", data));
-                throw new IllegalArgumentException(String.format("Invalid potion type: %s", data));
+                throw new IllegalArgumentException("Invalid potion type");
             }
         }
 
     }
-
-    /*public static class PotionEffectDeserializer extends StdDeserializer<PotionEffect> {
-
-        public PotionEffectDeserializer(final Class<?> vc) {
-            super(vc);
-        }
-
-        public PotionEffectDeserializer() {
-            this(null);
-        }
-
-        @Override
-        public PotionEffect deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
-            final var data = parser.getText();
-
-            try {
-                return PotionEffect.valueOf(data.toUpperCase());
-            } catch(final IllegalArgumentException exception) {
-                Formatter.error(String.format("Invalid potion type: %s", data));
-                throw new IllegalArgumentException(String.format("Invalid potion type: %s", data));
-            }
-        }
-
-    }*/
 
 }

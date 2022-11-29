@@ -14,6 +14,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
+/**
+ * @deprecated Use {@link ConfigurationItem ConfigurationItem} class instead.
+ */
+@Deprecated(since = "1.1.0")
 public class YamlItem {
 
 	public final ConfigurationSection configuration;

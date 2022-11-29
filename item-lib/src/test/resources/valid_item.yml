@@ -1,0 +1,10 @@
+material: WOODEN_SWORD
+display-name: "&aTraining Sword"
+damage: 32
+lore:
+  - ""
+  - "&fThis is a training sword!"
+attack-damage: 3
+attack-speed: 1.6
+item-flags:
+  - HIDE_ENCHANTS

@@ -23,7 +23,7 @@ import java.util.*;
 
 /**
  * The SimpleItem class simplifies the creation of ItemStack through the use of its Builder.
- * @see SimpleItem.Builder
+ * @see #newBuilder() newBuilder's method
  *
  * @version 1.0
  * @author Gilles_M
