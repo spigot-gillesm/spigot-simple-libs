@@ -13,13 +13,15 @@
         <module>format-lib</module>
         <module>command-lib</module>
         <module>item-lib</module>
-        <module>spell-lib</module>
         <module>gui-lib</module>
-        <module>rpg-stats-lib</module>
         <module>player-lib</module>
         <module>file-utils</module>
+        <!--
+        <module>rpg-stats-lib</module>
+        <module>spell-lib</module>
         <module>yaml-lib</module>
         <module>rp-classes</module>
+        -->
     </modules>
 
     <properties>
@@ -37,7 +39,7 @@
         <yaml-lib.version>1.0.0</yaml-lib.version>
         <rp-classes.version>1.0.0</rp-classes.version>
         <spigot.version>1.18.2-R0.1-SNAPSHOT</spigot.version>
-        <lombok.version>1.18.22</lombok.version>
+        <lombok.version>1.18.24</lombok.version>
         <annotations.version>23.0.0</annotations.version>
     </properties>
 
