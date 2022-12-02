@@ -14,10 +14,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
@@ -35,10 +38,6 @@ public class ConfigurationItem {
     @JsonProperty("material")
     @JsonDeserialize(using = ItemDeserializer.MaterialDeserializer.class)
     private Material material = Material.STICK;
-
-    @Getter
-    @JsonProperty("amount")
-    private int amount = 1;
 
     @Getter
     @JsonProperty("damage")
@@ -147,7 +146,6 @@ public class ConfigurationItem {
 
         final var builder = SimpleItem.newBuilder()
                 .material(material)
-                .amount(amount)
                 .damage(damage)
                 .displayName(displayName)
                 .itemFlags(itemFlags)
@@ -208,7 +206,6 @@ public class ConfigurationItem {
     public final String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("material", material)
-                .add("amount", amount)
                 .add("damage", damage)
                 .add("displayName", displayName)
                 .add("lore", lore)
@@ -234,18 +231,34 @@ public class ConfigurationItem {
                 .toString();
     }
 
-    public static ConfigurationItem fromFile(@NotNull final File file, @NotNull final String... ids) throws IOException {
-        final var tree = OBJECT_MAPPER.readTree(file);
-
-        for(final var id : ids) {
-            tree.path(id);
-        }
-        final var itemRawData = tree.toString();
-        Formatter.info("String: " + itemRawData);
-        final var configurationItem = OBJECT_MAPPER.readValue(itemRawData, ConfigurationItem.class);
-        configurationItem.setPotionEffectsData(loadPotionEffectsData(file));
+    public static ConfigurationItem fromConfiguration(@NotNull final ConfigurationSection configuration) {
+        final Map<String, Object> content = removeRecursive(configuration.getValues(true));
+        final var configurationItem = OBJECT_MAPPER.convertValue(content, ConfigurationItem.class);
+        configurationItem.setPotionEffectsData(loadPotionEffectsData(configuration));
 
         return configurationItem;
+    }
+
+    public static ConfigurationItem fromConfiguration(@NotNull final ConfigurationSection configuration, @NotNull final String id) {
+        if(!configuration.isConfigurationSection(id)) {
+            throw new IllegalArgumentException(String.format("No such configuration: %s", id));
+        }
+
+        return fromConfiguration(configuration.getConfigurationSection(id));
+    }
+
+    private static Map<String, Object> removeRecursive(final Map<String, Object> map) {
+        final Map<String, Object> copy = new HashMap<>();
+
+        for(final var entrySet : map.entrySet()) {
+            if(entrySet.getValue() instanceof ConfigurationSection) {
+                copy.put(entrySet.getKey(), removeRecursive(((ConfigurationSection) entrySet.getValue()).getValues(true)));
+            } else {
+                copy.put(entrySet.getKey(), entrySet.getValue());
+            }
+        }
+
+        return copy;
     }
 
     public static ConfigurationItem fromFile(@NotNull final File file) throws IOException {
@@ -273,9 +286,43 @@ public class ConfigurationItem {
         return potionEffectsData;
     }
 
+    private static Set<PotionEffectData> loadPotionEffectsData(final ConfigurationSection configuration) {
+        final Set<PotionEffectData> potionEffectData = new HashSet<>();
+
+        if(!configuration.isConfigurationSection("potion-effects")) {
+            return potionEffectData;
+        }
+        final var effectsSection = configuration.getConfigurationSection("potion-effects");
+
+        //Loop on each effect name and get its data
+        for(final var effectName : effectsSection.getKeys(false)) {
+            if(effectsSection.isConfigurationSection(effectName)) {
+                loadPotionEffectData(effectName, effectsSection.getConfigurationSection(effectName))
+                        .ifPresent(potionEffectData::add);
+            }
+        }
+
+        return potionEffectData;
+    }
+
     private static Optional<PotionEffectData> loadPotionEffectData(final String effectName, final JsonNode jsonNode)
             throws JsonProcessingException {
         final var effectData = OBJECT_MAPPER.readValue(jsonNode.toString(), PotionEffectData.class);
+
+        try {
+            effectData.setPotionEffectType(PotionEffectType.getByName(effectName));
+            return Optional.of(effectData);
+        } catch(final IllegalArgumentException exception) {
+            Formatter.error(String.format("Invalid potion effect type: %s", effectName));
+            return Optional.empty();
+        }
+    }
+
+    private static Optional<PotionEffectData> loadPotionEffectData(final String effectName,
+                                                                   final ConfigurationSection configurationSection) {
+
+        final Map<String, Object> sectionData = configurationSection.getValues(false);
+        final var effectData = OBJECT_MAPPER.convertValue(sectionData, PotionEffectData.class);
 
         try {
             effectData.setPotionEffectType(PotionEffectType.getByName(effectName));
