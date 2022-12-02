@@ -1,9 +1,0 @@
-material: POTION
-display-name: "&dEpic Potion"
-potion-type: MUNDANE
-potion-effects:
-  HEAL:
-    amplifier: 2
-  INCREASE_DAMAGE:
-    amplifier: 1
-    duration: 400

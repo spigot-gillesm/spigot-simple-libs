@@ -14,13 +14,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
@@ -34,101 +32,101 @@ public class ConfigurationItem {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("material")
     @JsonDeserialize(using = ItemDeserializer.MaterialDeserializer.class)
     private Material material = Material.STICK;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("damage")
     private int damage = 0;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("display-name")
     private String displayName;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("lore")
     private List<String> lore = new ArrayList<>();
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("item-flags")
     @JsonDeserialize(using = ItemDeserializer.ItemFlagDeserializer.class)
     private ItemFlag[] itemFlags = new ItemFlag[] {};
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("enchantments")
     @JsonDeserialize(keyUsing = ItemDeserializer.EnchantmentDeserializer.class)
     private Map<Enchantment, Integer> enchantments = new HashMap<>();
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("potion-type")
     @JsonDeserialize(using = ItemDeserializer.PotionTypeDeserializer.class)
     private PotionType potionType;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("upgraded")
     private boolean upgraded;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("extended")
     private boolean extended;
 
     @Setter(AccessLevel.PRIVATE)
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     private Set<PotionEffectData> potionEffectsData = new HashSet<>();
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("unbreakable")
     private boolean unbreakable;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("custom-model-data")
     private int customModelData;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("color")
     private ColorData colorData;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("localized-name")
     private String localizedName;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("attack-damage")
     private double attackDamage = 0;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("attack-speed")
     private double attackSpeed = 0;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("armor")
     private double armor = 0;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("armor-toughness")
     private double armorToughness = 0;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("max-health")
     private double maxHealth = 0;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("knockback-resistance")
     private double knockbackResistance = 0;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("movement-speed")
     private double movementSpeed = 0;
 
-    @Getter
+    @Getter(AccessLevel.PACKAGE)
     @JsonProperty("flying-speed")
     private double flyingSpeed = 0;
 
     private ConfigurationItem() { }
 
-    public SimpleItem.Builder toSimpleBuilder() {
+    private EquipmentSlot getEquipmentSlot() {
         var slot = EquipmentSlot.HAND;
 
         if(material.name().contains("SHIELD")) {
@@ -144,6 +142,13 @@ public class ConfigurationItem {
             slot = EquipmentSlot.FEET;
         }
 
+        return slot;
+    }
+
+    /**
+     * @return the equivalent SimpleItem.Builder instance
+     */
+    public SimpleItem.Builder toSimpleBuilder() {
         final var builder = SimpleItem.newBuilder()
                 .material(material)
                 .damage(damage)
@@ -155,6 +160,7 @@ public class ConfigurationItem {
                 .extended(extended)
                 .unbreakable(unbreakable)
                 .localizedName(localizedName);
+        final var slot = getEquipmentSlot();
 
         if(customModelData > 0) {
             builder.customModelData(customModelData);
@@ -231,6 +237,12 @@ public class ConfigurationItem {
                 .toString();
     }
 
+    /**
+     * Creates a matching instance of ConfigurationItem using the given configuration.
+     *
+     * @param configuration the configuration
+     * @return a populated instance of ConfigurationItem
+     */
     public static ConfigurationItem fromConfiguration(@NotNull final ConfigurationSection configuration) {
         final Map<String, Object> content = removeRecursive(configuration.getValues(true));
         final var configurationItem = OBJECT_MAPPER.convertValue(content, ConfigurationItem.class);
@@ -239,12 +251,32 @@ public class ConfigurationItem {
         return configurationItem;
     }
 
+    /**
+     * Creates a matching instance of ConfigurationItem using the given configuration and id.
+     *
+     * @param configuration the configuration
+     * @param id the section's id to get the item's data from
+     * @return a populated instance of ConfigurationItem
+     */
     public static ConfigurationItem fromConfiguration(@NotNull final ConfigurationSection configuration, @NotNull final String id) {
         if(!configuration.isConfigurationSection(id)) {
             throw new IllegalArgumentException(String.format("No such configuration: %s", id));
         }
 
         return fromConfiguration(configuration.getConfigurationSection(id));
+    }
+
+    /**
+     * Creates a matching instance of ConfigurationItem using the given (yaml) file.
+     *
+     * @param file the (yaml) file
+     * @return a populated instance of ConfigurationItem
+     */
+    public static ConfigurationItem fromFile(@NotNull final File file) throws IOException {
+        final var configurationItem = OBJECT_MAPPER.readValue(file, ConfigurationItem.class);
+        configurationItem.setPotionEffectsData(loadPotionEffectsData(file));
+
+        return configurationItem;
     }
 
     private static Map<String, Object> removeRecursive(final Map<String, Object> map) {
@@ -259,13 +291,6 @@ public class ConfigurationItem {
         }
 
         return copy;
-    }
-
-    public static ConfigurationItem fromFile(@NotNull final File file) throws IOException {
-        final var configurationItem = OBJECT_MAPPER.readValue(file, ConfigurationItem.class);
-        configurationItem.setPotionEffectsData(loadPotionEffectsData(file));
-
-        return configurationItem;
     }
 
     private static Set<PotionEffectData> loadPotionEffectsData(final File file) throws IOException {
