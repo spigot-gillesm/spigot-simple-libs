@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,7 +77,18 @@ public class PlayerData {
 	@Nullable
 	public Object getRawValue(final String tag) {
 		return getPlayer()
-				.map(player -> player.hasMetadata(tag) ? player.getMetadata(tag).get(0).value() : null)
+				.map(player -> {
+					if(!player.hasMetadata(tag)) {
+						return null;
+					}
+					final List<MetadataValue> tagValues = player.getMetadata(tag);
+
+					if(tagValues.isEmpty()) {
+						return null;
+					}
+
+					return tagValues.get(0).value();
+				})
 				.orElse(null);
 	}
 
