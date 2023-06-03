@@ -44,10 +44,10 @@ public abstract class ListingMenu extends SimpleMenu {
 	@Override
 	protected ItemStack getSlotItem(int slot) {
 		//Check for the navigation buttons
-		if(slot == size - 7 && currentPage > 0) {
+		if(slot == size - 8 && currentPage > 0) {
 			return previousPageButton.getIcon();
 		}
-		if(slot == size - 3 && currentPage < pageAmount - 1) {
+		if(slot == size - 1 && currentPage < pageAmount - 1) {
 			return nextPageButton.getIcon();
 		}
 		if(slot == size - 5 && middleButton != null) {
@@ -85,7 +85,7 @@ public abstract class ListingMenu extends SimpleMenu {
 
 	private List<List<SimpleButton>> registerButtons(@NotNull final List<SimpleButton> buttons) {
 		//i.e: 28 buttons will result in 2 pages. page 1 : 1 -> 27, page 2: 28
-		this.pageAmount = (int) (Math.ceil(buttons.size() * 1.0) / (size - 9));
+		this.pageAmount = (int) (Math.ceil((buttons.size() * 1.0) / (size - 9)));
 
 		//Represents the pages
 		final var content = new ArrayList<List<SimpleButton>>();

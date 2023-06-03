@@ -33,9 +33,12 @@ public class ConfigurationItem {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper(new YAMLFactory());
 
     @Getter(AccessLevel.PACKAGE)
-    @JsonProperty("material")
+    @JsonProperty(value = "material", required = true)
     @JsonDeserialize(using = ItemDeserializer.MaterialDeserializer.class)
     private Material material = Material.STICK;
+
+    @JsonProperty("amount")
+    private int amount = 1;
 
     @Getter(AccessLevel.PACKAGE)
     @JsonProperty("damage")
@@ -51,7 +54,7 @@ public class ConfigurationItem {
 
     @Getter(AccessLevel.PACKAGE)
     @JsonProperty("item-flags")
-    @JsonDeserialize(using = ItemDeserializer.ItemFlagDeserializer.class)
+    @JsonDeserialize(contentUsing = ItemDeserializer.ItemFlagDeserializer.class)
     private ItemFlag[] itemFlags = new ItemFlag[] {};
 
     @Getter(AccessLevel.PACKAGE)
@@ -151,6 +154,7 @@ public class ConfigurationItem {
     public SimpleItem.Builder toSimpleBuilder() {
         final var builder = SimpleItem.newBuilder()
                 .material(material)
+                .amount(amount)
                 .damage(damage)
                 .displayName(displayName)
                 .itemFlags(itemFlags)
@@ -194,7 +198,10 @@ public class ConfigurationItem {
             builder.addLore(line);
         }
         for(final var potionEffectData : potionEffectsData) {
-            builder.addPotionEffect(potionEffectData.potionEffectType, potionEffectData.duration, potionEffectData.amplifier);
+            builder.addPotionEffect(potionEffectData.potionEffectType,
+                    //* 20 : ticks -> seconds
+                    (int) potionEffectData.duration * 20,
+                    potionEffectData.amplifier);
         }
 
         return builder;
@@ -237,13 +244,25 @@ public class ConfigurationItem {
                 .toString();
     }
 
+    public static ConfigurationItem fromConfiguration(@NotNull final Map<String, Object> data) throws IOException,
+            IllegalArgumentException {
+
+        final var configurationItem = OBJECT_MAPPER.convertValue(data, ConfigurationItem.class);
+        final var dataAsNode = OBJECT_MAPPER.convertValue(data, JsonNode.class);
+        configurationItem.setPotionEffectsData(loadPotionEffectsData(dataAsNode));
+
+        return configurationItem;
+    }
+
     /**
      * Creates a matching instance of ConfigurationItem using the given configuration.
      *
      * @param configuration the configuration
      * @return a populated instance of ConfigurationItem
      */
-    public static ConfigurationItem fromConfiguration(@NotNull final ConfigurationSection configuration) {
+    public static ConfigurationItem fromConfiguration(@NotNull final ConfigurationSection configuration)
+            throws IllegalArgumentException {
+
         final Map<String, Object> content = removeRecursive(configuration.getValues(true));
         final var configurationItem = OBJECT_MAPPER.convertValue(content, ConfigurationItem.class);
         configurationItem.setPotionEffectsData(loadPotionEffectsData(configuration));
@@ -258,7 +277,9 @@ public class ConfigurationItem {
      * @param id the section's id to get the item's data from
      * @return a populated instance of ConfigurationItem
      */
-    public static ConfigurationItem fromConfiguration(@NotNull final ConfigurationSection configuration, @NotNull final String id) {
+    public static ConfigurationItem fromConfiguration(@NotNull final ConfigurationSection configuration, @NotNull final String id)
+            throws IllegalArgumentException {
+
         if(!configuration.isConfigurationSection(id)) {
             throw new IllegalArgumentException(String.format("No such configuration: %s", id));
         }
@@ -272,7 +293,7 @@ public class ConfigurationItem {
      * @param file the (yaml) file
      * @return a populated instance of ConfigurationItem
      */
-    public static ConfigurationItem fromFile(@NotNull final File file) throws IOException {
+    public static ConfigurationItem fromFile(@NotNull final File file) throws IOException, IllegalArgumentException {
         final var configurationItem = OBJECT_MAPPER.readValue(file, ConfigurationItem.class);
         configurationItem.setPotionEffectsData(loadPotionEffectsData(file));
 
@@ -311,6 +332,26 @@ public class ConfigurationItem {
         return potionEffectsData;
     }
 
+    private static Set<PotionEffectData> loadPotionEffectsData(final JsonNode jsonNode) throws IOException {
+        final var effectsIterator = jsonNode.path("potion-effects").elements();
+
+        final Set<PotionEffectData> potionEffectsData = new HashSet<>();
+        final List<String> effectNames = new ArrayList<>();
+
+        jsonNode.path("potion-effects")
+                .fieldNames()
+                .forEachRemaining(effectNames::add);
+
+        for(final var effectName : effectNames) {
+            if(effectsIterator.hasNext()) {
+                loadPotionEffectData(effectName, effectsIterator.next())
+                        .ifPresent(potionEffectsData::add);
+            }
+        }
+
+        return potionEffectsData;
+    }
+
     private static Set<PotionEffectData> loadPotionEffectsData(final ConfigurationSection configuration) {
         final Set<PotionEffectData> potionEffectData = new HashSet<>();
 
@@ -335,7 +376,14 @@ public class ConfigurationItem {
         final var effectData = OBJECT_MAPPER.readValue(jsonNode.toString(), PotionEffectData.class);
 
         try {
-            effectData.setPotionEffectType(PotionEffectType.getByName(effectName));
+            final var effect = PotionEffectType.getByName(effectName);
+
+            if(effect == null) {
+                Formatter.error(String.format("Invalid potion effect type: %s", effectName));
+                return Optional.empty();
+            }
+            effectData.setPotionEffectType(effect);
+
             return Optional.of(effectData);
         } catch(final IllegalArgumentException exception) {
             Formatter.error(String.format("Invalid potion effect type: %s", effectName));
@@ -350,7 +398,14 @@ public class ConfigurationItem {
         final var effectData = OBJECT_MAPPER.convertValue(sectionData, PotionEffectData.class);
 
         try {
-            effectData.setPotionEffectType(PotionEffectType.getByName(effectName));
+            final var effect = PotionEffectType.getByName(effectName);
+
+            if(effect == null) {
+                Formatter.error(String.format("Invalid potion effect type: %s", effectName));
+                return Optional.empty();
+            }
+            effectData.setPotionEffectType(effect);
+
             return Optional.of(effectData);
         } catch(final IllegalArgumentException exception) {
             Formatter.error(String.format("Invalid potion effect type: %s", effectName));
@@ -368,7 +423,7 @@ public class ConfigurationItem {
 
         @Setter(AccessLevel.PACKAGE)
         @JsonProperty("duration")
-        private int duration;
+        private double duration;
 
         @Setter(AccessLevel.PACKAGE)
         @JsonProperty("amplifier")

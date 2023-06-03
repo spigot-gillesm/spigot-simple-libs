@@ -115,4 +115,18 @@ public class FileUtils {
 		}
 	}
 
+	/**
+	 * Check whether the specified resource exists.
+	 *
+	 * @param path the resource path. The path is prepended by the plugin data folder path if one exists.
+	 * @return true of the file exists
+	 */
+	public boolean doResourceExists(@NotNull final String path) {
+		final var resourcePath = StringUtils.isEmpty(PLUGIN_DATA_FOLDER_PATH) ? path :
+				PLUGIN_DATA_FOLDER_PATH + File.separator + path;
+		final var file = new File(resourcePath);
+
+		return file.exists();
+	}
+
 }
