@@ -24,7 +24,7 @@ public abstract class DynamicMenu extends SimpleMenu {
 					cancel();
 				}
 			}
-		}.runTaskTimer(GuiLib.plugin, delay, interval);
+		}.runTaskTimer(GuiLib.getInstance(), delay, interval);
 	}
 
 	/**

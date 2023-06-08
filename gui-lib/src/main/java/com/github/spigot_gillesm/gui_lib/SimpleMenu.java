@@ -90,7 +90,7 @@ public abstract class SimpleMenu {
 			inventory.setContents(getContent());
 
 			player.openInventory(inventory);
-			player.setMetadata("SIMPLE_MENU", new FixedMetadataValue(GuiLib.plugin, this));
+			player.setMetadata("SIMPLE_MENU", new FixedMetadataValue(GuiLib.getInstance(), this));
 
 			if(cancelReinstantiation) {
 				cancelReinstantiation = false;

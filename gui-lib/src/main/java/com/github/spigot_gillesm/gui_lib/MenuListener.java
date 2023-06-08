@@ -31,7 +31,6 @@ public class MenuListener implements Listener {
 		if(menuEvent.isCancelled()) {
 			event.setCancelled(true);
 		}
-
 		if(item == null) {
 			return;
 		}
@@ -54,7 +53,7 @@ public class MenuListener implements Listener {
 
 		if(menu != null) {
 			menu.onClose(player);
-			player.removeMetadata("SIMPLE_MENU", GuiLib.plugin);
+			player.removeMetadata("SIMPLE_MENU", GuiLib.getInstance());
 		}
 	}
 

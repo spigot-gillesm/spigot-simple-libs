@@ -5,6 +5,7 @@ import com.github.spigot_gillesm.format_lib.Formatter;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
@@ -13,6 +14,7 @@ import org.bukkit.potion.PotionType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @deprecated Use {@link ConfigurationItem ConfigurationItem} class instead.
@@ -26,11 +28,11 @@ public class YamlItem {
 		this.configuration = configuration;
 	}
 
-	private YamlItem(final File file) {
+	private YamlItem(final File file) throws IOException, InvalidConfigurationException {
 		this(FileUtils.getConfiguration(file));
 	}
 
-	private YamlItem(final String path) {
+	private YamlItem(final String path) throws IOException, InvalidConfigurationException {
 		this(FileUtils.getResource(path));
 	}
 
@@ -176,11 +178,11 @@ public class YamlItem {
 		return new YamlItem(configuration);
 	}
 
-	public static YamlItem fromFile(@NotNull final File file) {
+	public static YamlItem fromFile(@NotNull final File file) throws IOException, InvalidConfigurationException {
 		return new YamlItem(FileUtils.getConfiguration(file));
 	}
 
-	public static YamlItem fromPath(@NotNull final String path) {
+	public static YamlItem fromPath(@NotNull final String path) throws IOException, InvalidConfigurationException {
 		return new YamlItem(FileUtils.getResource(path));
 	}
 
