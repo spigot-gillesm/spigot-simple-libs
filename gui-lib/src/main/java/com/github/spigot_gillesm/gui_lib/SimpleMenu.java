@@ -17,14 +17,11 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class SimpleMenu {
 
-	private final List<SimpleButton> registeredButtons = new ArrayList<>();
+	private final Set<SimpleButton> registeredButtons = new HashSet<>();
 
 	private boolean buttonsRegistered = false;
 
@@ -134,6 +131,10 @@ public abstract class SimpleMenu {
 		}
 	}
 
+	protected void registerButton(@NotNull final SimpleButton simpleButton) {
+		registeredButtons.add(simpleButton);
+	}
+
 	protected List<SimpleButton> registerLastButtons() {
 		return new ArrayList<>();
 	}
@@ -179,7 +180,7 @@ public abstract class SimpleMenu {
 		if(returnButton != null && returnButton.getIcon().equals(item)) {
 			return Optional.of(returnButton);
 		} else {
-			return registeredButtons.stream().filter(b -> b.getIcon().isSimilar(item)).findFirst();
+			return registeredButtons.stream().filter(button -> button.getIcon().isSimilar(item)).findFirst();
 		}
 	}
 
