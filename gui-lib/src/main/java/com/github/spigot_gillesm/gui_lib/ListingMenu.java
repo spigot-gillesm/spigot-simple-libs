@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class ListingMenu extends SimpleMenu {
 
 	//Represents the content of every pages of the menu
-	private List<List<SimpleButton>> menuContent;
+	private final List<List<SimpleButton>> menuContent;
 
 	private int pageAmount = 1;
 	@Setter(AccessLevel.PRIVATE)
@@ -32,18 +32,43 @@ public abstract class ListingMenu extends SimpleMenu {
 		super(parentMenu);
 		setSize(5*9);
 		generateNavButtons();
+		this.menuContent = generateContent(generateButtons());
 	}
 
 	protected ListingMenu() {
 		this(null);
 	}
 
-	protected abstract List<SimpleButton> generateButtons(final Player viewer);
+	protected abstract List<SimpleButton> generateButtons();
+
+	/*@Override
+	public void display(@NotNull final Player player) {
+		this.viewer = player;
+		final var inventory = Bukkit.getServer().createInventory(player, size, Formatter.colorize(title));
+		inventory.setContents(getContent());
+
+		player.openInventory(inventory);
+		player.setMetadata("SIMPLE_MENU", new FixedMetadataValue(GuiLib.getInstance(), this));
+	}*/
+
+	/*@Override
+	protected ItemStack[] getContent() {
+		final ItemStack[] content = new ItemStack[size];
+
+		for(var i = 0; i < size; i++) {
+			content[i] = getSlotItem(i);
+		}
+
+        return content;
+	}*/
 
 	@Nullable
 	@Override
 	protected ItemStack getSlotItem(int slot) {
 		//Check for the navigation buttons
+		/*if(returnButton != null && slot == size - 9) {
+			return returnButton.getIcon();
+		}*/
 		if(slot == size - 8 && currentPage > 0) {
 			return previousPageButton.getIcon();
 		}
@@ -66,24 +91,7 @@ public abstract class ListingMenu extends SimpleMenu {
 		return null;
 	}
 
-	@Override
-	protected void registerButtons() {
-		this.menuContent = registerButtons(generateButtons(getViewer()));
-		super.registerButtons();
-	}
-
-	@Override
-	protected List<SimpleButton> registerLastButtons() {
-		final List<SimpleButton> buttons = menuContent.isEmpty() ? new ArrayList<>()
-				: new ArrayList<>(menuContent.get(currentPage));
-		buttons.add(nextPageButton);
-		buttons.add(previousPageButton);
-		buttons.add(middleButton);
-
-		return buttons;
-	}
-
-	private List<List<SimpleButton>> registerButtons(@NotNull final List<SimpleButton> buttons) {
+	private List<List<SimpleButton>> generateContent(@NotNull final List<SimpleButton> buttons) {
 		//i.e: 28 buttons will result in 2 pages. page 1 : 1 -> 27, page 2: 28
 		this.pageAmount = (int) (Math.ceil((buttons.size() * 1.0) / (size - 9)));
 
@@ -102,6 +110,7 @@ public abstract class ListingMenu extends SimpleMenu {
 			}
 
 			newPage.add(button);
+            registerButton(button);
 		}
 		//Check for a non-full page to add
 		if(!newPage.isEmpty()) {
@@ -119,11 +128,15 @@ public abstract class ListingMenu extends SimpleMenu {
 				.make()) {
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
-				final ListingMenu menu = (ListingMenu) SimpleMenu.getMenu(player);
-				menu.setCancelReinstantiation(true);
-				menu.setCurrentPage(currentPage + 1);
-				menu.generateNavButtons();
-				menu.display(player);
+				SimpleMenu.getMenu(player).ifPresent(menu -> {
+					if(!(menu instanceof ListingMenu)) {
+						return;
+					}
+					final var listingMenu = (ListingMenu) menu;
+					listingMenu.setCurrentPage(currentPage + 1);
+					listingMenu.generateNavButtons();
+					listingMenu.display(player);
+				});
 
 				return false;
 			}
@@ -135,15 +148,20 @@ public abstract class ListingMenu extends SimpleMenu {
 				.make()) {
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
-				final ListingMenu menu = (ListingMenu) SimpleMenu.getMenu(player);
-				menu.setCancelReinstantiation(true);
-				menu.setCurrentPage(currentPage - 1);
-				menu.generateNavButtons();
-				menu.display(player);
+				SimpleMenu.getMenu(player).ifPresent(menu -> {
+					if(!(menu instanceof ListingMenu)) {
+						return;
+					}
+					final var listingMenu = (ListingMenu) menu;
+					listingMenu.setCurrentPage(currentPage - 1);
+					listingMenu.generateNavButtons();
+					listingMenu.display(player);
+				});
 
 				return false;
 			}
 		};
+		registerButtons(previousPageButton, nextPageButton);
 	}
 
 }
