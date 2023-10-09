@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class ListingMenu extends SimpleMenu {
 
 	//Represents the content of every pages of the menu
-	private final List<List<SimpleButton>> menuContent;
+	private List<List<SimpleButton>> menuContent = new ArrayList<>();
 
 	private int pageAmount = 1;
 	@Setter(AccessLevel.PRIVATE)
@@ -31,8 +31,6 @@ public abstract class ListingMenu extends SimpleMenu {
 	protected ListingMenu(final SimpleMenu parentMenu) {
 		super(parentMenu);
 		setSize(5*9);
-		generateNavButtons();
-		this.menuContent = generateContent(generateButtons());
 	}
 
 	protected ListingMenu() {
@@ -41,34 +39,16 @@ public abstract class ListingMenu extends SimpleMenu {
 
 	protected abstract List<SimpleButton> generateButtons();
 
-	/*@Override
-	public void display(@NotNull final Player player) {
-		this.viewer = player;
-		final var inventory = Bukkit.getServer().createInventory(player, size, Formatter.colorize(title));
-		inventory.setContents(getContent());
-
-		player.openInventory(inventory);
-		player.setMetadata("SIMPLE_MENU", new FixedMetadataValue(GuiLib.getInstance(), this));
-	}*/
-
-	/*@Override
-	protected ItemStack[] getContent() {
-		final ItemStack[] content = new ItemStack[size];
-
-		for(var i = 0; i < size; i++) {
-			content[i] = getSlotItem(i);
-		}
-
-        return content;
-	}*/
+	@Override
+	public void display(@NotNull Player player) {
+		this.menuContent = generateContent(generateButtons());
+		generateNavButtons();
+		super.display(player);
+	}
 
 	@Nullable
 	@Override
 	protected ItemStack getSlotItem(int slot) {
-		//Check for the navigation buttons
-		/*if(returnButton != null && slot == size - 9) {
-			return returnButton.getIcon();
-		}*/
 		if(slot == size - 8 && currentPage > 0) {
 			return previousPageButton.getIcon();
 		}

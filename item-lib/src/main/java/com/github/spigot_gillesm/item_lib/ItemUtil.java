@@ -219,6 +219,17 @@ public class ItemUtil {
 			return;
 		}
 		meta.getPersistentDataContainer().set(new NamespacedKey(ItemLib.getPlugin(), key), persistentDataType, value);
+		itemStack.setItemMeta(meta);
+	}
+
+	public void setPersistentString(@NotNull final ItemStack itemStack, @NotNull final String key, @NotNull final String string) {
+		final var meta = itemStack.getItemMeta();
+
+		if(meta == null) {
+			return;
+		}
+		meta.getPersistentDataContainer().set(new NamespacedKey(ItemLib.getPlugin(), key), PersistentDataType.STRING, string);
+		itemStack.setItemMeta(meta);
 	}
 
 	/**

@@ -20,6 +20,8 @@ import java.util.Optional;
 
 public abstract class SimpleMenu {
 
+	private static final String METADATA_KEY = "SIMPLE_MENU";
+
 	protected final List<SimpleButton> registeredButtons = new ArrayList<>();
 
 	protected final SimpleMenu parentMenu;
@@ -44,6 +46,9 @@ public abstract class SimpleMenu {
 		generateParentButton();
 	}
 
+	/**
+	 * Default empty constructor.
+	 */
 	protected SimpleMenu() {
 		this(null);
 	}
@@ -72,7 +77,7 @@ public abstract class SimpleMenu {
 		inventory.setContents(getContent());
 
 		player.openInventory(inventory);
-		player.setMetadata("SIMPLE_MENU", new FixedMetadataValue(GuiLib.getInstance(), this));
+		player.setMetadata(METADATA_KEY, new FixedMetadataValue(GuiLib.getInstance(), this));
 	}
 
 	protected void registerButtons(final SimpleButton... simpleButtons) {
@@ -80,11 +85,19 @@ public abstract class SimpleMenu {
 	}
 
 	protected void registerButton(final SimpleButton simpleButton) {
-		registeredButtons.add(simpleButton);
+		//Do not duplicate buttons
+		if(!registeredButtons.contains(simpleButton)) {
+			registeredButtons.add(simpleButton);
+		}
 	}
 
 	protected abstract ItemStack getSlotItem(final int slot);
 
+	/**
+	 * onClose is run whenever this menu instance is closed by a player. Defaults to no action.
+	 *
+	 * @param player the player who closed the inventory
+	 */
 	public void onClose(final Player player) {
 		//default to no effect. Must be overridden
 	}
@@ -117,8 +130,8 @@ public abstract class SimpleMenu {
 	}
 
 	public static Optional<SimpleMenu> getMenu(@NotNull final Player player) {
-		if(player.hasMetadata("SIMPLE_MENU")) {
-			final var obj = player.getMetadata("SIMPLE_MENU").get(0).value();
+		if(player.hasMetadata(METADATA_KEY)) {
+			final var obj = player.getMetadata(METADATA_KEY).get(0).value();
 
 			if(obj instanceof SimpleMenu) {
 				return Optional.of((SimpleMenu) obj);
