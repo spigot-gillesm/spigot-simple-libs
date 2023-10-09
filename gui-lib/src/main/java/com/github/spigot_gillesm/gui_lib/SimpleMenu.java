@@ -14,16 +14,15 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public abstract class SimpleMenu {
 
-	private final Set<SimpleButton> registeredButtons = new HashSet<>();
+	private static final String METADATA_KEY = "SIMPLE_MENU";
 
-	private boolean buttonsRegistered = false;
+	protected final List<SimpleButton> registeredButtons = new ArrayList<>();
 
 	protected final SimpleMenu parentMenu;
 
@@ -33,14 +32,11 @@ public abstract class SimpleMenu {
 	protected int size = 3*9;
 
 	@Setter(AccessLevel.PROTECTED)
-	private String title = "&8Menu";
-
-	@Setter
-	private boolean cancelReinstantiation = false;
+	protected String title = "&8Menu";
 
 	@Setter(AccessLevel.PROTECTED)
-	@Getter(AccessLevel.PROTECTED)
-	private boolean cancelActions = false;
+	@Getter(AccessLevel.PUBLIC)
+	protected boolean cancelActions = false;
 
 	@Getter(AccessLevel.PROTECTED)
 	protected Player viewer;
@@ -50,6 +46,9 @@ public abstract class SimpleMenu {
 		generateParentButton();
 	}
 
+	/**
+	 * Default empty constructor.
+	 */
 	protected SimpleMenu() {
 		this(null);
 	}
@@ -64,106 +63,56 @@ public abstract class SimpleMenu {
 			) {
 				@Override
 				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
-					parentMenu.setCancelReinstantiation(true);
 					parentMenu.display(player);
 					return false;
 				}
 			};
+			registerButton(returnButton);
 		}
 	}
 
 	public void display(@NotNull final Player player) {
 		this.viewer = player;
+		final var inventory = Bukkit.getServer().createInventory(player, size, Formatter.colorize(title));
+		inventory.setContents(getContent());
 
-		if(buttonsRegistered && !cancelReinstantiation) {
-			final SimpleMenu menu = reInstantiate();
+		player.openInventory(inventory);
+		player.setMetadata(METADATA_KEY, new FixedMetadataValue(GuiLib.getInstance(), this));
+	}
 
-			if(menu != null) {
-				menu.display(player);
-			}
-		} else {
-			registerButtons();
-			final var inventory = Bukkit.getServer().createInventory(player, size, Formatter.colorize(title));
-			inventory.setContents(getContent());
+	protected void registerButtons(final SimpleButton... simpleButtons) {
+		List.of(simpleButtons).forEach(this::registerButton);
+	}
 
-			player.openInventory(inventory);
-			player.setMetadata("SIMPLE_MENU", new FixedMetadataValue(GuiLib.getInstance(), this));
-
-			if(cancelReinstantiation) {
-				cancelReinstantiation = false;
-			}
+	protected void registerButton(final SimpleButton simpleButton) {
+		//Do not duplicate buttons
+		if(!registeredButtons.contains(simpleButton)) {
+			registeredButtons.add(simpleButton);
 		}
-	}
-
-	@Nullable
-	protected SimpleMenu reInstantiate() {
-		try {
-			if(parentMenu != null) {
-				for(final Constructor<?> constructor : getClass().getDeclaredConstructors()) {
-					constructor.setAccessible(true);
-
-					if(constructor.getParameterCount() == 1) {
-						return (SimpleMenu) constructor.newInstance(parentMenu);
-					} else {
-						throw new IllegalArgumentException("Classes extending SimpleMenu cannot have constructor having more than one argument.");
-					}
-				}
-			}
-		} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
-			Formatter.error("Error re instantiating " + getClass() + ". Make sure the constructor has no argument or only one extending SimpleMenu.");
-		}
-
-		return null;
-	}
-
-	private void registerButton(@NotNull final Field field) {
-		field.setAccessible(true);
-
-		if(SimpleButton.class.isAssignableFrom(field.getType())) {
-			try {
-				final SimpleButton button = (SimpleButton) field.get(this);
-				if(button != null) {
-					registeredButtons.add(button);
-				}
- 			} catch (IllegalAccessException e) {
-				Formatter.error("Error registering button.");
-			}
-		}
-	}
-
-	protected void registerButton(@NotNull final SimpleButton simpleButton) {
-		registeredButtons.add(simpleButton);
-	}
-
-	protected List<SimpleButton> registerLastButtons() {
-		return new ArrayList<>();
-	}
-
-	protected void registerButtons() {
-		registeredButtons.clear();
-		Arrays.stream(getClass().getDeclaredFields()).forEach(this::registerButton);
-		registeredButtons.addAll(registerLastButtons());
-		buttonsRegistered = true;
 	}
 
 	protected abstract ItemStack getSlotItem(final int slot);
 
+	/**
+	 * onClose is run whenever this menu instance is closed by a player. Defaults to no action.
+	 *
+	 * @param player the player who closed the inventory
+	 */
 	public void onClose(final Player player) {
 		//default to no effect. Must be overridden
 	}
 
-	@Nullable
-	private ItemStack getLowerItem(final int slot) {
+	private Optional<ItemStack> getLowerItem(final int slot) {
 		if(returnButton != null && slot == size - 9) {
-			return returnButton.getIcon();
+			return Optional.of(returnButton.getIcon());
 		}
 
-		return null;
+		return Optional.empty();
 	}
 
 	@Nullable
 	private ItemStack getItemAt(final int slot) {
-		return getLowerItem(slot) != null ? getLowerItem(slot) : getSlotItem(slot);
+		return getLowerItem(slot).orElse(getSlotItem(slot));
 	}
 
 	protected ItemStack[] getContent() {
@@ -177,22 +126,18 @@ public abstract class SimpleMenu {
 	}
 
 	public Optional<SimpleButton> getButton(@NotNull final ItemStack item) {
-		if(returnButton != null && returnButton.getIcon().equals(item)) {
-			return Optional.of(returnButton);
-		} else {
-			return registeredButtons.stream().filter(button -> button.getIcon().isSimilar(item)).findFirst();
-		}
+		return registeredButtons.stream().filter(button -> button.getIcon().isSimilar(item)).findFirst();
 	}
 
-	public static SimpleMenu getMenu(@NotNull final Player player) {
-		if(player.hasMetadata("SIMPLE_MENU")) {
-			final var obj = player.getMetadata("SIMPLE_MENU").get(0).value();
+	public static Optional<SimpleMenu> getMenu(@NotNull final Player player) {
+		if(player.hasMetadata(METADATA_KEY)) {
+			final var obj = player.getMetadata(METADATA_KEY).get(0).value();
 
 			if(obj instanceof SimpleMenu) {
-				return (SimpleMenu) obj;
+				return Optional.of((SimpleMenu) obj);
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 
 }
