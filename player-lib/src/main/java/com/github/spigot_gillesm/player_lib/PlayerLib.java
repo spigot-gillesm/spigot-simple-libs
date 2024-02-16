@@ -25,4 +25,10 @@ public class PlayerLib {
 		}
 	}
 
+	public void loadAllData() throws IOException, InvalidConfigurationException {
+		for(final Player player : Bukkit.getServer().getOnlinePlayers()) {
+			DataManager.getData(player).loadFromFile();
+		}
+	}
+
 }

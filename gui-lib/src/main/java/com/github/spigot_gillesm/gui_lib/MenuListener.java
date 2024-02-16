@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class MenuListener implements Listener {
 
@@ -54,6 +55,12 @@ public class MenuListener implements Listener {
 			menu.onClose(player);
 			player.removeMetadata("SIMPLE_MENU", GuiLib.getInstance());
 		});
+	}
+
+	@EventHandler
+	protected void onPlayerQuit(final PlayerQuitEvent event) {
+		//Ensures a player leaving the server removes any menu
+		event.getPlayer().removeMetadata("SIMPLE_MENU", GuiLib.getInstance());
 	}
 
 }

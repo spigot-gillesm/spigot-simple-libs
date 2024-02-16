@@ -16,7 +16,7 @@ public class PlayerListener implements Listener {
 		try {
 			DataManager.getData(event.getPlayer()).writeToFile();
 		} catch (IOException | InvalidConfigurationException exception) {
-			Formatter.error(String.format("Error save player %s data file", event.getPlayer().getName()));
+			Formatter.error(String.format("Error saving player %s data file", event.getPlayer().getName()));
 			Formatter.error(exception.getMessage());
 		}
 	}
