@@ -20,4 +20,5 @@ public class SimplePersistentData<T, Z> {
 		this.persistentDataType = persistentDataType;
 		this.value = value;
 	}
+
 }
