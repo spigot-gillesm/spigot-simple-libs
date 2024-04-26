@@ -42,13 +42,13 @@ public class ItemConfiguration {
 
     private boolean extended;
 
-    private List<PotionEffectData> potionEffectData;
+    private List<PotionEffectData> potionEffectData = new ArrayList<>();
 
     private boolean unbreakable;
 
     private int customModelData;
 
-    private ColourData colorData;
+    private ColorData colorData;
 
     private String localizedName;
 

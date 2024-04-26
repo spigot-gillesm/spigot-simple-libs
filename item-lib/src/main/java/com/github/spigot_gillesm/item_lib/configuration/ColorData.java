@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class ColourData {
+public class ColorData {
 
     private int red = 0;
 

@@ -13,8 +13,6 @@
     <version>1.2.0</version>
 
     <properties>
-        <maven.compiler.source>15</maven.compiler.source>
-        <maven.compiler.target>15</maven.compiler.target>
         <jackson.version>2.14.2</jackson.version>
     </properties>
 
