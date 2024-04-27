@@ -4,6 +4,7 @@ import com.github.spigot_gillesm.file_utils.FileUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class PlayerData {
@@ -252,7 +254,7 @@ public class PlayerData {
 	/**
 	 * Write to the player's data file all the stored tags and their value.
 	 */
-	public void writeToFile() {
+	public void writeToFile() throws IOException, InvalidConfigurationException {
 		final var file = FileUtils.getResource("player_data/" + uuid.toString() + ".yml");
 		final var conf = FileUtils.clearContent(file);
 
@@ -269,7 +271,7 @@ public class PlayerData {
 	/**
 	 * Load from the player's data file all the stored tags and their value.
 	 */
-	public void loadFromFile() {
+	public void loadFromFile() throws IOException, InvalidConfigurationException {
 		this.configuration = FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
 
 		if(configuration.contains("tags")) {
@@ -277,7 +279,7 @@ public class PlayerData {
 		}
 	}
 
-	public YamlConfiguration getConfiguration() {
+	public YamlConfiguration getConfiguration() throws IOException, InvalidConfigurationException {
 		if(configuration == null) {
 			return FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
 		}
@@ -285,7 +287,7 @@ public class PlayerData {
 		return configuration;
 	}
 
-	public File getConfigurationFile() {
+	public File getConfigurationFile() throws IOException {
 		return FileUtils.getResource("player_data/" + uuid.toString() + ".yml");
 	}
 

@@ -27,6 +27,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * @deprecated Use {@link com.github.spigot_gillesm.item_lib.configuration.ItemConfiguration ItemConfiguration} class instead.
+ */
+@Deprecated(since = "1.2.0")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ConfigurationItem {
 

@@ -16,101 +16,74 @@ public class FileUtils {
 
 	public String PLUGIN_DATA_FOLDER_PATH = "";
 
-	public File getFile(@NotNull final String path, final boolean createIfNotExists) {
+	public File getFile(@NotNull final String path, final boolean createIfNotExists) throws IOException {
 		final var file = new File(path);
 
 		if(!file.exists() && createIfNotExists) {
 			//Make sure the parent file exists and create it if needed
-			if(file.getParentFile() != null && !file.getParentFile().exists()) {
-				file.getParentFile().mkdir();
+			if(!file.getParentFile().exists()) {
+				file.getParentFile().mkdirs();
 			}
-
-			try {
-				if(path.endsWith("/")) {
-					file.mkdir();
-				} else {
-					file.createNewFile();
-				}
-
-				return file;
-			} catch (IOException e) {
-				Formatter.error("Error creating file " + path);
-				return null;
+			if(path.endsWith("/") || path.endsWith(File.separator)) {
+				file.mkdir();
+			} else {
+				file.createNewFile();
 			}
-		} else {
-			return file;
 		}
+
+		return file;
 	}
 
-	public File getFile(@NotNull final String path) {
+	public File getFile(@NotNull final String path) throws IOException {
 		return getFile(path, true);
 	}
 
-	public File getResource(@NotNull final String path, final boolean createIfNotExists) {
+	public File getResource(@NotNull final String path, final boolean createIfNotExists) throws IOException {
 		return getFile(StringUtils.isEmpty(PLUGIN_DATA_FOLDER_PATH) ? path : PLUGIN_DATA_FOLDER_PATH + File.separator + path,
 				createIfNotExists);
 	}
 
-	public File getResource(@NotNull final String path) {
+	public File getResource(@NotNull final String path) throws IOException {
 		return getFile(StringUtils.isEmpty(PLUGIN_DATA_FOLDER_PATH) ? path : PLUGIN_DATA_FOLDER_PATH + File.separator + path);
 	}
 
-	public YamlConfiguration getConfiguration(@NotNull final File file) {
+	public YamlConfiguration getConfiguration(@NotNull final File file) throws IOException, InvalidConfigurationException {
 		if(!file.getName().endsWith(".yml")) {
 			throw new IllegalArgumentException("Configuration file must be yaml files.");
 		}
 		final var configuration = new YamlConfiguration();
+		configuration.load(file);
 
-		try {
-			configuration.load(file);
-			return configuration;
-		} catch (InvalidConfigurationException | IOException e) {
-			Formatter.error("Error loading configuration " + file.getPath());
-			return null;
-		}
+		return configuration;
+
 	}
 
-	public YamlConfiguration getConfiguration(@NotNull final String path) {
+	public YamlConfiguration getConfiguration(@NotNull final String path) throws IOException, InvalidConfigurationException {
 		return getConfiguration(getResource(path));
 	}
 
-	public YamlConfiguration saveConfiguration(@NotNull final File file, @NotNull final YamlConfiguration configuration) {
+	public YamlConfiguration saveConfiguration(@NotNull final File file, @NotNull final YamlConfiguration configuration) throws IOException {
 		if(!file.getName().endsWith(".yml")) {
 			throw new IllegalArgumentException("Configuration file must be yaml files.");
 		}
-
-		try {
-			configuration.save(file);
-		} catch (final IOException e) {
-			Formatter.error("Error saving configuration " + file.getPath());
-		}
+		configuration.save(file);
 
 		return configuration;
 	}
 
-	public YamlConfiguration saveConfiguration(@NotNull final File file) {
+	public YamlConfiguration saveConfiguration(@NotNull final File file) throws IOException, InvalidConfigurationException {
 		return saveConfiguration(file, getConfiguration(file));
 	}
 
-	public boolean deleteFile(@NotNull final File file) {
-		try {
-			return Files.deleteIfExists(file.toPath());
-		} catch (IOException e) {
-			Formatter.error("Error deleting file " + file.getPath());
-			return false;
-		}
+	public boolean deleteFile(@NotNull final File file) throws IOException {
+		return Files.deleteIfExists(file.toPath());
 	}
 
-	public YamlConfiguration clearContent(@NotNull final File file) {
-		try {
-			if(deleteFile(file) && file.createNewFile()) {
-				return getConfiguration(file);
-			} else {
-				Formatter.error("Could not delete and/or re-creating file " + file.getPath());
-				return null;
-			}
-		} catch (IOException e) {
-			Formatter.error("Error clearing file " + file.getPath());
+	public YamlConfiguration clearContent(@NotNull final File file) throws IOException, InvalidConfigurationException {
+		if(deleteFile(file) && file.createNewFile()) {
+			return getConfiguration(file);
+		} else {
+			Formatter.error("Could not delete and/or re-creating file " + file.getPath());
 			return null;
 		}
 	}
