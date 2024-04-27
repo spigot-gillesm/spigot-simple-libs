@@ -25,9 +25,9 @@
     </modules>
 
     <properties>
-        <java.version>15</java.version>
-        <maven.compiler.source>15</maven.compiler.source>
-        <maven.compiler.target>15</maven.compiler.target>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <format-lib.version>1.0.0</format-lib.version>
         <item-lib.version>1.0.0</item-lib.version>
         <command-lib.version>1.0.0</command-lib.version>

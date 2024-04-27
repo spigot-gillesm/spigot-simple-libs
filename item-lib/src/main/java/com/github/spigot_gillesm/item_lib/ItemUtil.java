@@ -3,7 +3,9 @@ package com.github.spigot_gillesm.item_lib;
 import com.github.spigot_gillesm.format_lib.Formatter;
 import lombok.experimental.UtilityClass;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +28,25 @@ public class ItemUtil {
 			itemStack.setAmount(itemStack.getAmount() - 1);
 			return false;
 		}
+	}
+
+	public EquipmentSlot getEquipmentSlot(final Material material) {
+		var slot = EquipmentSlot.HAND;
+
+		if(material.name().contains("SHIELD")) {
+			slot = EquipmentSlot.OFF_HAND;
+		} else if(material.name().contains("HELMET")) {
+			slot = EquipmentSlot.HEAD;
+		} else if(material.name().contains("CHESTPLATE") ||
+				material.name().contains("ELYTRA")) {
+			slot = EquipmentSlot.CHEST;
+		} else if(material.name().contains("LEGGINGS")) {
+			slot = EquipmentSlot.LEGS;
+		} else if(material.name().contains("BOOTS")) {
+			slot = EquipmentSlot.FEET;
+		}
+
+		return slot;
 	}
 
 	/**
