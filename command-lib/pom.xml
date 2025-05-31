@@ -15,19 +15,21 @@
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-        <reflections.version>0.9.11</reflections.version>
+        <reflections.version>0.10.2</reflections.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>format-lib</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>${reflections.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

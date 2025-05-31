@@ -13,50 +13,52 @@
     <version>1.2.0</version>
 
     <properties>
-        <jackson.version>2.14.2</jackson.version>
+        <jackson.version>2.19.0</jackson.version>
+        <modelmapper.version>3.2.0</modelmapper.version>
+        <junit.version>5.13.0</junit.version>
+        <assertj.version>3.27.3</assertj.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>format-lib</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>file-utils</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>${jackson.version}</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
-            <version>3.2.0</version>
+            <version>${modelmapper.version}</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.7.1</version>
+            <version>${junit.version}</version>
+            <optional>true</optional>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.11.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-inline</artifactId>
-            <version>3.6.28</version>
+            <version>${assertj.version}</version>
+            <optional>true</optional>
             <scope>test</scope>
         </dependency>
     </dependencies>
