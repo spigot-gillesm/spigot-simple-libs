@@ -23,34 +23,29 @@
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>format-lib</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>file-utils</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
             <version>${jackson.version}</version>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
             <version>${modelmapper.version}</version>
-            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
-            <optional>true</optional>
             <scope>test</scope>
         </dependency>
 
@@ -58,7 +53,6 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>${assertj.version}</version>
-            <optional>true</optional>
             <scope>test</scope>
         </dependency>
     </dependencies>

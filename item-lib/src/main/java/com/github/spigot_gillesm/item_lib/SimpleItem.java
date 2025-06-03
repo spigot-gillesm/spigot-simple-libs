@@ -137,7 +137,7 @@ public class SimpleItem {
         }
 
         final var item = new ItemStack(material);
-        final var meta = Bukkit.getServer().getItemFactory().getItemMeta(material);
+        final ItemMeta meta = Bukkit.getServer().getItemFactory().getItemMeta(material);
 
         if(meta != null) {
             meta.setDisplayName(Formatter.colorize(displayName));
@@ -156,7 +156,6 @@ public class SimpleItem {
             meta.setLore(Formatter.colorize(lore));
             item.setItemMeta(meta);
         }
-
         item.setAmount(amount);
         this.itemStack = item;
 

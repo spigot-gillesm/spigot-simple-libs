@@ -22,7 +22,6 @@
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>format-lib</artifactId>
             <version>${format-lib.version}</version>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 

@@ -1,6 +1,7 @@
 package com.github.spigot_gillesm.gui_lib;
 
 import com.github.spigot_gillesm.format_lib.Formatter;
+import com.github.spigot_gillesm.item_lib.ItemUtil;
 import com.github.spigot_gillesm.item_lib.SimpleItem;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,7 +21,7 @@ import java.util.Optional;
 
 public abstract class SimpleMenu {
 
-	private static final String METADATA_KEY = "SIMPLE_MENU";
+	public static final String METADATA_KEY = "SIMPLE_MENU";
 
 	protected final List<SimpleButton> registeredButtons = new ArrayList<>();
 
@@ -87,6 +88,8 @@ public abstract class SimpleMenu {
 	protected void registerButton(final SimpleButton simpleButton) {
 		//Do not duplicate buttons
 		if(!registeredButtons.contains(simpleButton)) {
+			//Before registering the button, write a unique id in the button icon's data
+			ItemUtil.setPersistentString(simpleButton.getIcon(), SimpleButton.KEY_ID, String.valueOf(registeredButtons.size()));
 			registeredButtons.add(simpleButton);
 		}
 	}
@@ -126,8 +129,18 @@ public abstract class SimpleMenu {
 	}
 
 	public Optional<SimpleButton> getButton(@NotNull final ItemStack item) {
-		return registeredButtons.stream().filter(button -> button.getIcon().isSimilar(item)).findFirst();
-	}
+		//Try and retrieve an id from the item
+		return ItemUtil.getPersistentString(item, SimpleButton.KEY_ID)
+				//If one is found, check that it matches one of the registered buttons id
+				.flatMap(
+						s -> registeredButtons.stream()
+								//Retrieve the registered buttons icon's id and compare it to the given item's id
+								.filter(button -> ItemUtil.getPersistentString(button.getIcon(), SimpleButton.KEY_ID)
+										.map(buttonId -> buttonId.equals(s))
+										.orElse(false))
+								.findFirst()
+				);
+    }
 
 	public static Optional<SimpleMenu> getMenu(@NotNull final Player player) {
 		if(player.hasMetadata(METADATA_KEY)) {

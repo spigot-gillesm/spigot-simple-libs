@@ -8,6 +8,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Optional;
+
 public class MenuListener implements Listener {
 
 	@EventHandler
@@ -16,7 +18,7 @@ public class MenuListener implements Listener {
 			return;
 		}
 		final var player = (Player) event.getWhoClicked();
-		final var oMenu = SimpleMenu.getMenu(player);
+		final Optional<SimpleMenu> oMenu = SimpleMenu.getMenu(player);
 
 		if(oMenu.isEmpty()) {
 			return;
@@ -36,10 +38,11 @@ public class MenuListener implements Listener {
 		if(item == null) {
 			return;
 		}
-		final var button = menu.getButton(item);
+		final Optional<SimpleButton> button = menu.getButton(item);
 
 		if(button.isPresent()) {
 			event.setCancelled(true);
+
 			//If action returns true -> re-display menu
 			if(button.get().action(player, event.getClick(), event.getCursor())) {
 				menu.display(player);
@@ -53,14 +56,14 @@ public class MenuListener implements Listener {
 
 		SimpleMenu.getMenu(player).ifPresent(menu -> {
 			menu.onClose(player);
-			player.removeMetadata("SIMPLE_MENU", GuiLib.getInstance());
+			player.removeMetadata(SimpleMenu.METADATA_KEY, GuiLib.getInstance());
 		});
 	}
 
 	@EventHandler
 	protected void onPlayerQuit(final PlayerQuitEvent event) {
 		//Ensures a player leaving the server removes any menu
-		event.getPlayer().removeMetadata("SIMPLE_MENU", GuiLib.getInstance());
+		event.getPlayer().removeMetadata(SimpleMenu.METADATA_KEY, GuiLib.getInstance());
 	}
 
 }
