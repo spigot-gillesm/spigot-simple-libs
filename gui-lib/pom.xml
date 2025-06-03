@@ -16,21 +16,30 @@
     <properties>
         <maven.compiler.source>15</maven.compiler.source>
         <maven.compiler.target>15</maven.compiler.target>
-        <item-lib.version>1.1.0</item-lib.version>
+        <item-lib.version>1.2.0</item-lib.version>
+        <dom4j.version>2.1.4</dom4j.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.github.spigot_gillesm</groupId>
+            <artifactId>format-lib</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>item-lib</artifactId>
             <version>${item-lib.version}</version>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
-            <version>2.1.4</version>
+            <version>${dom4j.version}</version>
+            <optional>true</optional>
         </dependency>
+        -->
     </dependencies>
 
 </project>

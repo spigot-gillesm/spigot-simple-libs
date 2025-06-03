@@ -12,14 +12,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@Setter
+@Getter
 public abstract class SimpleButton {
 
-	@Setter
-	@Getter
+	public static final String KEY_ID = "gui_lib_button_id";
+
 	protected ItemStack icon;
 
-	@Setter
-	@Getter
 	private boolean cancelOpen = false;
 
 	public SimpleButton() { }

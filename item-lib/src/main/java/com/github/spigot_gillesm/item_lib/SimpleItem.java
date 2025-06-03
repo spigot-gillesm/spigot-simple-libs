@@ -137,7 +137,7 @@ public class SimpleItem {
         }
 
         final var item = new ItemStack(material);
-        final var meta = Bukkit.getServer().getItemFactory().getItemMeta(material);
+        final ItemMeta meta = Bukkit.getServer().getItemFactory().getItemMeta(material);
 
         if(meta != null) {
             meta.setDisplayName(Formatter.colorize(displayName));
@@ -156,7 +156,6 @@ public class SimpleItem {
             meta.setLore(Formatter.colorize(lore));
             item.setItemMeta(meta);
         }
-
         item.setAmount(amount);
         this.itemStack = item;
 
@@ -218,7 +217,7 @@ public class SimpleItem {
     }
 
     private String generateAttributeString(final Attribute attribute, final AttributeModifier modifier) {
-        final var value = attribute == Attribute.GENERIC_ATTACK_SPEED ? modifier.getAmount() + 4 : modifier.getAmount();
+        final var value = attribute == Attribute.ATTACK_SPEED ? modifier.getAmount() + 4 : modifier.getAmount();
         final var string = attribute.name().replace("GENERIC_", "").split("_");
         final var stringBuilder = new StringBuilder(" &2" + value + " ");
 
@@ -278,7 +277,7 @@ public class SimpleItem {
 
         private String localizedName;
 
-        private Map<Attribute, AttributeModifier> attributeModifiers = new EnumMap<>(Attribute.class);
+        private Map<Attribute, AttributeModifier> attributeModifiers = new HashMap<>();
 
         private final Set<SimplePersistentData<String, String>> persistentDataString = new HashSet<>();
 
@@ -534,7 +533,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder attributeModifiers(final Map<Attribute, AttributeModifier> attributeModifiers) {
-            this.attributeModifiers = new EnumMap<>(attributeModifiers);
+            this.attributeModifiers = new HashMap<>(attributeModifiers);
             return this;
         }
 
@@ -558,7 +557,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setAttackDamage(final double attackDamage, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE,
+            return addAttributeModifier(Attribute.ATTACK_DAMAGE,
                     new AttributeModifier(UUID.randomUUID(), "attackDamage", attackDamage,
                             AttributeModifier.Operation.ADD_NUMBER, slot));
         }
@@ -571,7 +570,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setAttackSpeed(final double attackSpeed, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED,
+            return addAttributeModifier(Attribute.ATTACK_SPEED,
                     new AttributeModifier(UUID.randomUUID(), "attackSpeed", attackSpeed,
                             AttributeModifier.Operation.ADD_NUMBER, slot));
         }
@@ -584,7 +583,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setArmor(final double armor, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.GENERIC_ARMOR,
+            return addAttributeModifier(Attribute.ARMOR,
                     new AttributeModifier(UUID.randomUUID(), "armor", armor,
                             AttributeModifier.Operation.ADD_NUMBER, slot));
         }
@@ -597,7 +596,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setArmorToughness(final double armorToughness, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.GENERIC_ARMOR_TOUGHNESS,
+            return addAttributeModifier(Attribute.ARMOR_TOUGHNESS,
                     new AttributeModifier(UUID.randomUUID(), "armorToughness", armorToughness,
                             AttributeModifier.Operation.ADD_NUMBER, slot));
         }
@@ -610,7 +609,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setMaxHealth(final double maxHealth, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.GENERIC_MAX_HEALTH,
+            return addAttributeModifier(Attribute.MAX_HEALTH,
                     new AttributeModifier(UUID.randomUUID(), "maxHealth", maxHealth,
                             AttributeModifier.Operation.ADD_NUMBER, slot));
         }
@@ -623,7 +622,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setKnockbackResistance(final double knockbackResistance, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE,
+            return addAttributeModifier(Attribute.KNOCKBACK_RESISTANCE,
                     new AttributeModifier(UUID.randomUUID(), "knockbackResistance", knockbackResistance,
                             AttributeModifier.Operation.ADD_NUMBER, slot));
         }
@@ -636,7 +635,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setMovementSpeed(final double movementSpeed, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED,
+            return addAttributeModifier(Attribute.MOVEMENT_SPEED,
                     new AttributeModifier(UUID.randomUUID(), "movementSpeed", movementSpeed,
                             AttributeModifier.Operation.ADD_NUMBER, slot));
         }
@@ -649,7 +648,7 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setFlyingSpeed(final double flyingSpeed, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.GENERIC_FLYING_SPEED,
+            return addAttributeModifier(Attribute.FLYING_SPEED,
                     new AttributeModifier(UUID.randomUUID(), "flyingSpeed", flyingSpeed,
                             AttributeModifier.Operation.ADD_NUMBER, slot));
         }

@@ -2,7 +2,7 @@ package com.github.spigot_gillesm.file_utils;
 
 import com.github.spigot_gillesm.format_lib.Formatter;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;

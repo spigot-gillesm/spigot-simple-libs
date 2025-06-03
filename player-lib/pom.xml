@@ -20,11 +20,13 @@
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>format-lib</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
             <groupId>com.github.spigot_gillesm</groupId>
             <artifactId>file-utils</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

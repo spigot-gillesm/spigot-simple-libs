@@ -12,22 +12,16 @@
     <modules>
         <module>format-lib</module>
         <module>command-lib</module>
+        <module>file-utils</module>
+        <module>player-lib</module>
         <module>item-lib</module>
         <module>gui-lib</module>
-        <module>player-lib</module>
-        <module>file-utils</module>
-        <!--
-        <module>rpg-stats-lib</module>
-        <module>spell-lib</module>
-        <module>yaml-lib</module>
-        <module>rp-classes</module>
-        -->
     </modules>
 
     <properties>
-        <java.version>17</java.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>19</java.version>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
         <format-lib.version>1.0.0</format-lib.version>
         <item-lib.version>1.0.0</item-lib.version>
         <command-lib.version>1.0.0</command-lib.version>
@@ -38,9 +32,10 @@
         <file-utils.version>1.0.0</file-utils.version>
         <yaml-lib.version>1.0.0</yaml-lib.version>
         <rp-classes.version>1.0.0</rp-classes.version>
-        <spigot.version>1.18.2-R0.1-SNAPSHOT</spigot.version>
-        <lombok.version>1.18.24</lombok.version>
+        <spigot.version>1.21.5-R0.1-SNAPSHOT</spigot.version>
+        <lombok.version>1.18.38</lombok.version>
         <annotations.version>23.0.0</annotations.version>
+        <apache-commons.version>3.17.0</apache-commons.version>
     </properties>
 
     <repositories>
@@ -140,6 +135,31 @@
             <version>${annotations.version}</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${apache-commons.version}</version>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

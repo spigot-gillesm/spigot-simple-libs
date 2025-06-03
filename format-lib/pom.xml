@@ -17,6 +17,7 @@
         <maven.compiler.target>15</maven.compiler.target>
     </properties>
 
+    <!--
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -39,5 +40,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    -->
 
 </project>
