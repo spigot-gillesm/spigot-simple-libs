@@ -58,6 +58,7 @@ public class ItemMapper {
         this.baseTypeMap = modelMapper
                 .createTypeMap(ItemConfigurationDTO.class, ItemConfiguration.class)
                 .addMappings(new PropertyMap<>() {
+
 					@Override
 					protected void configure() {
 						using((Converter<ItemConfigurationDTO, Material>) context -> {
@@ -73,9 +74,11 @@ public class ItemMapper {
 							}
 						}).map(source).setMaterial(Material.STICK);
 					}
+
 				})
                 //ENCHANTMENTS
                 .addMappings(new PropertyMap<>() {
+
 					@Override
 					protected void configure() {
 						//Convert <string, int> to <enchantment, int>
@@ -96,9 +99,11 @@ public class ItemMapper {
 										}, Map.Entry::getValue)))
 								.map(source).setEnchantments(new HashMap<>());
 					}
+
 				})
                 //POTION TYPE
                 .addMappings(new PropertyMap<>() {
+
 					@Override
 					protected void configure() {
 						using((Converter<ItemConfigurationDTO, PotionType>) context -> {
@@ -114,9 +119,11 @@ public class ItemMapper {
 							}
 						}).map(source).setPotionType(null);
 					}
+
 				})
                 //POTION EFFECT DATA
                 .addMappings(new PropertyMap<>() {
+
 					@Override
 					protected void configure() {
 						using((Converter<ItemConfigurationDTO, List<PotionEffectData>>) context ->
@@ -127,7 +134,7 @@ public class ItemMapper {
 										.map(entry -> {
 											//The map key is the potion effect type, the value is the rest of the data
 											final String potionEffectTypeId = entry.getKey();
-											final var potionEffectType = PotionEffectType.getByName(potionEffectTypeId);
+											final PotionEffectType potionEffectType = PotionEffectType.getByName(potionEffectTypeId);
 
 											if(potionEffectType == null) {
 												throw new IllegalArgumentException(String.format("Invalid potion effect type: %s", potionEffectTypeId));
@@ -140,9 +147,11 @@ public class ItemMapper {
 										.toList())
 								.map(source).setPotionEffectData(new ArrayList<>());
 					}
+
 				})
                 //COLOUR DATA
                 .addMappings(new PropertyMap<>() {
+
 					@Override
 					protected void configure() {
 						using((Converter<ItemConfigurationDTO, ColorData>) context -> {
@@ -153,6 +162,7 @@ public class ItemMapper {
 							return modelMapper.map(context.getSource().getColor(), ColorData.class);
 						}).map(source).setColorData(null);
 					}
+
 				})
                 //Straightforward mappings
                 //AMOUNT
@@ -197,6 +207,7 @@ public class ItemMapper {
         modelMapper
                 .typeMap(ItemConfigurationDTO.ConfigurationMap.class, ItemConfiguration.ConfigurationMap.class)
                 .addMappings(new PropertyMap<>() {
+
 					@Override
 					protected void configure() {
 						using((Converter<ItemConfigurationDTO.ConfigurationMap, Map<String, ItemConfiguration>>) context ->
@@ -210,6 +221,7 @@ public class ItemMapper {
 										)))
 								.map(source).setConfigurationMap(new HashMap<>());
 					}
+
 				});
     }
 

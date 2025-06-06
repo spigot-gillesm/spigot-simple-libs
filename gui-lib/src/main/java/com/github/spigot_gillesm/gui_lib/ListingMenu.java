@@ -15,21 +15,24 @@ import java.util.List;
 
 public abstract class ListingMenu extends SimpleMenu {
 
-	//Represents the content of every pages of the menu
+	//Represents the content of every page of the menu
 	private List<List<SimpleButton>> menuContent = new ArrayList<>();
 
 	private int pageAmount = 1;
+
 	@Setter(AccessLevel.PRIVATE)
 	private int currentPage = 0;
 
 	private SimpleButton nextPageButton;
+
 	private SimpleButton previousPageButton;
 
 	@Setter(AccessLevel.PROTECTED)
 	private SimpleButton middleButton;
 
-	protected ListingMenu(final SimpleMenu parentMenu) {
+	protected ListingMenu(SimpleMenu parentMenu) {
 		super(parentMenu);
+
 		setSize(5*9);
 	}
 
@@ -48,7 +51,7 @@ public abstract class ListingMenu extends SimpleMenu {
 
 	@Nullable
 	@Override
-	protected ItemStack getSlotItem(int slot) {
+	protected ItemStack getSlotItem(final int slot) {
 		if(slot == size - 8 && currentPage > 0) {
 			return previousPageButton.getIcon();
 		}
@@ -71,14 +74,14 @@ public abstract class ListingMenu extends SimpleMenu {
 		return null;
 	}
 
-	private List<List<SimpleButton>> generateContent(@NotNull final List<SimpleButton> buttons) {
+	private List<List<SimpleButton>> generateContent(List<SimpleButton> buttons) {
 		//i.e: 28 buttons will result in 2 pages. page 1 : 1 -> 27, page 2: 28
 		this.pageAmount = (int) (Math.ceil((buttons.size() * 1.0) / (size - 9)));
 
 		//Represents the pages
-		final var content = new ArrayList<List<SimpleButton>>();
+		final List<List<SimpleButton>> content = new ArrayList<>();
 		//Represents the content of one page
-		final var newPage = new ArrayList<SimpleButton>();
+		final List<SimpleButton> newPage = new ArrayList<>();
 
 		//Fills the pages
 		for(final SimpleButton button : buttons) {
@@ -88,7 +91,6 @@ public abstract class ListingMenu extends SimpleMenu {
 				content.add(new ArrayList<>(newPage));
 				newPage.clear();
 			}
-
 			newPage.add(button);
             registerButton(button);
 		}
@@ -106,40 +108,42 @@ public abstract class ListingMenu extends SimpleMenu {
 				.displayName("&7Next Page")
 				.build()
 				.make()) {
+
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
 				SimpleMenu.getMenu(player).ifPresent(menu -> {
-					if(!(menu instanceof ListingMenu)) {
+					if(!(menu instanceof ListingMenu listingMenu)) {
 						return;
 					}
-					final var listingMenu = (ListingMenu) menu;
-					listingMenu.setCurrentPage(currentPage + 1);
+                    listingMenu.setCurrentPage(currentPage + 1);
 					listingMenu.generateNavButtons();
 					listingMenu.display(player);
 				});
 
 				return false;
 			}
+
 		};
 		this.previousPageButton = new SimpleButton(SimpleItem.newBuilder()
 				.material(Material.ARROW)
 				.displayName("&7Previous Page")
 				.build()
 				.make()) {
+
 			@Override
 			public boolean action(Player player, ClickType click, ItemStack draggedItem) {
 				SimpleMenu.getMenu(player).ifPresent(menu -> {
-					if(!(menu instanceof ListingMenu)) {
+					if(!(menu instanceof ListingMenu listingMenu)) {
 						return;
 					}
-					final var listingMenu = (ListingMenu) menu;
-					listingMenu.setCurrentPage(currentPage - 1);
+                    listingMenu.setCurrentPage(currentPage - 1);
 					listingMenu.generateNavButtons();
 					listingMenu.display(player);
 				});
 
 				return false;
 			}
+
 		};
 		registerButtons(previousPageButton, nextPageButton);
 	}

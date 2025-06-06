@@ -85,6 +85,7 @@ public class ItemConfigurationDTO {
     @Getter
     public static class ConfigurationMap {
 
+        //The key is the potion effect type
         private Map<String, ItemConfigurationDTO> configurationMap;
 
     }

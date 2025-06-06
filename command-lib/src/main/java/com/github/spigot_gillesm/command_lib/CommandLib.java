@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 @UtilityClass
 public class CommandLib {
 
-	public <T extends JavaPlugin> void initialize(@NotNull final T plugin) {
+	public <T extends JavaPlugin> void initialize(@NotNull T plugin) {
 		CommandManager.getInstance().registerMainCommands(plugin);
 	}
 

@@ -8,9 +8,7 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.scanners.TypeAnnotationsScanner;
-import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -22,21 +20,23 @@ public class CommandManager {
 
 	private CommandManager() { }
 
-	private void registerCommand(@NotNull final JavaPlugin plugin, @NotNull final Command command) {
+	private void registerCommand(@NotNull JavaPlugin plugin, @NotNull Command command) {
 		Formatter.info("Registering " + command.getName() + " as a main command.");
 		try {
 			final var commandMapField = plugin.getServer().getClass().getDeclaredField("commandMap");
 			commandMapField.setAccessible(true);
 			((CommandMap) commandMapField.get(Bukkit.getServer())).register(command.getLabel(), command.getName(), command);
-		} catch (final Exception e) {
-			e.printStackTrace();
+		} catch (final Exception exception) {
+			Formatter.error(exception.getMessage());
 		}
 	}
 
-	void registerMainCommands(@NotNull final JavaPlugin plugin) {
-		new Reflections(ClasspathHelper.forPackage(plugin.getClass().getPackage().getName()),
-				plugin.getClass(), new TypeAnnotationsScanner(), new SubTypesScanner())
-				.getTypesAnnotatedWith(MainCommand.class)
+	void registerMainCommands(@NotNull JavaPlugin plugin) {
+		final var configurationBuilder = new ConfigurationBuilder()
+				.forPackage(plugin.getClass().getPackage().getName())
+				.addClassLoaders(plugin.getClass().getClassLoader());
+
+		new Reflections(configurationBuilder).getTypesAnnotatedWith(MainCommand.class)
 				.forEach(clazz -> {
 					if(!SimpleCommand.class.isAssignableFrom(clazz)) {
 						throw new UnsupportedOperationException("The MainCommand annotation must be used on a class extending SimpleCommand.");

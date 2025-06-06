@@ -14,8 +14,6 @@
     <name>GUILib</name>
 
     <properties>
-        <maven.compiler.source>15</maven.compiler.source>
-        <maven.compiler.target>15</maven.compiler.target>
         <item-lib.version>1.2.0</item-lib.version>
         <dom4j.version>2.1.4</dom4j.version>
     </properties>

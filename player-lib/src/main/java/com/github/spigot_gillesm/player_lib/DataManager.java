@@ -13,20 +13,21 @@ public class DataManager {
 
 	private final Set<PlayerData> REGISTERED_PLAYER_DATA = new HashSet<>();
 
-	private PlayerData registerNew(@NotNull final UUID uuid) {
+	private PlayerData registerNew(@NotNull UUID uuid) {
 		final var data = new PlayerData(uuid);
 		REGISTERED_PLAYER_DATA.add(data);
+
 		return data;
 	}
 
-	public PlayerData getData(@NotNull final UUID uuid) {
+	public PlayerData getData(@NotNull UUID uuid) {
 		return REGISTERED_PLAYER_DATA.stream()
 				.filter(d -> d.getUuid().equals(uuid))
 				.findFirst()
 				.orElseGet(() -> registerNew(uuid));
 	}
 
-	public PlayerData getData(@NotNull final Player player) {
+	public PlayerData getData(@NotNull Player player) {
 		return getData(player.getUniqueId());
 	}
 
