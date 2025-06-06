@@ -116,7 +116,7 @@ public class ItemConfiguration {
         for(final var line : lore) {
             builder.addLore(line);
         }
-        for(final var potionEffectData : potionEffectData) {
+        for(final PotionEffectData potionEffectData : potionEffectData) {
             builder.addPotionEffect(potionEffectData.getPotionEffectType(),
                     //* 20 : ticks -> seconds
                     (int) potionEffectData.getDuration() * 20,

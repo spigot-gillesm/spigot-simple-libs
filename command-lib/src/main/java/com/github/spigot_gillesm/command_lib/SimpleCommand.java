@@ -19,22 +19,24 @@ public abstract class SimpleCommand extends Command implements TabCompleter {
 	private boolean playerCommand = false;
 
 	private final List<String> mandatoryArgs = new ArrayList<>();
+
 	private final List<String> optionalArgs = new ArrayList<>();
 
 	private final Set<SimpleCommand> subCommands = new HashSet<>();
 
-	protected SimpleCommand(@NotNull final String name) {
+	protected SimpleCommand(@NotNull String name) {
 		super(name);
 	}
 
-	protected SimpleCommand(@NotNull final SimpleCommand parentCommand, @NotNull final String name) {
+	protected SimpleCommand(@NotNull SimpleCommand parentCommand, @NotNull String name) {
 		this(name);
+
 		parentCommand.subCommands.add(this);
 	}
 
-	protected abstract void run(final CommandSender sender, final String[] args);
+	protected abstract void run(CommandSender sender, String[] args);
 
-	protected void tell(@NotNull final CommandSender sender, @NotNull final String message) {
+	protected void tell(@NotNull CommandSender sender, @NotNull String message) {
 		if(!Formatter.PREFIX.isBlank()) {
 			Formatter.tell(sender, Formatter.PREFIX + " " + message);
 		} else {
@@ -43,19 +45,21 @@ public abstract class SimpleCommand extends Command implements TabCompleter {
 	}
 
 	@Override
-	public boolean execute(@NotNull final CommandSender sender, @NotNull final String commandLabel,
-						   @NotNull final String[] args) {
+	public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		if(playerCommand && !(sender instanceof Player)) {
 			Formatter.tell(sender, "&cYou must be a player to run this command.");
+
 			return false;
 		}
 		if(sender instanceof Player && getPermission() != null && !sender.hasPermission(getPermission())) {
 			Formatter.tell(sender, "&cYou don't have the required permission to run this command.");
+
 			return false;
 		}
 		//Check for help calls: no args when subcommands exist or "help" arg
 		if((args.length == 1 && "help".equalsIgnoreCase(args[0])) || (args.length == 0 && !subCommands.isEmpty())) {
 			displayHelp(sender);
+
 			return true;
 		}
 		run(sender, args);
@@ -67,12 +71,13 @@ public abstract class SimpleCommand extends Command implements TabCompleter {
 		return true;
 	}
 
-	protected void displayHelp(@NotNull final CommandSender sender) {
+	protected void displayHelp(@NotNull CommandSender sender) {
 		Formatter.tell(sender, "&7=============&8[&6&lHelp&8]&7=============");
 		Formatter.tell(sender, "&6Description&8: &7" + getDescription());
 
 		if(!subCommands.isEmpty()) {
 			Formatter.tell(sender, "");
+
 			for(final SimpleCommand command : subCommands) {
 				final var info = new StringBuilder("&7&l* &7/&6" + command.getName());
 
@@ -89,8 +94,7 @@ public abstract class SimpleCommand extends Command implements TabCompleter {
 		}
 	}
 
-	private void runSubCommands(@NotNull final CommandSender sender, @NotNull final String commandLabel,
-								@NotNull final String[] args) {
+	private void runSubCommands(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		if(subCommands.isEmpty()) {
 			return;
 		}
@@ -102,31 +106,32 @@ public abstract class SimpleCommand extends Command implements TabCompleter {
 		//If the sub command doesn't match anything, display help
 		if(matchingCommands.isEmpty()) {
 			displayHelp(sender);
+
 			return;
 		}
 
 		//Execute every available sub commands by feeding them their args
-		matchingCommands.forEach(command -> command.execute(sender, commandLabel,
-				Arrays.copyOfRange(args, 1, args.length)));
+		matchingCommands.forEach(command -> command.execute(sender, commandLabel, Arrays.copyOfRange(args, 1, args.length)));
 	}
 
 	@Override
-	public List<String> onTabComplete(final @NotNull CommandSender sender, final @NotNull Command command,
-									  final @NotNull String alias, final String[] args) {
+	public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
 		final List<String> completions = new ArrayList<>();
-		StringUtil.copyPartialMatches(args[0],
+		StringUtil.copyPartialMatches(
+				args[0],
 				subCommands.stream().map(Command::getLabel).collect(Collectors.toList()),
-				completions);
+				completions
+		);
 		Collections.sort(completions);
 
 		return completions;
 	}
 
-	protected void addMandatoryArgument(@NotNull final String arg) {
+	protected void addMandatoryArgument(@NotNull String arg) {
 		mandatoryArgs.add(arg);
 	}
 
-	protected void addOptionalArgument(@NotNull final String arg) {
+	protected void addOptionalArgument(@NotNull String arg) {
 		optionalArgs.add(arg);
 	}
 

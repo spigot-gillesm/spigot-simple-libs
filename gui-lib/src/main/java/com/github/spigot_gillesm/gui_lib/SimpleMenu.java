@@ -13,7 +13,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +41,7 @@ public abstract class SimpleMenu {
 	@Getter(AccessLevel.PROTECTED)
 	protected Player viewer;
 
-	protected SimpleMenu(final SimpleMenu parentMenu) {
+	protected SimpleMenu(SimpleMenu parentMenu) {
 		this.parentMenu = parentMenu;
 		generateParentButton();
 	}
@@ -62,17 +61,19 @@ public abstract class SimpleMenu {
 					.build()
 					.make()
 			) {
+
 				@Override
-				public boolean action(final Player player, final ClickType click, final ItemStack draggedItem) {
+				public boolean action(Player player, final ClickType click, ItemStack draggedItem) {
 					parentMenu.display(player);
 					return false;
 				}
+
 			};
 			registerButton(returnButton);
 		}
 	}
 
-	public void display(@NotNull final Player player) {
+	public void display(@NotNull Player player) {
 		this.viewer = player;
 		final var inventory = Bukkit.getServer().createInventory(player, size, Formatter.colorize(title));
 		inventory.setContents(getContent());
@@ -81,11 +82,11 @@ public abstract class SimpleMenu {
 		player.setMetadata(METADATA_KEY, new FixedMetadataValue(GuiLib.getInstance(), this));
 	}
 
-	protected void registerButtons(final SimpleButton... simpleButtons) {
+	protected void registerButtons(@NotNull SimpleButton... simpleButtons) {
 		List.of(simpleButtons).forEach(this::registerButton);
 	}
 
-	protected void registerButton(final SimpleButton simpleButton) {
+	protected void registerButton(@NotNull SimpleButton simpleButton) {
 		//Do not duplicate buttons
 		if(!registeredButtons.contains(simpleButton)) {
 			//Before registering the button, write a unique id in the button icon's data
@@ -94,14 +95,14 @@ public abstract class SimpleMenu {
 		}
 	}
 
-	protected abstract ItemStack getSlotItem(final int slot);
+	protected abstract ItemStack getSlotItem(int slot);
 
 	/**
 	 * onClose is run whenever this menu instance is closed by a player. Defaults to no action.
 	 *
 	 * @param player the player who closed the inventory
 	 */
-	public void onClose(final Player player) {
+	public void onClose(Player player) {
 		//default to no effect. Must be overridden
 	}
 
@@ -113,13 +114,12 @@ public abstract class SimpleMenu {
 		return Optional.empty();
 	}
 
-	@Nullable
 	private ItemStack getItemAt(final int slot) {
 		return getLowerItem(slot).orElse(getSlotItem(slot));
 	}
 
 	protected ItemStack[] getContent() {
-		final var items = new ItemStack[size];
+		final ItemStack[] items = new ItemStack[size];
 
 		for(var i = 0; i < size; i++) {
 			items[i] = getItemAt(i);
@@ -128,7 +128,7 @@ public abstract class SimpleMenu {
 		return items;
 	}
 
-	public Optional<SimpleButton> getButton(@NotNull final ItemStack item) {
+	public Optional<SimpleButton> getButton(@NotNull ItemStack item) {
 		//Try and retrieve an id from the item
 		return ItemUtil.getPersistentString(item, SimpleButton.KEY_ID)
 				//If one is found, check that it matches one of the registered buttons id
@@ -142,14 +142,15 @@ public abstract class SimpleMenu {
 				);
     }
 
-	public static Optional<SimpleMenu> getMenu(@NotNull final Player player) {
+	public static Optional<SimpleMenu> getMenu(@NotNull Player player) {
 		if(player.hasMetadata(METADATA_KEY)) {
-			final var obj = player.getMetadata(METADATA_KEY).get(0).value();
+			final Object obj = player.getMetadata(METADATA_KEY).get(0).value();
 
-			if(obj instanceof SimpleMenu) {
-				return Optional.of((SimpleMenu) obj);
+			if(obj instanceof SimpleMenu simpleMenu) {
+				return Optional.of(simpleMenu);
 			}
 		}
+
 		return Optional.empty();
 	}
 

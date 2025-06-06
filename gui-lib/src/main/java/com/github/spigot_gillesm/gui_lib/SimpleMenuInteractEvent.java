@@ -19,7 +19,7 @@ public class SimpleMenuInteractEvent extends Event implements Cancellable {
 	@Getter
 	private final ItemStack clickedItem;
 
-	SimpleMenuInteractEvent(final int slot, final ItemStack clickedItem) {
+	SimpleMenuInteractEvent(final int slot, ItemStack clickedItem) {
 		this.slot = slot;
 		this.clickedItem = clickedItem;
 	}
@@ -30,7 +30,7 @@ public class SimpleMenuInteractEvent extends Event implements Cancellable {
 	}
 
 	@Override
-	public void setCancelled(boolean state) {
+	public void setCancelled(final boolean state) {
 		this.isCancelled = state;
 	}
 

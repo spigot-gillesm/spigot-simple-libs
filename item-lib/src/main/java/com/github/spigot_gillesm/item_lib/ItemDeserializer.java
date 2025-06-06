@@ -19,7 +19,7 @@ class ItemDeserializer {
 
     public static class MaterialDeserializer extends StdDeserializer<Material> {
 
-        public MaterialDeserializer(final Class<?> vc) {
+        public MaterialDeserializer(Class<?> vc) {
             super(vc);
         }
 
@@ -28,13 +28,14 @@ class ItemDeserializer {
         }
 
         @Override
-        public Material deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
-            final var data = parser.getText();
+        public Material deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+            final String data = parser.getText();
 
             try {
                 return Material.valueOf(data.toUpperCase());
             } catch(final IllegalArgumentException exception) {
                 Formatter.error(String.format("Invalid material: %s", data));
+
                 throw new IllegalArgumentException("Invalid material");
             }
         }
@@ -43,7 +44,7 @@ class ItemDeserializer {
 
     public static class ItemFlagDeserializer extends StdDeserializer<ItemFlag> {
 
-        public ItemFlagDeserializer(final Class<?> vc) {
+        public ItemFlagDeserializer(Class<?> vc) {
             super(vc);
         }
 
@@ -52,13 +53,14 @@ class ItemDeserializer {
         }
 
         @Override
-        public ItemFlag deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
-            final var data = parser.getText();
+        public ItemFlag deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+            final String data = parser.getText();
 
             try {
                 return ItemFlag.valueOf(data.toUpperCase());
             } catch(final IllegalArgumentException exception) {
                 Formatter.error(String.format("Invalid item flag: %s", data));
+
                 throw new IllegalArgumentException("Invalid item flag");
             }
         }
@@ -68,11 +70,12 @@ class ItemDeserializer {
     public static class EnchantmentDeserializer extends KeyDeserializer {
 
         @Override
-        public Enchantment deserializeKey(final String key, final DeserializationContext context) {
-            final var enchant = Enchantment.getByKey(NamespacedKey.minecraft(key.toLowerCase()));
+        public Enchantment deserializeKey(String key, DeserializationContext context) {
+            final Enchantment enchant = Enchantment.getByKey(NamespacedKey.minecraft(key.toLowerCase()));
 
             if(enchant == null) {
                 Formatter.error(String.format("Invalid enchantment name: %s", key));
+
                 throw new IllegalArgumentException("Invalid enchantment name");
             }
 
@@ -82,7 +85,7 @@ class ItemDeserializer {
 
     public static class PotionTypeDeserializer extends StdDeserializer<PotionType> {
 
-        public PotionTypeDeserializer(final Class<?> vc) {
+        public PotionTypeDeserializer(Class<?> vc) {
             super(vc);
         }
 
@@ -91,13 +94,14 @@ class ItemDeserializer {
         }
 
         @Override
-        public PotionType deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
-            final var data = parser.getText();
+        public PotionType deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+            final String data = parser.getText();
 
             try {
                 return PotionType.valueOf(data.toUpperCase());
             } catch(final IllegalArgumentException exception) {
                 Formatter.error(String.format("Invalid potion type: %s", data));
+
                 throw new IllegalArgumentException("Invalid potion type");
             }
         }

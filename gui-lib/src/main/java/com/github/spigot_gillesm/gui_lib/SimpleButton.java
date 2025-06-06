@@ -24,11 +24,11 @@ public abstract class SimpleButton {
 
 	public SimpleButton() { }
 
-	public SimpleButton(@NotNull final ItemStack icon) {
+	public SimpleButton(@NotNull ItemStack icon) {
 		this.icon = icon;
 	}
 
-	public SimpleButton(@NotNull final SimpleItem icon) {
+	public SimpleButton(@NotNull SimpleItem icon) {
 		this(icon.getItemStack());
 	}
 
@@ -40,20 +40,18 @@ public abstract class SimpleButton {
 	}
 
 	@Override
-	public final boolean equals(final Object other) {
+	public final boolean equals(Object other) {
 		if(other == null) {
 			return false;
 		}
 		if(other == this) {
 			return true;
 		}
-		if(!(other instanceof SimpleButton)) {
+		if(!(other instanceof SimpleButton otherButton)) {
 			return false;
 		}
-		final var otherButton = (SimpleButton) other;
 
-		return Objects.equals(otherButton.icon, this.icon)
-				&& otherButton.cancelOpen == this.cancelOpen;
+        return Objects.equals(otherButton.icon, this.icon) && otherButton.cancelOpen == this.cancelOpen;
 	}
 
 	@Override
@@ -73,12 +71,12 @@ public abstract class SimpleButton {
 				.make()
 				.getItemStack());
 
-		public DummyButton(@NotNull final ItemStack icon) {
+		public DummyButton(@NotNull ItemStack icon) {
 			super(icon);
 		}
 
 		@Override
-		public boolean action(final Player player, final ClickType clickType, final ItemStack draggedItem) {
+		public boolean action(Player player, final ClickType clickType, ItemStack draggedItem) {
 			return false;
 		}
 

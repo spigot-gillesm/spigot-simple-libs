@@ -12,7 +12,7 @@ public class ItemLib {
 	@Getter(AccessLevel.PACKAGE)
 	private Plugin plugin;
 
-	public void initialize(@NotNull final Plugin plugin) {
+	public void initialize(@NotNull Plugin plugin) {
 		ItemLib.plugin = plugin;
 	}
 

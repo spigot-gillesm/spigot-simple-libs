@@ -18,6 +18,7 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -89,7 +90,7 @@ public class SimpleItem {
      *
      * @param builder the builder
      */
-    private SimpleItem(final Builder builder) {
+    private SimpleItem(Builder builder) {
         this.itemStack = builder.itemStack;
         this.material = builder.material;
         this.amount = builder.amount;
@@ -117,7 +118,7 @@ public class SimpleItem {
      */
     public SimpleItem make() {
         if(itemStack != null) {
-            final var meta = itemStack.getItemMeta();
+            final ItemMeta meta = itemStack.getItemMeta();
             setPersistentData(meta);
             itemStack.setItemMeta(meta);
 
@@ -135,7 +136,6 @@ public class SimpleItem {
         if(damage < 0) {
             throw new IllegalArgumentException("damage cannot be negative.");
         }
-
         final var item = new ItemStack(material);
         final ItemMeta meta = Bukkit.getServer().getItemFactory().getItemMeta(material);
 
@@ -162,40 +162,42 @@ public class SimpleItem {
         return this;
     }
 
-    private void setEnchantmentsData(final ItemMeta itemMeta) {
-        if(itemMeta instanceof EnchantmentStorageMeta) {
-            enchantments.forEach((enchantment, level) -> ((EnchantmentStorageMeta) itemMeta)
-                    .addStoredEnchant(enchantment, level,true));
+    private void setEnchantmentsData(ItemMeta itemMeta) {
+        //Check if the enchantment should be stored (e.g. books) or applied
+        if(itemMeta instanceof EnchantmentStorageMeta enchantmentStorageMeta) {
+            enchantments.forEach((enchantment, level) -> enchantmentStorageMeta.addStoredEnchant(enchantment, level,true));
         } else {
             enchantments.forEach((enchantment, level) -> itemMeta.addEnchant(enchantment, level, true));
         }
     }
 
-    private void setPotionData(final ItemMeta itemMeta) {
-        if(itemMeta instanceof PotionMeta && potionType != null) {
-            var potionMeta = (PotionMeta) itemMeta;
+    private void setPotionData(ItemMeta itemMeta) {
+        if(itemMeta instanceof PotionMeta potionMeta && potionType != null) {
             potionMeta.setBasePotionData(new PotionData(potionType, extended, upgraded));
             potionEffects.forEach(e -> potionMeta.addCustomEffect(e, true));
         }
     }
 
-    private void setDamageData(final ItemMeta itemMeta) {
-        if(damage > 0 && itemMeta instanceof Damageable) {
-            ((Damageable) itemMeta).setDamage(damage);
+    private void setDamageData(ItemMeta itemMeta) {
+        if(damage > 0 && itemMeta instanceof Damageable damageable) {
+            damageable.setDamage(damage);
         }
     }
 
-    private void setColorData(final ItemMeta itemMeta) {
-        if(color != null && itemMeta instanceof LeatherArmorMeta) {
-            ((LeatherArmorMeta) itemMeta).setColor(color);
+    private void setColorData(ItemMeta itemMeta) {
+        if(color != null && itemMeta instanceof LeatherArmorMeta leatherArmorMeta) {
+            leatherArmorMeta.setColor(color);
         }
     }
 
-    private void setAttributeModifiersData(final ItemMeta itemMeta) {
+    private void setAttributeModifiersData(ItemMeta itemMeta) {
         attributeModifiers.forEach(itemMeta::addAttributeModifier);
 
-        final var isArmor = material.name().contains("HELMET") || material.name().contains("CHESTPLATE")
-                || material.name().contains("LEGGINGS") || material.name().contains("BOOTS");
+        final boolean isArmor = material.name().contains("HELMET")
+                || material.name().contains("CHESTPLATE")
+                || material.name().contains("LEGGINGS")
+                || material.name().contains("BOOTS");
+
         //If there are attributes and the item is not an armor and the item is not hiding its attributes
         //-> override them with a clean lore
         if(!attributeModifiers.isEmpty() && !isArmor && Arrays.stream(itemFlags).noneMatch(f -> f == ItemFlag.HIDE_ATTRIBUTES)) {
@@ -203,25 +205,25 @@ public class SimpleItem {
             lore.add("");
             lore.add("&7When in Main Hand:");
 
-            for(final var attributeSet : attributeModifiers.entrySet()) {
+            for(final Map.Entry<Attribute, AttributeModifier> attributeSet : attributeModifiers.entrySet()) {
                 lore.add(generateAttributeString(attributeSet.getKey(), attributeSet.getValue()));
             }
         }
     }
 
-    private void setPersistentData(final ItemMeta itemMeta) {
-        for(final var data : persistentDataString) {
+    private void setPersistentData(ItemMeta itemMeta) {
+        for(final SimplePersistentData<String, String> data : persistentDataString) {
             itemMeta.getPersistentDataContainer()
                     .set(new NamespacedKey(ItemLib.getPlugin(), data.getKey()), data.getPersistentDataType(), data.getValue());
         }
     }
 
-    private String generateAttributeString(final Attribute attribute, final AttributeModifier modifier) {
-        final var value = attribute == Attribute.ATTACK_SPEED ? modifier.getAmount() + 4 : modifier.getAmount();
-        final var string = attribute.name().replace("GENERIC_", "").split("_");
+    private String generateAttributeString(Attribute attribute, AttributeModifier modifier) {
+        final double value = attribute == Attribute.ATTACK_SPEED ? modifier.getAmount() + 4 : modifier.getAmount();
+        final String[] string = attribute.name().replace("GENERIC_", "").split("_");
         final var stringBuilder = new StringBuilder(" &2" + value + " ");
 
-        for(final var word : string) {
+        for(final String word : string) {
             //Capitalize the first letter and lower the others and add a space at the end
             stringBuilder.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(" ");
         }
@@ -283,7 +285,7 @@ public class SimpleItem {
 
         private Builder() { }
 
-        public Builder itemStack(final ItemStack itemStack) {
+        public Builder itemStack(ItemStack itemStack) {
             this.itemStack = itemStack;
             return this;
         }
@@ -327,7 +329,7 @@ public class SimpleItem {
          * @param displayName the displayed name
          * @return the builder
          */
-        public Builder displayName(final String displayName) {
+        public Builder displayName(String displayName) {
             this.displayName = displayName;
             return this;
         }
@@ -338,7 +340,7 @@ public class SimpleItem {
          * @param lore the lore
          * @return the builder
          */
-        public Builder lore(final List<String> lore) {
+        public Builder lore(List<String> lore) {
             this.lore = lore;
             return this;
         }
@@ -349,7 +351,7 @@ public class SimpleItem {
          * @param lore the lore
          * @return the builder
          */
-        public Builder lore(final String... lore) {
+        public Builder lore(@NotNull String... lore) {
             this.lore = Arrays.asList(lore);
             return this;
         }
@@ -360,7 +362,7 @@ public class SimpleItem {
          * @param lines the lines of lore to add
          * @return the builder
          */
-        public Builder addLore(final String... lines) {
+        public Builder addLore(@NotNull String... lines) {
             lore.addAll(Arrays.asList(lines));
             return this;
         }
@@ -371,7 +373,7 @@ public class SimpleItem {
          * @param itemFlags the item flags
          * @return the builder
          */
-        public Builder itemFlags(final ItemFlag... itemFlags) {
+        public Builder itemFlags(ItemFlag... itemFlags) {
             this.itemFlags = itemFlags;
             return this;
         }
@@ -382,7 +384,7 @@ public class SimpleItem {
          * @param itemFlags the item flags
          * @return the builder
          */
-        public Builder itemFlags(final List<ItemFlag> itemFlags) {
+        public Builder itemFlags(@NotNull List<ItemFlag> itemFlags) {
             this.itemFlags = itemFlags.toArray(new ItemFlag[0]);
             return this;
         }
@@ -393,10 +395,11 @@ public class SimpleItem {
          * @param itemFlags the item flags to add
          * @return the builder
          */
-        public Builder addItemFlags(final ItemFlag... itemFlags) {
+        public Builder addItemFlags(@NotNull ItemFlag... itemFlags) {
             final List<ItemFlag> currentFlags = new ArrayList<>(Arrays.asList(this.itemFlags));
             currentFlags.addAll(Arrays.asList(itemFlags));
             this.itemFlags = currentFlags.toArray(new ItemFlag[0]);
+
             return this;
         }
 
@@ -406,7 +409,7 @@ public class SimpleItem {
          * @param enchantments the enchantments map
          * @return the builder
          */
-        public Builder enchantments(final Map<Enchantment, Integer> enchantments) {
+        public Builder enchantments(Map<Enchantment, Integer> enchantments) {
             this.enchantments = enchantments;
             return this;
         }
@@ -418,14 +421,12 @@ public class SimpleItem {
          * @param level the enchantment's level
          * @return the builder
          */
-        public Builder addEnchantment(final Enchantment enchantment, int level) {
-            if(enchantment == null) {
-                throw new IllegalArgumentException("Enchantment cannot be null.");
-            }
+        public Builder addEnchantment(@NotNull Enchantment enchantment, final int level) {
             if(level < 1) {
                 throw new IllegalArgumentException("Enchantments level must be greater than 0.");
             }
             this.enchantments.put(enchantment, level);
+
             return this;
         }
 
@@ -435,7 +436,7 @@ public class SimpleItem {
          * @param type the potion type
          * @return the builder
          */
-        public Builder potionType(final PotionType type) {
+        public Builder potionType(PotionType type) {
             this.potionType = type;
             return this;
         }
@@ -450,29 +451,31 @@ public class SimpleItem {
             return this;
         }
 
-        public Builder addPotionEffect(final PotionEffect potionEffect) {
+        public Builder addPotionEffect(@NotNull PotionEffect potionEffect) {
             potionEffects.add(potionEffect);
             return this;
         }
 
-        public Builder addPotionEffects(final Collection<PotionEffect> potionEffects) {
+        public Builder addPotionEffects(@NotNull Collection<PotionEffect> potionEffects) {
             this.potionEffects.addAll(potionEffects);
             return this;
         }
 
-        public Builder addPotionEffects(final PotionEffect... potionEffects) {
-            for(var effect : potionEffects) {
+        public Builder addPotionEffects(@NotNull PotionEffect... potionEffects) {
+            for(PotionEffect effect : potionEffects) {
                 addPotionEffect(effect);
             }
+
             return this;
         }
 
-        public Builder addPotionEffect(final PotionEffectType type, final int duration, final int amplifier,
+        public Builder addPotionEffect(@NotNull PotionEffectType type, final int duration, final int amplifier,
                                        final boolean ambient, final boolean particles, final boolean icon) {
+
             return addPotionEffect(new PotionEffect(type, duration, amplifier, ambient, particles, icon));
         }
 
-        public Builder addPotionEffect(final PotionEffectType type, final int duration, final int amplifier) {
+        public Builder addPotionEffect(@NotNull PotionEffectType type, final int duration, final int amplifier) {
             return addPotionEffect(type, duration, amplifier, true, true, true);
         }
 
@@ -493,12 +496,12 @@ public class SimpleItem {
          * @param customModelData the custom model data
          * @return the builder
          */
-        public Builder customModelData(final Integer customModelData) {
+        public Builder customModelData(final int customModelData) {
             this.customModelData = customModelData;
             return this;
         }
 
-        public Builder color(final Color color) {
+        public Builder color(Color color) {
             this.color = color;
             return this;
         }
@@ -521,7 +524,7 @@ public class SimpleItem {
          * @param localizedName the localized name
          * @return the builder
          */
-        public Builder localizedName(final String localizedName) {
+        public Builder localizedName(String localizedName) {
             this.localizedName = localizedName;
             return this;
         }
@@ -532,7 +535,7 @@ public class SimpleItem {
          * @param attributeModifiers the attribute modifiers
          * @return the builder
          */
-        public Builder attributeModifiers(final Map<Attribute, AttributeModifier> attributeModifiers) {
+        public Builder attributeModifiers(@NotNull Map<Attribute, AttributeModifier> attributeModifiers) {
             this.attributeModifiers = new HashMap<>(attributeModifiers);
             return this;
         }
@@ -544,7 +547,7 @@ public class SimpleItem {
          * @param attributeModifier the attribute modifier
          * @return the builder
          */
-        public Builder addAttributeModifier(final Attribute attribute, final AttributeModifier attributeModifier) {
+        public Builder addAttributeModifier(@NotNull Attribute attribute, @NotNull AttributeModifier attributeModifier) {
             this.attributeModifiers.put(attribute, attributeModifier);
             return this;
         }
@@ -653,7 +656,7 @@ public class SimpleItem {
                             AttributeModifier.Operation.ADD_NUMBER, slot));
         }
 
-        public Builder addPersistentString(final String key, final String value) {
+        public Builder addPersistentString(@NotNull String key, @NotNull String value) {
             persistentDataString.add(new SimplePersistentData<>(key, PersistentDataType.STRING, value));
             return this;
         }

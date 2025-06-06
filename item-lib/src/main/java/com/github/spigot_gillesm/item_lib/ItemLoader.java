@@ -98,6 +98,7 @@ public class ItemLoader {
                                 } catch(final MappingException exception) {
                                     //Specify where the error occur before re-throwing the exception. Helps with debugging
                                     Formatter.error(String.format("Error mapping %s:", entry.getKey()));
+
                                     throw exception;
                                 }
                             },

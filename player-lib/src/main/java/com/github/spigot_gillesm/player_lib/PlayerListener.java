@@ -12,7 +12,7 @@ import java.io.IOException;
 public class PlayerListener implements Listener {
 
 	@EventHandler
-	private void onPlayerQuit(final PlayerQuitEvent event) {
+	private void onPlayerQuit(PlayerQuitEvent event) {
 		try {
 			DataManager.getData(event.getPlayer()).writeToFile();
 		} catch (IOException | InvalidConfigurationException exception) {
@@ -22,7 +22,7 @@ public class PlayerListener implements Listener {
 	}
 
 	@EventHandler
-	private void onPlayerJoin(final PlayerJoinEvent event) {
+	private void onPlayerJoin(PlayerJoinEvent event) {
 		try {
 			DataManager.getData(event.getPlayer()).loadFromFile();
 		} catch (IOException | InvalidConfigurationException exception) {

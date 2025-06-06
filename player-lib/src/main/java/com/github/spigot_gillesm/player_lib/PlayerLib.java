@@ -14,7 +14,7 @@ public class PlayerLib {
 
 	Plugin plugin;
 
-	public void initialize(@NotNull final Plugin plugin) {
+	public void initialize(@NotNull Plugin plugin) {
 		PlayerLib.plugin = plugin;
 		Bukkit.getServer().getPluginManager().registerEvents(new PlayerListener(), plugin);
 	}

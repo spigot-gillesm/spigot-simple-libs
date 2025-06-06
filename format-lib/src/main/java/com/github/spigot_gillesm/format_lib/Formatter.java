@@ -1,24 +1,24 @@
 package com.github.spigot_gillesm.format_lib;
 
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * This utility class provides various useful methods to help to format text, messages, etc...
+ * This utility class provides various useful methods to help formatting text, messages, etc...
  * Inspired by Kangarko (Matej Pacan).
  *
  * @author Gilles_M
  * @version 1.0.0
  */
+@UtilityClass
 public class Formatter {
-
-	private Formatter() { }
 
 	/**
 	 * The prefix used for console messages
@@ -31,7 +31,7 @@ public class Formatter {
 	 * @param message the message to colorize
 	 * @return the colorized message
 	 */
-	public static String colorize(@NotNull final String message) {
+	public String colorize(@NotNull String message) {
 		if(!StringUtils.isBlank(message)) {
 			return ChatColor.translateAlternateColorCodes('&', message);
 		} else {
@@ -45,14 +45,8 @@ public class Formatter {
 	 * @param lines the lines to colorize
 	 * @return the colorized lines
 	 */
-	public static List<String> colorize(@NotNull final List<String> lines) {
-		final List<String> messages = new ArrayList<>();
-
-		for(final String line : lines) {
-			messages.add(colorize(line));
-		}
-
-		return messages;
+	public List<String> colorize(@NotNull List<String> lines) {
+		return lines.stream().map(Formatter::colorize).collect(Collectors.toList());
 	}
 
 	/**
@@ -61,10 +55,8 @@ public class Formatter {
 	 * @param toWhom the command sender
 	 * @param message the message
 	 */
-	public static void tell(@NotNull final CommandSender toWhom, @NotNull final String message) {
-		if(message != null) {
-			toWhom.sendMessage(colorize(message));
-		}
+	public void tell(@NotNull CommandSender toWhom, @NotNull String message) {
+		toWhom.sendMessage(colorize(message));
 	}
 
 	/**
@@ -73,8 +65,8 @@ public class Formatter {
 	 * @param toWhom the command sender
 	 * @param messages the messages
 	 */
-	public static void tell(@NotNull final CommandSender toWhom, @NotNull final String... messages) {
-		for (final String message : messages) {
+	public void tell(@NotNull CommandSender toWhom, @NotNull String... messages) {
+		for(final String message : messages) {
 			tell(toWhom, message);
 		}
 	}
@@ -84,7 +76,7 @@ public class Formatter {
 	 *
 	 * @param message the info message
 	 */
-	public static void info(@NotNull final String message) {
+	public void info(@NotNull String message) {
 		if(!StringUtils.isBlank(PREFIX)) {
 			Bukkit.getConsoleSender().sendMessage(colorize(PREFIX + " &f" + message));
 		} else {
@@ -97,7 +89,7 @@ public class Formatter {
 	 *
 	 * @param message the warning message
 	 */
-	public static void warning(@NotNull final String message) {
+	public void warning(@NotNull String message) {
 		if(!StringUtils.isBlank(PREFIX)) {
 			Bukkit.getConsoleSender().sendMessage(colorize(PREFIX + " &f/&6!&f\\ &6" + message));
 		} else {
@@ -110,7 +102,7 @@ public class Formatter {
 	 *
 	 * @param message the error message
 	 */
-	public static void error(@NotNull final String message) {
+	public void error(@NotNull String message) {
 		if(!StringUtils.isBlank(PREFIX)) {
 			Bukkit.getConsoleSender().sendMessage(colorize(PREFIX + " &f/&l&4!&cERROR&l&4!&f\\ &c" + message));
 		} else {

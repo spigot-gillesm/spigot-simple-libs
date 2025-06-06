@@ -21,16 +21,23 @@ public class PlayerData {
 	@Getter(AccessLevel.PACKAGE)
 	private final UUID uuid;
 
+	//For each tag, stores whether its value must be saved on quit
 	private final Map<String, Boolean> values = new HashMap<>();
 
 	private YamlConfiguration configuration;
 
-	PlayerData(final UUID uuid) {
+	PlayerData(@NotNull UUID uuid) {
 		this.uuid = uuid;
 	}
 
 	private Optional<Player> getPlayer() {
-		return Optional.ofNullable(Bukkit.getServer().getPlayer(uuid));
+		final Player player = Bukkit.getServer().getPlayer(uuid);
+
+		if(player == null) {
+			return Optional.empty();
+		}
+
+		return Optional.of(player);
 	}
 
 	/**
@@ -40,7 +47,7 @@ public class PlayerData {
 	 * @param object the object
 	 * @param saveOnQuit whether to save the value when the player quits the server
 	 */
-	public void setRawValue(@NotNull final String tag, final Object object, final boolean saveOnQuit) {
+	public void setRawValue(@NotNull String tag, @NotNull Object object, final boolean saveOnQuit) {
 		getPlayer().ifPresent(player -> {
 			player.setMetadata(tag, new FixedMetadataValue(PlayerLib.plugin, object));
 			values.put(tag, saveOnQuit);
@@ -53,7 +60,7 @@ public class PlayerData {
 	 * @param tag the string representing the tag
 	 * @param object the object
 	 */
-	public void setRawValue(@NotNull final String tag, final Object object) {
+	public void setRawValue(@NotNull String tag, @NotNull Object object) {
 		getPlayer().ifPresent(player -> {
 			player.setMetadata(tag, new FixedMetadataValue(PlayerLib.plugin, object));
 			values.put(tag, false);
@@ -66,7 +73,7 @@ public class PlayerData {
 	 * @param tag the player tag
 	 * @param object the object
 	 */
-	public void setTagValue(@NotNull final PlayerTag tag, final Object object) {
+	public void setTagValue(final PlayerTag tag, @NotNull Object object) {
 		setRawValue(tag.toString(), object, tag.saveOnQuit());
 	}
 
@@ -77,7 +84,7 @@ public class PlayerData {
 	 * @return the tag's value
 	 */
 	@Nullable
-	public Object getRawValue(final String tag) {
+	public Object getRawValue(@NotNull String tag) {
 		return getPlayer()
 				.map(player -> {
 					if(!player.hasMetadata(tag)) {
@@ -95,12 +102,12 @@ public class PlayerData {
 	}
 
 	@Nullable
-	public <T> T getRawValue(final String tag, @NotNull final Class<T> clazz) {
+	public <T> T getRawValue(@NotNull String tag, @NotNull Class<T> clazz) {
 		return getRawValue(tag, clazz, null);
 	}
 
-	public <T> T getRawValue(final String tag, @NotNull final Class<T> clazz, final T defaultValue) {
-		final var value = getRawValue(tag);
+	public <T> T getRawValue(@NotNull String tag, @NotNull Class<T> clazz, T defaultValue) {
+		final Object value = getRawValue(tag);
 
 		if(value == null) {
 			return defaultValue;
@@ -124,11 +131,11 @@ public class PlayerData {
 	}
 
 	@Nullable
-	public <T> T getTagValue(final PlayerTag tag, @NotNull final Class<T> clazz) {
+	public <T> T getTagValue(final PlayerTag tag, @NotNull Class<T> clazz) {
 		return getRawValue(tag.toString(), clazz);
 	}
 
-	public <T> T getTagValue(final PlayerTag tag, @NotNull final Class<T> clazz, final T defaultValue) {
+	public <T> T getTagValue(final PlayerTag tag, @NotNull Class<T> clazz, T defaultValue) {
 		return getRawValue(tag.toString(), clazz, defaultValue);
 	}
 
@@ -144,7 +151,7 @@ public class PlayerData {
 		return tagValues;
 	}
 
-	private boolean saveOnQuit(final String tag) {
+	private boolean saveOnQuit(@NotNull String tag) {
 		return values.containsKey(tag);
 	}
 
@@ -157,11 +164,11 @@ public class PlayerData {
 	 * @throws IllegalArgumentException if the current value is not a collection of type T
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> Collection<T> getRawList(final String tag) {
+	public <T> Collection<T> getRawList(@NotNull String tag) {
 		try {
 			return getRawValue(tag) != null ? (Collection<T>) getRawValue(tag) : new ArrayList<>();
-		} catch (ClassCastException e) {
-			throw new IllegalArgumentException(tag + " value is not a collection of the given type");
+		} catch (ClassCastException exception) {
+			throw new IllegalArgumentException(String.format("%s value is not a collection of the given type", tag));
 		}
 	}
 
@@ -175,11 +182,11 @@ public class PlayerData {
 	 * @throws IllegalArgumentException if the current value is not a collection of type T
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> Collection<T> getRawList(final String tag, Class<T> clazz) {
+	public <T> Collection<T> getRawList(@NotNull String tag, @NotNull Class<T> clazz) {
 		try {
 			return getRawValue(tag) != null ? (Collection<T>) getRawValue(tag) : new ArrayList<>();
 		} catch (ClassCastException e) {
-			throw new IllegalArgumentException(tag + " value is not a collection of the given type");
+			throw new IllegalArgumentException(String.format("%s value is not a collection of the given type", tag));
 		}
 	}
 
@@ -204,7 +211,7 @@ public class PlayerData {
 	 * @return the tag's collection of values
 	 * @throws IllegalArgumentException if the current value is not a collection of type T
 	 */
-	public <T> Collection<T> getTagList(final PlayerTag tag, Class<T> clazz) {
+	public <T> Collection<T> getTagList(final PlayerTag tag, @NotNull Class<T> clazz) {
 		return getRawList(tag.toString(), clazz);
 	}
 
@@ -216,7 +223,7 @@ public class PlayerData {
 	 * @param saveOnQuit whether to save the value when the player quits the server
 	 * @throws IllegalArgumentException if the current value is not a collection of type T
 	 */
-	public void addRawValue(final String tag, final Object object, final boolean saveOnQuit) {
+	public void addRawValue(@NotNull String tag, @NotNull Object object, final boolean saveOnQuit) {
 		final var value = getRawList(tag);
 		value.add(object);
 		setRawValue(tag, value, saveOnQuit);
@@ -229,7 +236,7 @@ public class PlayerData {
 	 * @param object the object to add
 	 * @throws IllegalArgumentException if the current value is not a collection of type T
 	 */
-	public void addTagValue(final PlayerTag tag, final Object object) {
+	public void addTagValue(final PlayerTag tag, @NotNull Object object) {
 		addRawValue(tag.toString(), object, tag.saveOnQuit());
 	}
 
@@ -247,7 +254,7 @@ public class PlayerData {
 	 *
 	 * @param tag the string representing the tag
 	 */
-	public void removeRawValue(final String tag) {
+	public void removeRawValue(@NotNull String tag) {
 		getPlayer().ifPresent(player -> player.removeMetadata(tag, PlayerLib.plugin));
 	}
 
@@ -255,12 +262,12 @@ public class PlayerData {
 	 * Write to the player's data file all the stored tags and their value.
 	 */
 	public void writeToFile() throws IOException, InvalidConfigurationException {
-		final var file = FileUtils.getResource("player_data/" + uuid.toString() + ".yml");
-		final var conf = FileUtils.clearContent(file);
+		final File file = FileUtils.getResource("player_data/" + uuid.toString() + ".yml");
+		final YamlConfiguration conf = FileUtils.clearContent(file);
 
 		getMap().forEach((tag, value) -> {
 			if(saveOnQuit(tag) && value != null) {
-				final var valueToWrite = value.getClass().isEnum() ? value.toString() : value;
+				final Object valueToWrite = value.getClass().isEnum() ? value.toString() : value;
 				conf.set("tags." + tag, valueToWrite);
 			}
 		});

@@ -13,8 +13,6 @@
     <name>CommandLib</name>
 
     <properties>
-        <maven.compiler.source>15</maven.compiler.source>
-        <maven.compiler.target>15</maven.compiler.target>
         <reflections.version>0.10.2</reflections.version>
     </properties>
 
