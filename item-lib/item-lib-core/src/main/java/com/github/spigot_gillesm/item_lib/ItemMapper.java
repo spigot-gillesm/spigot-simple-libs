@@ -8,7 +8,6 @@ import com.github.spigot_gillesm.item_lib.dto.ItemConfigurationDTO;
 import com.github.spigot_gillesm.item_lib.dto.PotionEffectDTO;
 import lombok.Getter;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
@@ -88,9 +87,7 @@ public class ItemMapper {
 										.entrySet()
 										.stream()
 										.collect(Collectors.toMap(entry -> {
-											final Enchantment enchantment = Enchantment.getByKey(
-													NamespacedKey.minecraft(entry.getKey().toLowerCase())
-											);
+											final Enchantment enchantment = ItemLib.getVersionWrapper().getEnchantment(entry.getKey().toLowerCase());
 											if(enchantment == null) {
 												throw new IllegalArgumentException(String.format("Invalid enchantment name: %s", entry.getKey()));
 											}
@@ -134,7 +131,7 @@ public class ItemMapper {
 										.map(entry -> {
 											//The map key is the potion effect type, the value is the rest of the data
 											final String potionEffectTypeId = entry.getKey();
-											final PotionEffectType potionEffectType = PotionEffectType.getByName(potionEffectTypeId);
+											final PotionEffectType potionEffectType = ItemLib.getVersionWrapper().getPotionEffectType(potionEffectTypeId);
 
 											if(potionEffectType == null) {
 												throw new IllegalArgumentException(String.format("Invalid potion effect type: %s", potionEffectTypeId));

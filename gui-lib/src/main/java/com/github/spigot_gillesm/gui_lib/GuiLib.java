@@ -11,6 +11,8 @@ public class GuiLib {
 	@Getter(AccessLevel.PACKAGE)
 	private static Plugin instance;
 
+	private GuiLib() { }
+
 	public static void initialize(@NotNull Plugin plugin) {
 		GuiLib.instance = plugin;
 		Bukkit.getServer().getPluginManager().registerEvents(new MenuListener(), plugin);
