@@ -11,7 +11,6 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class SimpleCommand extends Command implements TabCompleter {
 
@@ -101,7 +100,7 @@ public abstract class SimpleCommand extends Command implements TabCompleter {
 		final List<SimpleCommand> matchingCommands = subCommands.stream()
 				//Get the commands matching the arg or alias
 				.filter(command -> command.getName().equalsIgnoreCase(args[0]) || command.getAliases().contains(args[0]))
-				.collect(Collectors.toList());
+				.toList();
 
 		//If the sub command doesn't match anything, display help
 		if(matchingCommands.isEmpty()) {
@@ -119,7 +118,7 @@ public abstract class SimpleCommand extends Command implements TabCompleter {
 		final List<String> completions = new ArrayList<>();
 		StringUtil.copyPartialMatches(
 				args[0],
-				subCommands.stream().map(Command::getLabel).collect(Collectors.toList()),
+				subCommands.stream().map(Command::getLabel).toList(),
 				completions
 		);
 		Collections.sort(completions);

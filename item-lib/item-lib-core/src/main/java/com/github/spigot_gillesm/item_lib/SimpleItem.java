@@ -14,7 +14,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -86,7 +85,7 @@ public class SimpleItem {
 
     /**
      * SimpleItem cannot be instantiated. Use its builder to create an instance of SimpleItem
-     * @see SimpleItem.Builder
+     * @see Builder
      *
      * @param builder the builder
      */
@@ -143,9 +142,11 @@ public class SimpleItem {
             meta.setDisplayName(Formatter.colorize(displayName));
             meta.addItemFlags(itemFlags);
             meta.setUnbreakable(unbreakable);
-            meta.setCustomModelData(customModelData);
-            meta.setLocalizedName(localizedName);
+            ItemLib.getVersionWrapper().setLocalizedName(meta, localizedName);
 
+            if(customModelData != null) {
+                ItemLib.getVersionWrapper().setCustomModelData(meta, customModelData);
+            }
             setEnchantmentsData(meta);
             setPotionData(meta);
             setDamageData(meta);
@@ -173,7 +174,7 @@ public class SimpleItem {
 
     private void setPotionData(ItemMeta itemMeta) {
         if(itemMeta instanceof PotionMeta potionMeta && potionType != null) {
-            potionMeta.setBasePotionData(new PotionData(potionType, extended, upgraded));
+            ItemLib.getVersionWrapper().setBasePotionData(potionMeta, potionType, extended, upgraded);
             potionEffects.forEach(e -> potionMeta.addCustomEffect(e, true));
         }
     }
@@ -206,7 +207,7 @@ public class SimpleItem {
             lore.add("&7When in Main Hand:");
 
             for(final Map.Entry<Attribute, AttributeModifier> attributeSet : attributeModifiers.entrySet()) {
-                lore.add(generateAttributeString(attributeSet.getKey(), attributeSet.getValue()));
+                lore.add(ItemLib.getVersionWrapper().generateAttributeString(attributeSet.getKey(), attributeSet.getValue()));
             }
         }
     }
@@ -216,23 +217,6 @@ public class SimpleItem {
             itemMeta.getPersistentDataContainer()
                     .set(new NamespacedKey(ItemLib.getPlugin(), data.getKey()), data.getPersistentDataType(), data.getValue());
         }
-    }
-
-    private String generateAttributeString(Attribute attribute, AttributeModifier modifier) {
-        final double value = attribute == Attribute.ATTACK_SPEED ? modifier.getAmount() + 4 : modifier.getAmount();
-        final String[] string = attribute.name().replace("GENERIC_", "").split("_");
-        final var stringBuilder = new StringBuilder(" &2" + value + " ");
-
-        for(final String word : string) {
-            //Capitalize the first letter and lower the others and add a space at the end
-            stringBuilder.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(" ");
-        }
-        if(!stringBuilder.isEmpty()) {
-            //Remove the useless last space
-            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-        }
-
-        return stringBuilder.toString();
     }
 
     /**
@@ -560,9 +544,14 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setAttackDamage(final double attackDamage, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.ATTACK_DAMAGE,
-                    new AttributeModifier(UUID.randomUUID(), "attackDamage", attackDamage,
-                            AttributeModifier.Operation.ADD_NUMBER, slot));
+            return addAttributeModifier(
+                    ItemLib.getVersionWrapper().getAttackDamageAttribute(),
+                    ItemLib.getVersionWrapper().buildAttackDamageModifier(
+                            attackDamage,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            slot
+                    )
+            );
         }
 
         /**
@@ -573,9 +562,14 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setAttackSpeed(final double attackSpeed, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.ATTACK_SPEED,
-                    new AttributeModifier(UUID.randomUUID(), "attackSpeed", attackSpeed,
-                            AttributeModifier.Operation.ADD_NUMBER, slot));
+            return addAttributeModifier(
+                    ItemLib.getVersionWrapper().getAttackSpeedAttribute(),
+                    ItemLib.getVersionWrapper().buildAttackSpeedModifier(
+                            attackSpeed,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            slot
+                    )
+            );
         }
 
         /**
@@ -586,9 +580,14 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setArmor(final double armor, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.ARMOR,
-                    new AttributeModifier(UUID.randomUUID(), "armor", armor,
-                            AttributeModifier.Operation.ADD_NUMBER, slot));
+            return addAttributeModifier(
+                    ItemLib.getVersionWrapper().getArmorAttribute(),
+                    ItemLib.getVersionWrapper().buildArmorModifier(
+                            armor,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            slot
+                    )
+            );
         }
 
         /**
@@ -599,9 +598,14 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setArmorToughness(final double armorToughness, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.ARMOR_TOUGHNESS,
-                    new AttributeModifier(UUID.randomUUID(), "armorToughness", armorToughness,
-                            AttributeModifier.Operation.ADD_NUMBER, slot));
+            return addAttributeModifier(
+                    ItemLib.getVersionWrapper().getArmorToughnessAttribute(),
+                    ItemLib.getVersionWrapper().buildArmorToughnessModifier(
+                            armorToughness,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            slot
+                    )
+            );
         }
 
         /**
@@ -612,9 +616,14 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setMaxHealth(final double maxHealth, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.MAX_HEALTH,
-                    new AttributeModifier(UUID.randomUUID(), "maxHealth", maxHealth,
-                            AttributeModifier.Operation.ADD_NUMBER, slot));
+            return addAttributeModifier(
+                    ItemLib.getVersionWrapper().getMaxHealthAttribute(),
+                    ItemLib.getVersionWrapper().buildMaxHealthModifier(
+                            maxHealth,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            slot
+                    )
+            );
         }
 
         /**
@@ -625,9 +634,14 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setKnockbackResistance(final double knockbackResistance, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.KNOCKBACK_RESISTANCE,
-                    new AttributeModifier(UUID.randomUUID(), "knockbackResistance", knockbackResistance,
-                            AttributeModifier.Operation.ADD_NUMBER, slot));
+            return addAttributeModifier(
+                    ItemLib.getVersionWrapper().getKnockbackResistanceAttribute(),
+                    ItemLib.getVersionWrapper().buildKnockbackResistanceModifier(
+                            knockbackResistance,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            slot
+                    )
+            );
         }
 
         /**
@@ -638,9 +652,14 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setMovementSpeed(final double movementSpeed, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.MOVEMENT_SPEED,
-                    new AttributeModifier(UUID.randomUUID(), "movementSpeed", movementSpeed,
-                            AttributeModifier.Operation.ADD_NUMBER, slot));
+            return addAttributeModifier(
+                    ItemLib.getVersionWrapper().getMovementSpeedAttribute(),
+                    ItemLib.getVersionWrapper().buildMovementSpeedModifier(
+                            movementSpeed,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            slot
+                    )
+            );
         }
 
         /**
@@ -651,9 +670,14 @@ public class SimpleItem {
          * @return the builder
          */
         public Builder setFlyingSpeed(final double flyingSpeed, final EquipmentSlot slot) {
-            return addAttributeModifier(Attribute.FLYING_SPEED,
-                    new AttributeModifier(UUID.randomUUID(), "flyingSpeed", flyingSpeed,
-                            AttributeModifier.Operation.ADD_NUMBER, slot));
+            return addAttributeModifier(
+                    ItemLib.getVersionWrapper().getFlyingSpeedAttribute(),
+                    ItemLib.getVersionWrapper().buildFlyingSpeedModifier(
+                            flyingSpeed,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            slot
+                    )
+            );
         }
 
         public Builder addPersistentString(@NotNull String key, @NotNull String value) {

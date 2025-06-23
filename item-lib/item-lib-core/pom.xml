@@ -1,0 +1,61 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.github.spigot_gillesm</groupId>
+        <artifactId>item-lib-central</artifactId>
+        <version>1.3.0</version>
+    </parent>
+    <artifactId>item-lib-core</artifactId>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <spigot.version>1.21.6-R0.1-SNAPSHOT</spigot.version>
+        <jackson.version>2.19.0</jackson.version>
+        <modelmapper.version>3.2.0</modelmapper.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>spigotmc-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+
+        <repository>
+            <id>sonatype</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>${spigot.version}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spigot_gillesm</groupId>
+            <artifactId>format-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spigot_gillesm</groupId>
+            <artifactId>file-utils</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>${modelmapper.version}</version>
+        </dependency>
+    </dependencies>
+</project>

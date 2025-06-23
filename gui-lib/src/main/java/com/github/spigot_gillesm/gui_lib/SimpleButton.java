@@ -22,13 +22,13 @@ public abstract class SimpleButton {
 
 	private boolean cancelOpen = false;
 
-	public SimpleButton() { }
+	protected SimpleButton() { }
 
-	public SimpleButton(@NotNull ItemStack icon) {
+	protected SimpleButton(@NotNull ItemStack icon) {
 		this.icon = icon;
 	}
 
-	public SimpleButton(@NotNull SimpleItem icon) {
+	protected SimpleButton(@NotNull SimpleItem icon) {
 		this(icon.getItemStack());
 	}
 

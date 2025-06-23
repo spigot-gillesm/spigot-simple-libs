@@ -18,6 +18,8 @@ import java.util.*;
 
 public class PlayerData {
 
+	private static final String PLAYER_DATA_FILE_PATH = "player_data/";
+
 	@Getter(AccessLevel.PACKAGE)
 	private final UUID uuid;
 
@@ -262,7 +264,7 @@ public class PlayerData {
 	 * Write to the player's data file all the stored tags and their value.
 	 */
 	public void writeToFile() throws IOException, InvalidConfigurationException {
-		final File file = FileUtils.getResource("player_data/" + uuid.toString() + ".yml");
+		final File file = FileUtils.getResource(PLAYER_DATA_FILE_PATH + uuid.toString() + ".yml");
 		final YamlConfiguration conf = FileUtils.clearContent(file);
 
 		getMap().forEach((tag, value) -> {
@@ -279,7 +281,7 @@ public class PlayerData {
 	 * Load from the player's data file all the stored tags and their value.
 	 */
 	public void loadFromFile() throws IOException, InvalidConfigurationException {
-		this.configuration = FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
+		this.configuration = FileUtils.getConfiguration(PLAYER_DATA_FILE_PATH + uuid.toString() + ".yml");
 
 		if(configuration.contains("tags")) {
 			configuration.getConfigurationSection("tags").getValues(false).forEach(this::setRawValue);
@@ -288,14 +290,14 @@ public class PlayerData {
 
 	public YamlConfiguration getConfiguration() throws IOException, InvalidConfigurationException {
 		if(configuration == null) {
-			return FileUtils.getConfiguration("player_data/" + uuid.toString() + ".yml");
+			return FileUtils.getConfiguration(PLAYER_DATA_FILE_PATH + uuid.toString() + ".yml");
 		}
 
 		return configuration;
 	}
 
 	public File getConfigurationFile() throws IOException {
-		return FileUtils.getResource("player_data/" + uuid.toString() + ".yml");
+		return FileUtils.getResource(PLAYER_DATA_FILE_PATH + uuid.toString() + ".yml");
 	}
 
 }
