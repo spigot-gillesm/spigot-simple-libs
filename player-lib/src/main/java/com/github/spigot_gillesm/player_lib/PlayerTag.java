@@ -55,7 +55,7 @@ public enum PlayerTag {
 			PlayerTag.valueOf(name);
 
 			return true;
-		} catch(final IllegalArgumentException e) {
+		} catch(IllegalArgumentException e) {
 			return false;
 		}
 	}

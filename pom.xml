@@ -19,16 +19,15 @@
     </modules>
 
     <properties>
-        <java.version>19</java.version>
-        <maven.compiler.source>19</maven.compiler.source>
-        <maven.compiler.target>19</maven.compiler.target>
+        <maven.compiler.source>16</maven.compiler.source>
+        <maven.compiler.target>16</maven.compiler.target>
         <format-lib.version>1.0.0</format-lib.version>
-        <item-lib.version>1.0.0</item-lib.version>
+        <item-lib.version>1.2.0</item-lib.version>
         <command-lib.version>1.0.0</command-lib.version>
         <spell-lib.version>1.0.0</spell-lib.version>
         <rpg-stats-lib.version>1.0.0</rpg-stats-lib.version>
         <player-lib.version>1.0.0</player-lib.version>
-        <gui-lib.version>1.0.0</gui-lib.version>
+        <gui-lib.version>1.1.0</gui-lib.version>
         <file-utils.version>1.0.0</file-utils.version>
         <yaml-lib.version>1.0.0</yaml-lib.version>
         <rp-classes.version>1.0.0</rp-classes.version>
@@ -149,7 +148,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
                 <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>

@@ -29,15 +29,6 @@
             <artifactId>item-lib</artifactId>
             <version>${item-lib.version}</version>
         </dependency>
-
-        <!--
-        <dependency>
-            <groupId>org.dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>${dom4j.version}</version>
-            <optional>true</optional>
-        </dependency>
-        -->
     </dependencies>
 
 </project>

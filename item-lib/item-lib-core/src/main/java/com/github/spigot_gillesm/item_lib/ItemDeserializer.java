@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.github.spigot_gillesm.format_lib.Formatter;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.potion.PotionType;
@@ -71,7 +70,7 @@ class ItemDeserializer {
 
         @Override
         public Enchantment deserializeKey(String key, DeserializationContext context) {
-            final Enchantment enchant = Enchantment.getByKey(NamespacedKey.minecraft(key.toLowerCase()));
+            final Enchantment enchant = ItemLib.getVersionWrapper().getEnchantment(key.toLowerCase());
 
             if(enchant == null) {
                 Formatter.error(String.format("Invalid enchantment name: %s", key));
